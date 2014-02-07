@@ -1,4 +1,6 @@
 #pragma once
+#include <SDL2/SDL.h>
+#include <vector>
 
 class Widget;
 
@@ -12,6 +14,8 @@ public:
     static Application *instance();
 private:
     static Application *instance_;
+    std::vector<Widget *> widgetList_;
     void addWidget(Widget *);
     void removeWidget(Widget *);
+    Widget *widgetByWindowId(Uint32);
 };
