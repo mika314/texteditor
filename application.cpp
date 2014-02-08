@@ -4,6 +4,7 @@
 #include <SDL2/SDL.h>
 #include <stdexcept>
 #include <algorithm>
+#include <iostream>
 
 Application *Application::instance_ = nullptr;
 
@@ -28,7 +29,7 @@ int Application::exec()
     while (!done)
     {
         SDL_Event e;
-        while (SDL_PollEvent(&e))
+        if (SDL_WaitEvent(&e))
         {
             switch (e.type)
             {
