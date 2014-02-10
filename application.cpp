@@ -1,3 +1,4 @@
+#include "key_event.hpp"
 #include "application.hpp"
 #include <SDL2/SDL.h>
 #include <stdexcept>
@@ -29,6 +30,39 @@ int Application::exec()
         {
             switch (e.type)
             {
+            case SDL_WINDOWEVENT:
+                {
+                    Widget *w = widgetByWindowId(e.window.windowID);
+                    switch (e.window.event)
+                    {
+                    case SDL_WINDOWEVENT_SHOWN:
+                        {
+                            PaintEvent event;
+                            w->paintEvent(event);
+                        }
+                        break;
+                    }
+                    break;
+                }
+            case SDL_KEYDOWN:
+                {
+                    Widget *w = widgetByWindowId(e.key.windowID);
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), e.key.repeat };
+                    w->keyPressEvent(ke);
+                    break;
+                }
+            case SDL_KEYUP:
+                {
+                    Widget *w = widgetByWindowId(e.key.windowID);
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), e.key.repeat };
+                    w->keyPressEvent(ke);
+                    break;
+                }
+            case SDL_TEXTINPUT:
+                {
+                    std::clog << "Key: " << e.text.text << std::endl;
+                    break;
+                }
             case SDL_QUIT:
                 done = true;
                 break;
