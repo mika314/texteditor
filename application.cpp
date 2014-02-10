@@ -1,3 +1,4 @@
+#include "key_event.hpp"
 #include "application.hpp"
 #include "widget.hpp"
 #include "paint_event.hpp"
@@ -45,6 +46,25 @@ int Application::exec()
                         }
                         break;
                     }
+                    break;
+                }
+            case SDL_KEYDOWN:
+                {
+                    Widget *w = widgetByWindowId(e.key.windowID);
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), e.key.repeat };
+                    w->keyPressEvent(ke);
+                    break;
+                }
+            case SDL_KEYUP:
+                {
+                    Widget *w = widgetByWindowId(e.key.windowID);
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), e.key.repeat };
+                    w->keyPressEvent(ke);
+                    break;
+                }
+            case SDL_TEXTINPUT:
+                {
+                    std::clog << "Key: " << e.text.text << std::endl;
                     break;
                 }
             case SDL_QUIT:
