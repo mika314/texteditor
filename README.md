@@ -3,6 +3,8 @@ Text Editor
 
 As a C++ software developer I need a good text editor. 
 
+The main goal of this project is to give to people oportunity to learn how to program in C++.
+
 Key features:
 
 - Performance
