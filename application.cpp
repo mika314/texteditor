@@ -1,6 +1,7 @@
 #include "application.hpp"
 #include <SDL2/SDL.h>
 #include <stdexcept>
+#include <string>
 
 Application *Application::instance_ = nullptr;
 
