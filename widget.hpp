@@ -16,8 +16,18 @@ public:
     Widget(Widget *parent = nullptr);
     virtual ~Widget();
     int width() const;
+    void setWidth(int);
     int height() const;
+    void setHeight(int);
+    int left() const;
+    void setLeft(int);
+    int top() const;
+    void setTop(int);
     Widget *parent() const;
+    Widget *ancestor();
+    void setFocus();
+    void clearFocus();
+    bool hasFocus();
     const std::vector<Widget *> &children() const;
     Uint32 windowId() const;
 protected:
@@ -35,6 +45,15 @@ private:
     Widget *parent_;
     std::vector<Widget *> children_;
     SDL_Renderer *renderer_;
+    SDL_Texture *texture_;
+    int width_;
+    int height_;
+    int left_;
+    int top_;
     void addChild(Widget *);
     void removeChild(Widget *);
+    void internalPaint();
+    void resizeTexture();
+    Widget(const Widget &);
+    Widget &operator=(const Widget &);
 };

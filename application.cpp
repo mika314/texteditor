@@ -1,15 +1,18 @@
+#include "paint_event.hpp"
+#include "resize_event.hpp"
 #include "key_event.hpp"
 #include "application.hpp"
 #include "widget.hpp"
-#include "paint_event.hpp"
 #include <SDL2/SDL.h>
 #include <stdexcept>
 #include <algorithm>
 #include <iostream>
+#include <cassert>
 
 Application *Application::instance_ = nullptr;
 
-Application::Application(int &argc, char **argv)
+Application::Application(int &argc, char **argv):
+    focusWidget_(nullptr)
 {
     if (instance_ != nullptr)
         throw std::runtime_error("The program can have only one instance of Application");
@@ -22,6 +25,14 @@ Application::~Application()
 {
     SDL_Quit();
     instance_ = nullptr;
+}
+
+void Application::paint(Widget *w)
+{
+    SDL_SetRenderDrawColor(w->renderer_, 255, 255, 255, 255);
+    SDL_RenderClear(w->renderer_);
+    w->internalPaint();
+    SDL_RenderPresent(w->renderer_);
 }
 
 int Application::exec()
@@ -40,26 +51,86 @@ int Application::exec()
                     switch (e.window.event)
                     {
                     case SDL_WINDOWEVENT_SHOWN:
+                        std::cout << "Window " << e.window.windowID << " shown" << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_HIDDEN:
+                        std::cout << "Window " << e.window.windowID << " hidden" << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_EXPOSED:
                         {
-                            PaintEvent event;
-                            w->paintEvent(event);
+                            paint(w);
+                            break;
                         }
+                    case SDL_WINDOWEVENT_MOVED:
+                        std::cout << "Window " << e.window.windowID << " moved to " << e.window.data1 << "," << e.window.data2 << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_RESIZED:
+                        {
+                            ResizeEvent event = { e.window.data1, e.window.data2 };
+                            w->resizeEvent(event);
+                            paint(w);
+                            break;
+                        }
+                    case SDL_WINDOWEVENT_MINIMIZED:
+                        std::cout << "Window " << e.window.windowID << " minimized" << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_MAXIMIZED:
+                        std::cout << "Window " << e.window.windowID << " maximized" << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_RESTORED:
+                        std::cout << "Window " << e.window.windowID << " restored" << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_ENTER:
+                        std::cout << "Mouse entered window " << e.window.windowID << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_LEAVE:
+                        std::cout << "Mouse left window " << e.window.windowID << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_FOCUS_GAINED:
+                        std::cout << "Window " << e.window.windowID << " gained keyboard focus" << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_FOCUS_LOST:
+                        std::cout << "Window " << e.window.windowID << " lost keyboard focus" << std::endl;
+                        break;
+                    case SDL_WINDOWEVENT_CLOSE:
+                        std::cout << "Window " << e.window.windowID << " closed" << std::endl;
+                        break;
+                    default:
+                        std::cout << "Window " << e.window.windowID << " got unknown event " << static_cast<int>(e.window.event) << std::endl;
                         break;
                     }
                     break;
                 }
             case SDL_KEYDOWN:
                 {
-                    Widget *w = widgetByWindowId(e.key.windowID);
                     KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), e.key.repeat };
-                    w->keyPressEvent(ke);
+                    auto w = focusWidget();
+                    if (!w)
+                        w = widgetByWindowId(e.key.windowID);
+                    else
+                        assert(w->ancestor() == widgetByWindowId(e.key.windowID));
+                    while (w)
+                    {
+                        if (w->keyPressEvent(ke))
+                            break;
+                        w = w->parent();
+                    }
                     break;
                 }
             case SDL_KEYUP:
                 {
-                    Widget *w = widgetByWindowId(e.key.windowID);
                     KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), e.key.repeat };
-                    w->keyPressEvent(ke);
+                    auto w = focusWidget();
+                    if (!w)
+                        w = widgetByWindowId(e.key.windowID);
+                    else
+                        assert(w->ancestor() == widgetByWindowId(e.key.windowID));
+                    while (w)
+                    {
+                        if (w->keyReleaseEvent(ke))
+                            break;
+                        w = w->parent();
+                    }
                     break;
                 }
             case SDL_TEXTINPUT:
@@ -97,4 +168,19 @@ Widget *Application::widgetByWindowId(Uint32 id)
         if (id == w->windowId())
             return w;
     return nullptr;
+}
+
+void Application::setFocusWidget(Widget *value)
+{
+    focusWidget_ = value;
+}
+
+Widget *Application::focusWidget() const
+{
+    return focusWidget_;
+}
+
+void Application::clearFocus()
+{
+    focusWidget_ = nullptr;
 }

@@ -15,7 +15,12 @@ public:
 private:
     static Application *instance_;
     std::vector<Widget *> widgetList_;
+    Widget *focusWidget_;
     void addWidget(Widget *);
     void removeWidget(Widget *);
     Widget *widgetByWindowId(Uint32);
+    void setFocusWidget(Widget *);
+    Widget *focusWidget() const;
+    void clearFocus();
+    void paint(Widget *w);
 };
