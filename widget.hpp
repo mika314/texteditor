@@ -5,7 +5,7 @@
 
 class KeyEvent;
 class MouseEvent;
-class ResizeEvent;
+struct ResizeEvent;
 class PaintEvent;
 struct SDL_Window;
 struct SDL_Renderer;
