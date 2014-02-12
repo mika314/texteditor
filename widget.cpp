@@ -1,3 +1,4 @@
+#include "painter.hpp"
 #include "paint_event.hpp"
 #include "resize_event.hpp"
 #include "widget.hpp"
@@ -12,7 +13,8 @@ Widget::Widget(Widget *parent):
     width_(640),
     height_(480),
     left_(0),
-    top_(0)
+    top_(0),
+    needRepaint_(true)
 {
     if (!parent_)
     {
@@ -25,12 +27,10 @@ Widget::Widget(Widget *parent):
     else
         parent_->addChild(this);
 
-    texture_ = SDL_CreateTexture(ancestor()->renderer_, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, width(), height());
 }
 
 Widget::~Widget()
 {
-    SDL_DestroyTexture(texture_);
     if (!parent_)
     {
         SDL_DestroyRenderer(renderer_);
@@ -46,16 +46,9 @@ int Widget::width() const
     return width_;
 }
 
-void Widget::resizeTexture()
-{
-    SDL_DestroyTexture(texture_);
-    texture_ = SDL_CreateTexture(ancestor()->renderer_, SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_STREAMING, width(), height());
-}
-
 void Widget::setWidth(int value)
 {
     width_ = value;
-    resizeTexture();
 }
 
 int Widget::height() const
@@ -66,7 +59,6 @@ int Widget::height() const
 void Widget::setHeight(int value)
 {
     height_ = value;
-    resizeTexture();
 }
 
 int Widget::left() const
@@ -129,6 +121,40 @@ Uint32 Widget::windowId() const
     return SDL_GetWindowID(window_);
 }
 
+SDL_Renderer *Widget::renderer()
+{
+    return ancestor()->renderer_;
+}
+
+int Widget::gLeft() const
+{
+    int res = 0;
+    auto w = this;
+    while (w)
+    {
+        res += w->left();
+        w = w->parent();
+    }
+    return res;
+}
+
+int Widget::gTop() const
+{
+    int res = 0;
+    auto w = this;
+    while (w)
+    {
+        res += w->top();
+        w = w->parent();
+    }
+    return res;
+}
+
+void Widget::update()
+{
+    needRepaint_ = true;
+}
+
 bool Widget::keyPressEvent(KeyEvent &)
 {
     return false;
@@ -161,6 +187,9 @@ bool Widget::mouseReleaseEvent(MouseEvent &)
 
 void Widget::paintEvent(PaintEvent &)
 {
+    Painter p(this);
+    p.setColor(rand());
+    p.drawRect(0, 0, width(), height());
 }
 
 void Widget::resizeEvent(ResizeEvent &event)
@@ -168,18 +197,6 @@ void Widget::resizeEvent(ResizeEvent &event)
     std::cout << " resizeEvent: " << event.width << "x" << event.height << std::endl;
     width_ = event.width;
     height_ = event.height;
-    resizeTexture();
-
-    PaintEvent e;
-    SDL_LockTexture(texture_, nullptr, (void **)&e.pixels, &e.pitch);
-    for (int y = 0; y < height(); ++y)
-        for (int x = 0; x < width(); ++x)
-        {
-            e.pixels[y * e.pitch + 3 * x] = (windowId() * 20) % 256;
-            e.pixels[y * e.pitch + 3 * x + 1] = 0;
-            e.pixels[y * e.pitch + 3 * x + 2] = 0;
-        }
-    SDL_UnlockTexture(texture_);
 }
 
 void Widget::addChild(Widget *w)
@@ -193,25 +210,15 @@ void Widget::removeChild(Widget *w)
 }
 
 
-void Widget::internalPaint()
+void Widget::internalPaint(PaintEvent &event)
 {
-    PaintEvent event;
-    SDL_LockTexture(texture_, nullptr, (void **)&event.pixels, &event.pitch);
     paintEvent(event);
-    SDL_UnlockTexture(texture_);
-    SDL_Rect gRect;
-    gRect.x = 0;
-    gRect.y = 0;
-    auto w = this;
-    while (w)
-    {
-        gRect.x += w->left();
-        gRect.y += w->top();
-        w = w->parent();
-    }
-    gRect.w = width();
-    gRect.h = height();
-    SDL_RenderCopy(ancestor()->renderer_, texture_, nullptr, &gRect);
     for (auto child: children())
-        child->internalPaint();
+        child->internalPaint(event);
+    needRepaint_ = false;
+}
+
+bool Widget::needRepaint() const
+{
+    return needRepaint_;
 }

@@ -22,5 +22,4 @@ private:
     void setFocusWidget(Widget *);
     Widget *focusWidget() const;
     void clearFocus();
-    void paint(Widget *w);
 };

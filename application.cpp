@@ -27,14 +27,6 @@ Application::~Application()
     instance_ = nullptr;
 }
 
-void Application::paint(Widget *w)
-{
-    SDL_SetRenderDrawColor(w->renderer_, 255, 255, 255, 255);
-    SDL_RenderClear(w->renderer_);
-    w->internalPaint();
-    SDL_RenderPresent(w->renderer_);
-}
-
 int Application::exec()
 {
     bool done = false;
@@ -58,7 +50,7 @@ int Application::exec()
                         break;
                     case SDL_WINDOWEVENT_EXPOSED:
                         {
-                            paint(w);
+                            w->update();
                             break;
                         }
                     case SDL_WINDOWEVENT_MOVED:
@@ -68,7 +60,7 @@ int Application::exec()
                         {
                             ResizeEvent event = { e.window.data1, e.window.data2 };
                             w->resizeEvent(event);
-                            paint(w);
+                            w->update();
                             break;
                         }
                     case SDL_WINDOWEVENT_MINIMIZED:
@@ -141,7 +133,17 @@ int Application::exec()
             case SDL_QUIT:
                 done = true;
                 break;
-            }   
+            }
+            for (auto w: widgetList_)
+            {
+                SDL_Event e;
+                if (w->needRepaint() && SDL_PeepEvents(&e, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 0)
+                {
+                    PaintEvent e;
+                    w->internalPaint(e);
+                    SDL_RenderPresent(w->renderer_);
+                }
+            }
         }
     }
     return 0;
