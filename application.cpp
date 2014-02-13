@@ -3,6 +3,7 @@
 #include "key_event.hpp"
 #include "application.hpp"
 #include "widget.hpp"
+#include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL.h>
 #include <stdexcept>
 #include <string>
@@ -20,6 +21,8 @@ Application::Application(int &argc, char **argv):
     instance_ = this;
     if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
         throw std::runtime_error("SDL_Init Error: " + std::string(SDL_GetError()));
+    if (TTF_Init() != 0)
+        throw std::runtime_error("TTF_Init error: " + std::string(SDL_GetError()));
 }
 
 Application::~Application()

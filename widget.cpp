@@ -187,9 +187,6 @@ bool Widget::mouseReleaseEvent(MouseEvent &)
 
 void Widget::paintEvent(PaintEvent &)
 {
-    Painter p(this);
-    p.setColor(rand());
-    p.drawRect(0, 0, width(), height());
 }
 
 void Widget::resizeEvent(ResizeEvent &event)
