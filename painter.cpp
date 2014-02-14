@@ -1,5 +1,6 @@
 #include "painter.hpp"
 #include "paint_device.hpp"
+#include "deja_vu_sans_mono.hpp"
 #include "color.hpp"
 #include <SDL2/SDL_ttf.h>
 #include <stdexcept>
@@ -9,7 +10,7 @@ Painter::Painter(PaintDevice *paintDevice):
     gLeft_(paintDevice->gLeft()),
     gTop_(paintDevice->gTop())
 {
-	font_ = TTF_OpenFont("/usr/share/fonts/truetype/ttf-dejavu/DejaVuSansMono.ttf", 10);
+	font_ = TTF_OpenFontRW(SDL_RWFromMem((void *)DejaVuSansMono, sizeof(DejaVuSansMono)), 1, 10);
 	if (font_ == nullptr)
 		throw std::runtime_error("TTF_OpenFont");
 }
