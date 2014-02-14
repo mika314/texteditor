@@ -62,9 +62,7 @@ int Application::exec()
                         break;
                     case SDL_WINDOWEVENT_RESIZED:
                         {
-                            ResizeEvent event = { e.window.data1, e.window.data2 };
-                            w->resizeEvent(event);
-                            w->update();
+                            w->resize(e.window.data1, e.window.data2);
                             break;
                         }
                     case SDL_WINDOWEVENT_MINIMIZED:

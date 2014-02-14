@@ -45,7 +45,11 @@ void Painter::renderGlyph(wchar_t ch, int x, int y, Color fg, Color bg)
 {
     auto surf = TTF_RenderGlyph_Shaded(font_, ch, toSdlColor(fg), toSdlColor(bg));
     if (surf == nullptr)
-        throw std::runtime_error("Cannot render glyph with unicode: " + std::to_string(ch));
+    {
+        setColor(bg);
+        drawRect(x, y, glyphWidth(), glyphHeight());
+        return;
+    }
     auto texture = SDL_CreateTextureFromSurface(renderer_, surf);
     if (texture == nullptr)
     {

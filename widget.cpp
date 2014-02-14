@@ -41,6 +41,17 @@ Widget::~Widget()
         parent_->removeChild(this);
 }
 
+void Widget::resize(int width, int height)
+{
+    width_ = width;
+    height_ = height;
+    update();
+    ResizeEvent e;
+    e.width = width;
+    e.height = height;
+    resizeEvent(e);
+}
+
 int Widget::width() const
 {
     return width_;
@@ -48,7 +59,7 @@ int Widget::width() const
 
 void Widget::setWidth(int value)
 {
-    width_ = value;
+    resize(value, height());
 }
 
 int Widget::height() const
@@ -58,7 +69,7 @@ int Widget::height() const
 
 void Widget::setHeight(int value)
 {
-    height_ = value;
+    resize(width(), value);
 }
 
 int Widget::left() const
@@ -192,8 +203,6 @@ void Widget::paintEvent(PaintEvent &)
 void Widget::resizeEvent(ResizeEvent &event)
 {
     std::cout << " resizeEvent: " << event.width << "x" << event.height << std::endl;
-    width_ = event.width;
-    height_ = event.height;
 }
 
 void Widget::addChild(Widget *w)

@@ -16,6 +16,7 @@ class Widget: public PaintDevice
 public:
     Widget(Widget *parent = nullptr);
     virtual ~Widget();
+    void resize(int width, int height);
     int width() const;
     void setWidth(int);
     int height() const;
