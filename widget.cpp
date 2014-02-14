@@ -45,11 +45,11 @@ void Widget::resize(int width, int height)
 {
     width_ = width;
     height_ = height;
-    update();
     ResizeEvent e;
     e.width = width;
     e.height = height;
     resizeEvent(e);
+    update();
 }
 
 int Widget::width() const
@@ -163,7 +163,7 @@ int Widget::gTop() const
 
 void Widget::update()
 {
-    needRepaint_ = true;
+    ancestor()->needRepaint_ = true;
 }
 
 bool Widget::keyPressEvent(KeyEvent &)

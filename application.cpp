@@ -63,6 +63,7 @@ int Application::exec()
                     case SDL_WINDOWEVENT_RESIZED:
                         {
                             w->resize(e.window.data1, e.window.data2);
+                            SDL_RenderPresent(w->renderer_); // hack for MacOS X
                             break;
                         }
                     case SDL_WINDOWEVENT_MINIMIZED:
@@ -136,17 +137,16 @@ int Application::exec()
                 done = true;
                 break;
             }
+        }
+        const auto isEmpty = (SDL_PeepEvents(&e, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 0);
+        if (isEmpty)
             for (auto w: widgetList_)
-            {
-                SDL_Event e;
-                if (w->needRepaint() && SDL_PeepEvents(&e, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 0)
+                if (w->needRepaint())
                 {
                     PaintEvent e;
                     w->internalPaint(e);
                     SDL_RenderPresent(w->renderer_);
                 }
-            }
-        }
     }
     return 0;
 }
