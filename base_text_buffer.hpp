@@ -6,10 +6,9 @@ class Screen;
 class BaseTextBuffer
 {
 public:
-    const std::wstring &operator[](int line) const;
-    std::wstring &operator[](int line);
-    int size() const;
-    void render(Screen *) const;
-private:
-    mutable std::wstring tmpLine_;
+    virtual const std::wstring &operator[](int line) const = 0;
+    virtual std::wstring &operator[](int line) = 0;
+    virtual int size() const = 0;
+    virtual void render(Screen *) const;
+    ~BaseTextBuffer();
 };

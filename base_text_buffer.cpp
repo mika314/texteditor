@@ -1,21 +1,8 @@
 #include "base_text_buffer.hpp"
 #include "screen.hpp"
 
-const std::wstring &BaseTextBuffer::operator[](int line) const
+BaseTextBuffer::~BaseTextBuffer()
 {
-    tmpLine_ = std::to_wstring(line) + L" Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam";
-    return tmpLine_;
-}
-
-std::wstring &BaseTextBuffer::operator[](int line)
-{
-    tmpLine_ = std::to_wstring(line) + L" Lorem ipsum dolor sit amet, consectetuer adipiscing elit, sed diam";
-    return tmpLine_;
-}
-
-int BaseTextBuffer::size() const
-{
-    return 10000;
 }
 
 void BaseTextBuffer::render(Screen *screen) const
