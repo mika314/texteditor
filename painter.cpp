@@ -4,7 +4,6 @@
 #include "color.hpp"
 #include <SDL2/SDL_ttf.h>
 #include <stdexcept>
-#include <iostream>
 
 Painter::Painter(PaintDevice *paintDevice):
     renderer_(paintDevice->renderer()),
@@ -61,7 +60,6 @@ void Painter::renderGlyph(wchar_t ch, int x, int y, Color fg, Color bg)
     {
         if (glyphCache_.size() > 4096)
         {
-            std::clog << "Clear cache" << std::endl;
             const auto itemsCount = glyphCache_.size();
             for (size_t j = 0; j < itemsCount / 2; ++j)
             {
