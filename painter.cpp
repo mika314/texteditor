@@ -4,6 +4,7 @@
 #include "color.hpp"
 #include <SDL2/SDL_ttf.h>
 #include <stdexcept>
+#include <iostream>
 
 Painter::Painter(PaintDevice *paintDevice):
     renderer_(paintDevice->renderer()),
@@ -17,6 +18,8 @@ Painter::Painter(PaintDevice *paintDevice):
 
 Painter::~Painter()
 {
+    for (auto &i: glyphCache_)
+        SDL_DestroyTexture(std::get<0>(i.second));
 	TTF_CloseFont(font_);
 }
 
@@ -43,25 +46,53 @@ void Painter::setColor(Color color)
 
 void Painter::renderGlyph(wchar_t ch, int x, int y, Color fg, Color bg)
 {
-    auto surf = TTF_RenderGlyph_Shaded(font_, ch, toSdlColor(fg), toSdlColor(bg));
-    if (surf == nullptr)
+    SDL_Texture *texture;
+    int width, height;
+    auto iter = glyphCache_.find(std::make_tuple(ch, fg, bg));
+    if (iter != end(glyphCache_))
     {
-        setColor(bg);
-        drawRect(x, y, glyphWidth(), glyphHeight());
-        return;
+        texture = std::get<0>(iter->second);
+        width = std::get<1>(iter->second);
+        height = std::get<2>(iter->second);
+        glyphCacheAge_.erase(std::get<3>(iter->second));
+        std::get<3>(iter->second) = glyphCacheAge_.insert(end(glyphCacheAge_), iter->first);
     }
-    auto texture = SDL_CreateTextureFromSurface(renderer_, surf);
-    if (texture == nullptr)
+    else
     {
+        if (glyphCache_.size() > 4096)
+        {
+            std::clog << "Clear cache" << std::endl;
+            const auto itemsCount = glyphCache_.size();
+            for (size_t j = 0; j < itemsCount / 2; ++j)
+            {
+                auto key = glyphCacheAge_.front();
+                auto iter = glyphCache_.find(key);
+                SDL_DestroyTexture(std::get<0>(iter->second));
+                glyphCache_.erase(iter);
+                glyphCacheAge_.erase(begin(glyphCacheAge_));
+            }
+        }
+        auto surf = TTF_RenderGlyph_Shaded(font_, ch, toSdlColor(fg), toSdlColor(bg));
+        if (surf == nullptr)
+        {
+            setColor(bg);
+            drawRect(x, y, glyphWidth(), glyphHeight());
+            return;
+        }
+        texture = SDL_CreateTextureFromSurface(renderer_, surf);
+        if (texture == nullptr)
+        {
+            SDL_FreeSurface(surf);
+            throw std::runtime_error("CreateTexture");
+        }
+        width = surf->w;
+        height = surf->h;
         SDL_FreeSurface(surf);
-        throw std::runtime_error("CreateTexture");
+        GlyphCacheKey key = std::make_tuple(ch, fg, bg);
+        glyphCache_.insert(std::make_pair(key, std::make_tuple(texture, width, height, glyphCacheAge_.insert(end(glyphCacheAge_), key))));
     }
-    auto width = surf->w;
-    auto height = surf->h;
-    SDL_FreeSurface(surf);
     SDL_Rect rect { x + gLeft_, y + gTop_, width, height };
     SDL_RenderCopy(renderer_, texture, nullptr, &rect);
-    SDL_DestroyTexture(texture);
 }
 
 int Painter::glyphWidth() const

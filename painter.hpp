@@ -3,6 +3,9 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_ttf.h>
 #include <string>
+#include <map>
+#include <tuple>
+#include <list>
 
 class PaintDevice;
 
@@ -23,4 +26,8 @@ private:
     int gLeft_;
     int gTop_;
     TTF_Font *font_;
+    typedef std::tuple<wchar_t, Color, Color> GlyphCacheKey;
+    typedef std::map<GlyphCacheKey, std::tuple<SDL_Texture *, int, int, std::list<GlyphCacheKey>::iterator> > GlyphCache;
+    GlyphCache glyphCache_;
+    std::list<GlyphCacheKey> glyphCacheAge_;
 };
