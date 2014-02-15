@@ -20,14 +20,14 @@ int BaseTextBuffer::size() const
 
 void BaseTextBuffer::render(Screen *screen) const
 {
-    for (size_t y = 0; y < screen->heightCh(); ++y)
+    for (int y = 0; y < screen->heightCh(); ++y)
     {
         const auto yy = y + screen->vScroll();
         const auto &line = yy < size() ? operator[](yy) : L"";
-        for (size_t x = 0; x < screen->widthCh(); ++x)
+        for (int x = 0; x < screen->widthCh(); ++x)
         {
             const auto xx = x + screen->hScroll();
-            screen->ch(x, y) = xx < line.size() ? line[xx] : L'\0';
+            screen->ch(x, y) = xx < static_cast<int>(line.size()) ? line[xx] : L'\0';
         }
     }
     screen->update();
