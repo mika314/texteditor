@@ -5,6 +5,21 @@ BaseTextBuffer::~BaseTextBuffer()
 {
 }
 
+const std::wstring &BaseTextBuffer::operator[](int line) const
+{
+    return buffer_[line];
+}
+
+std::wstring &BaseTextBuffer::operator[](int line)
+{
+    return buffer_[line];
+}
+
+int BaseTextBuffer::size() const
+{
+    return buffer_.size();
+}
+
 void BaseTextBuffer::render(Screen *screen) const
 {
     for (int y = 0; y < screen->heightCh(); ++y)

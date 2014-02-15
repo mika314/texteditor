@@ -1,14 +1,17 @@
 #pragma once
 #include <string>
+#include <vector>
 
 class Screen;
 
 class BaseTextBuffer
 {
 public:
-    virtual const std::wstring &operator[](int line) const = 0;
-    virtual std::wstring &operator[](int line) = 0;
-    virtual int size() const = 0;
+    const std::wstring &operator[](int line) const;
+    std::wstring &operator[](int line);
+    int size() const;
     virtual void render(Screen *) const;
     ~BaseTextBuffer();
+protected:
+    std::vector<std::wstring> buffer_;
 };

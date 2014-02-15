@@ -1,7 +1,7 @@
 #include "widget.hpp"
 #include "application.hpp"
 #include "screen.hpp"
-#include "base_text_buffer.hpp"
+#include "file_buffer.hpp"
 
 int main(int argc, char **argv)
 {
@@ -9,6 +9,7 @@ int main(int argc, char **argv)
     Widget w;
     
     Screen w2(&w);
+    FileBuffer f("key_event.hpp");
     w2.setLeft(0);
     w2.setTop(0);
     w2.setWidth(640);
