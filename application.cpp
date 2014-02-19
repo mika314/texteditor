@@ -1,6 +1,8 @@
+#include "to_utf16.hpp"
 #include "paint_event.hpp"
 #include "resize_event.hpp"
 #include "key_event.hpp"
+#include "text_input_event.hpp"
 #include "application.hpp"
 #include "widget.hpp"
 #include <SDL2/SDL_ttf.h>
@@ -130,7 +132,18 @@ int Application::exec()
                 }
             case SDL_TEXTINPUT:
                 {
-                    std::clog << "Key: " << e.text.text << std::endl;
+                    TextInputEvent tie { toUtf16(e.text.text) };
+                    auto w = focusWidget();
+                    if (!w)
+                        w = widgetByWindowId(e.key.windowID);
+                    else
+                        assert(w->ancestor() == widgetByWindowId(e.key.windowID));
+                    while (w)
+                    {
+                        if (w->textInputEvent(tie))
+                            break;
+                        w = w->parent();
+                    }
                     break;
                 }
             case SDL_QUIT:

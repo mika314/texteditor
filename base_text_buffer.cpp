@@ -1,6 +1,10 @@
 #include "base_text_buffer.hpp"
 #include "screen.hpp"
 
+BaseTextBuffer::BaseTextBuffer():
+    cursor_{ 0, 0 }
+{}
+
 BaseTextBuffer::~BaseTextBuffer()
 {
 }
@@ -32,5 +36,29 @@ void BaseTextBuffer::render(Screen *screen) const
             screen->ch(x, y) = xx < static_cast<int>(line.size()) ? line[xx] : L'\0';
         }
     }
+    auto tmp = cursor();
+    screen->setCursor(tmp.x - screen->hScroll(), tmp.y - screen->vScroll());
     screen->update();
+}
+
+void BaseTextBuffer::insert(std::wstring value)
+{
+    auto &line = buffer_[cursor_.y];
+    line.insert(begin(line) + cursor_.x, begin(value), end(value));
+    cursor_.x += value.size();
+}
+
+Coord BaseTextBuffer::cursor() const
+{
+    return cursor_;
+}
+
+void BaseTextBuffer::setCursor(Coord value)
+{
+    cursor_ = value;
+}
+
+void BaseTextBuffer:: setCursor(int x, int y)
+{
+    cursor_ = { x, y };
 }

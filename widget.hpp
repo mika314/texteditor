@@ -4,6 +4,7 @@
 #include <vector>
 
 class KeyEvent;
+class TextInputEvent;
 class MouseEvent;
 struct ResizeEvent;
 class PaintEvent;
@@ -40,6 +41,7 @@ protected:
     // some of following events handlers return bool, true means event handled and does not require handling from the parent object
     virtual bool keyPressEvent(KeyEvent &);
     virtual bool keyReleaseEvent(KeyEvent &);
+    virtual bool textInputEvent(TextInputEvent &);
     virtual bool mouseDoubleClickEvent(MouseEvent &);
     virtual bool mouseMoveEvent(MouseEvent &);
     virtual bool mousePressEvent(MouseEvent &);

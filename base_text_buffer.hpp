@@ -1,4 +1,5 @@
 #pragma once
+#include "coord.hpp"
 #include <string>
 #include <vector>
 
@@ -7,11 +8,17 @@ class Screen;
 class BaseTextBuffer
 {
 public:
+    BaseTextBuffer();
+    virtual ~BaseTextBuffer();
     const std::wstring &operator[](int line) const;
     std::wstring &operator[](int line);
     int size() const;
     virtual void render(Screen *) const;
-    ~BaseTextBuffer();
+    void insert(std::wstring);
+    Coord cursor() const;
+    void setCursor(Coord);
+    void setCursor(int x, int y);
 protected:
     std::vector<std::wstring> buffer_;
+    Coord cursor_;
 };

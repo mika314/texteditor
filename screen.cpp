@@ -2,6 +2,7 @@
 #include "base_text_buffer.hpp"
 #include "painter.hpp"
 #include "resize_event.hpp"
+#include "text_input_event.hpp"
 #include "SDL2/SDL_ttf.h"
 #include <iostream>
 
@@ -14,6 +15,8 @@ Screen::Char::Char(wchar_t ach, Color afg, Color abg):
 Screen::Screen(Widget *parent):
     Widget(parent),
     cursor_{0, 0},
+    hScroll_{0},
+    vScroll_{0},
     textBuffer_{nullptr}
 {
     Painter p(this);
@@ -39,8 +42,19 @@ void Screen::paintEvent(PaintEvent &)
 
 bool Screen::keyPressEvent(KeyEvent &)
 {
-    setVScroll(vScroll() + 1);
+    //    setVScroll(vScroll() + 1);
     return true;
+}
+
+bool Screen::textInputEvent(TextInputEvent &e)
+{
+    if (textBuffer_)
+    {
+        textBuffer_->insert(e.text());
+        textBuffer_->render(this);
+        return true;
+    }
+    return false;
 }
 
 void Screen::resizeEvent(ResizeEvent &e)

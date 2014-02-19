@@ -41,4 +41,5 @@ protected:
     virtual void resizeEvent(ResizeEvent &);
     virtual void paintEvent(PaintEvent &);
     virtual bool keyPressEvent(KeyEvent &);
+    virtual bool textInputEvent(TextInputEvent &);
 };

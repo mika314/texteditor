@@ -176,6 +176,11 @@ bool Widget::keyReleaseEvent(KeyEvent &)
     return false;
 }
 
+bool Widget::textInputEvent(TextInputEvent &)
+{
+    return false;
+}
+
 bool Widget::mouseDoubleClickEvent(MouseEvent &)
 {
     return false;

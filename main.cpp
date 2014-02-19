@@ -15,5 +15,6 @@ int main(int argc, char **argv)
     w2.setWidth(640);
     w2.setHeight(480);
     w2.setFocus();
+    w2.setTextBuffer(&f);
     return a.exec();
 }
