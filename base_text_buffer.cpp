@@ -44,8 +44,22 @@ void BaseTextBuffer::render(Screen *screen) const
 void BaseTextBuffer::insert(std::wstring value)
 {
     auto &line = buffer_[cursor_.y];
-    line.insert(begin(line) + cursor_.x, begin(value), end(value));
-    cursor_.x += value.size();
+    for (wchar_t c: value)
+    {
+        if (c != L'\n')
+        {
+            line.insert(begin(line) + cursor_.x, c);
+            ++cursor_.x;
+        }
+        else
+        {
+            std::wstring tmp { begin(line) + cursor_.x, end(line) };
+            line.erase(begin(line) + cursor_.x, end(line));
+            buffer_.insert(begin(buffer_) + cursor_.y + 1, tmp);
+            ++cursor_.y;
+            cursor_.x = 0;
+        }
+    }
 }
 
 Coord BaseTextBuffer::cursor() const
@@ -58,7 +72,46 @@ void BaseTextBuffer::setCursor(Coord value)
     cursor_ = value;
 }
 
-void BaseTextBuffer:: setCursor(int x, int y)
+void BaseTextBuffer::setCursor(int x, int y)
 {
     cursor_ = { x, y };
+}
+
+void BaseTextBuffer::del(int value)
+{
+    for (int i = 0; i < value; ++i)
+    {
+        auto &line = buffer_[cursor_.y];
+        if (begin(line) + cursor_.x != end(line))
+            line.erase(begin(line) + cursor_.x);
+        else
+        {
+            if (cursor_.y < static_cast<int>(buffer_.size()))
+            {
+                auto tmp = buffer_[cursor_.y + 1];
+                buffer_.erase(begin(buffer_) + cursor_.y + 1);
+                buffer_[cursor_.y] += tmp;
+            }
+        }
+    }
+}
+
+void BaseTextBuffer::backspace(int value)
+{
+    for (int i = 0; i < value; ++i)
+    {
+        if (cursor_.x > 0)
+            --cursor_.x;
+        else
+        {
+            if (cursor_.y > 0)
+            {
+                --cursor_.y;
+                cursor_.x = buffer_[cursor_.y].size();
+            }
+            else
+                return;
+        }
+        del();
+    }
 }

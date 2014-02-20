@@ -1,6 +1,7 @@
 #include "screen.hpp"
 #include "base_text_buffer.hpp"
 #include "painter.hpp"
+#include "key_event.hpp"
 #include "resize_event.hpp"
 #include "text_input_event.hpp"
 #include "SDL2/SDL_ttf.h"
@@ -40,9 +41,27 @@ void Screen::paintEvent(PaintEvent &)
                cursor_.x * glyphWidth_, (cursor_.y + 1) * glyphHeight_);
 }
 
-bool Screen::keyPressEvent(KeyEvent &)
+bool Screen::keyPressEvent(KeyEvent &e)
 {
-    //    setVScroll(vScroll() + 1);
+    if (e.modifiers() == KeyEvent::MNone)
+    {
+        switch (e.key())
+        {
+        case KeyEvent::KDelete:
+            textBuffer_->del();
+            textBuffer_->render(this);
+            break;
+        case KeyEvent::KBackspace:
+            textBuffer_->backspace();
+            textBuffer_->render(this);
+            break;
+        case KeyEvent::KReturn:
+            textBuffer_->insert(L"\n");
+            textBuffer_->render(this);
+        default:
+            break;
+        };
+    }
     return true;
 }
 

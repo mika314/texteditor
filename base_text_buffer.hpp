@@ -18,6 +18,8 @@ public:
     Coord cursor() const;
     void setCursor(Coord);
     void setCursor(int x, int y);
+    void del(int = 1);
+    void backspace(int = 1);
 protected:
     std::vector<std::wstring> buffer_;
     Coord cursor_;
