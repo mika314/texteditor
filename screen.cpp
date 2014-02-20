@@ -58,6 +58,79 @@ bool Screen::keyPressEvent(KeyEvent &e)
         case KeyEvent::KReturn:
             textBuffer_->insert(L"\n");
             textBuffer_->render(this);
+            break;
+        case KeyEvent::KLeft:
+            {
+                if (textBuffer_)
+                {
+                    auto cursor = textBuffer_->cursor();
+                    if (cursor.x > 0)
+                        --cursor.x;
+                    else
+                    {
+                        if (cursor.y > 0)
+                        {
+                            --cursor.y;
+                            cursor.x = (*textBuffer_)[cursor.y].size();
+                        }
+                    }
+                    textBuffer_->setCursor(cursor);
+                    textBuffer_->render(this);
+                }
+                break;
+            }
+        case KeyEvent::KRight:
+            {
+                if (textBuffer_)
+                {
+                    auto cursor = textBuffer_->cursor();
+                    if (cursor.x < static_cast<int>((*textBuffer_)[cursor.y].size()))
+                        ++cursor.x;
+                    else
+                    {
+                        if (cursor.y < textBuffer_->size() - 1)
+                        {
+                            ++cursor.y;
+                            cursor.x = 0;
+                        }
+                    }
+                    textBuffer_->setCursor(cursor);
+                    textBuffer_->render(this);
+                }
+                break;
+            }
+        case KeyEvent::KUp:
+            {
+                if (textBuffer_)
+                {
+                    auto cursor = textBuffer_->cursor();
+                    if (cursor.y > 0)
+                    {
+                        --cursor.y;
+                        if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
+                            cursor.x = (*textBuffer_)[cursor.y].size();
+                    }
+                    textBuffer_->setCursor(cursor);
+                    textBuffer_->render(this);
+                }
+                break;
+            }
+        case KeyEvent::KDown:
+            {
+                if (textBuffer_)
+                {
+                    auto cursor = textBuffer_->cursor();
+                    if (cursor.y < textBuffer_->size() - 1)
+                    {
+                        ++cursor.y;
+                        if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
+                            cursor.x = (*textBuffer_)[cursor.y].size();
+                    }
+                    textBuffer_->setCursor(cursor);
+                    textBuffer_->render(this);
+                }
+                break;
+            }
         default:
             break;
         };
@@ -110,12 +183,22 @@ Coord Screen::cursor() const
 
 void Screen::setCursor(Coord value)
 {
+    if (value.y < 0)
+    {
+        vScroll_ += value.y;
+        value.y = 0;
+    }
+    if (value.y > heightCh() - 1)
+    {
+        vScroll_ += value.y - heightCh() + 1;
+        value.y = heightCh() - 1;
+    }
     cursor_ = value;
 }
 
 void Screen::setCursor(int x, int y)
 {
-    cursor_ = { x, y };
+    setCursor(Coord{ x, y });
 }
 
 BaseTextBuffer *Screen::textBuffer() const

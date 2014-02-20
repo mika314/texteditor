@@ -26,6 +26,8 @@ int BaseTextBuffer::size() const
 
 void BaseTextBuffer::render(Screen *screen) const
 {
+    auto tmp = cursor();
+    screen->setCursor(tmp.x - screen->hScroll(), tmp.y - screen->vScroll());
     for (int y = 0; y < screen->heightCh(); ++y)
     {
         const auto yy = y + screen->vScroll();
@@ -36,8 +38,6 @@ void BaseTextBuffer::render(Screen *screen) const
             screen->ch(x, y) = xx < static_cast<int>(line.size()) ? line[xx] : L'\0';
         }
     }
-    auto tmp = cursor();
-    screen->setCursor(tmp.x - screen->hScroll(), tmp.y - screen->vScroll());
     screen->update();
 }
 
