@@ -43,8 +43,11 @@ void Screen::paintEvent(PaintEvent &)
 
 bool Screen::keyPressEvent(KeyEvent &e)
 {
-    if (e.modifiers() == KeyEvent::MNone)
+    if (!textBuffer_)
+        return false;
+    switch (e.modifiers()) 
     {
+    case KeyEvent::MNone:
         switch (e.key())
         {
         case KeyEvent::KDelete:
@@ -61,80 +64,148 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KLeft:
             {
-                if (textBuffer_)
+                auto cursor = textBuffer_->cursor();
+                if (cursor.x > 0)
+                    --cursor.x;
+                else
                 {
-                    auto cursor = textBuffer_->cursor();
-                    if (cursor.x > 0)
-                        --cursor.x;
-                    else
+                    if (cursor.y > 0)
                     {
-                        if (cursor.y > 0)
-                        {
-                            --cursor.y;
-                            cursor.x = (*textBuffer_)[cursor.y].size();
-                        }
+                        --cursor.y;
+                        cursor.x = (*textBuffer_)[cursor.y].size();
                     }
-                    textBuffer_->setCursor(cursor);
-                    textBuffer_->render(this);
                 }
+                textBuffer_->setCursor(cursor);
+                textBuffer_->render(this);
                 break;
             }
         case KeyEvent::KRight:
             {
-                if (textBuffer_)
+                auto cursor = textBuffer_->cursor();
+                if (cursor.x < static_cast<int>((*textBuffer_)[cursor.y].size()))
+                    ++cursor.x;
+                else
                 {
-                    auto cursor = textBuffer_->cursor();
-                    if (cursor.x < static_cast<int>((*textBuffer_)[cursor.y].size()))
-                        ++cursor.x;
-                    else
+                    if (cursor.y < textBuffer_->size() - 1)
                     {
-                        if (cursor.y < textBuffer_->size() - 1)
-                        {
-                            ++cursor.y;
-                            cursor.x = 0;
-                        }
+                        ++cursor.y;
+                        cursor.x = 0;
                     }
-                    textBuffer_->setCursor(cursor);
-                    textBuffer_->render(this);
                 }
+                textBuffer_->setCursor(cursor);
+                textBuffer_->render(this);
                 break;
             }
         case KeyEvent::KUp:
             {
-                if (textBuffer_)
+                auto cursor = textBuffer_->cursor();
+                if (cursor.y > 0)
                 {
-                    auto cursor = textBuffer_->cursor();
-                    if (cursor.y > 0)
-                    {
-                        --cursor.y;
-                        if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
-                            cursor.x = (*textBuffer_)[cursor.y].size();
-                    }
-                    textBuffer_->setCursor(cursor);
-                    textBuffer_->render(this);
+                    --cursor.y;
+                    if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
+                        cursor.x = (*textBuffer_)[cursor.y].size();
                 }
+                textBuffer_->setCursor(cursor);
+                textBuffer_->render(this);
                 break;
             }
         case KeyEvent::KDown:
             {
-                if (textBuffer_)
+                auto cursor = textBuffer_->cursor();
+                if (cursor.y < textBuffer_->size() - 1)
                 {
-                    auto cursor = textBuffer_->cursor();
-                    if (cursor.y < textBuffer_->size() - 1)
-                    {
-                        ++cursor.y;
-                        if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
-                            cursor.x = (*textBuffer_)[cursor.y].size();
-                    }
-                    textBuffer_->setCursor(cursor);
-                    textBuffer_->render(this);
+                    ++cursor.y;
+                    if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
+                        cursor.x = (*textBuffer_)[cursor.y].size();
                 }
+                textBuffer_->setCursor(cursor);
+                textBuffer_->render(this);
+                break;
+            }
+        case KeyEvent::KHome:
+            {
+                auto cursor = textBuffer_->cursor();
+                cursor.x = 0;
+                textBuffer_->setCursor(cursor);
+                textBuffer_->render(this);
+                break;
+            }
+        case KeyEvent::KEnd:
+            {
+                auto cursor = textBuffer_->cursor();
+                cursor.x = (*textBuffer_)[cursor.y].size();
+                textBuffer_->setCursor(cursor);
+                textBuffer_->render(this);
+                break;
+            }
+        case KeyEvent::KPageUp:
+            {
+                vScroll_ -= heightCh() - 1;
+                if (vScroll_ < 0)
+                    vScroll_ = 0;
+                auto cursor = textBuffer_->cursor();
+                cursor.y -= heightCh() - 1;
+                if (cursor.y < vScroll_)
+                    cursor.y = vScroll_;
+                else if (cursor.y >= vScroll_ + heightCh())
+                    cursor.y = vScroll_ + heightCh() - 1;
+                if (cursor.y >= textBuffer_->size())
+                    cursor.y = textBuffer_->size() - 1;
+                if (cursor.y < 0)
+                    cursor.y = 0;
+                if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
+                    cursor.x = (*textBuffer_)[cursor.y].size();
+                textBuffer_->setCursor(cursor);
+                textBuffer_->render(this);
+                break;
+            }
+        case KeyEvent::KPageDown:
+            {
+                vScroll_ += heightCh() - 1;
+                if (vScroll_ >= textBuffer_->size() - 1)
+                    vScroll_ = textBuffer_->size() - 2;
+                auto cursor = textBuffer_->cursor();
+                cursor.y += heightCh() - 1;
+                if (cursor.y < vScroll_)
+                    cursor.y = vScroll_;
+                else if (cursor.y >= vScroll_ + heightCh())
+                    cursor.y = vScroll_ + heightCh() - 1;
+                if (cursor.y >= textBuffer_->size())
+                    cursor.y = textBuffer_->size() - 1;
+                if (cursor.y < 0)
+                    cursor.y = 0;
+                if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
+                    cursor.x = (*textBuffer_)[cursor.y].size();
+                textBuffer_->setCursor(cursor);
+                textBuffer_->render(this);
                 break;
             }
         default:
             break;
         };
+        break;
+    case KeyEvent::MLCtrl:
+    case KeyEvent::MRCtrl:
+        switch (e.key())
+        {
+        case KeyEvent::KHome:
+            {
+                textBuffer_->setCursor(0, 0);
+                textBuffer_->render(this);
+                break;
+            }
+        case KeyEvent::KEnd:
+            {
+                textBuffer_->setCursor((*textBuffer_)[textBuffer_->size() - 1].size(), textBuffer_->size() - 1);
+                textBuffer_->render(this);
+                break;
+            }
+        default:
+            break;
+        }
+        break;
     }
+    
     return true;
 }
 
