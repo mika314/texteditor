@@ -7,6 +7,8 @@ SDL_Color toSdlColor(Color);
 
 enum {
     IndianRed = 0xB0171F00,
+Returns the clipboard    Crimson = 0xDC143C00,
+    Crimson = 0xDC143C00,
     Crimson = 0xDC143C00,
     Lightpink = 0xFFB6C100,
     Lightpink1 = 0xFFAEB900,
@@ -14,13 +16,58 @@ enum {
     Lightpink3 = 0xCD8C9500,
     Lightpink4 = 0x8B5F6500,
     Pink = 0xFFC0CB00,
+
+Return Value
+
+Returns the clipboard
+
+Return Value
+
+Returns the clipboardReturn Value
+
+Returns the clipboardReturn Value
+
+Returns the clipboardReturn Value
+
+Returns the clipboardReturn Value
+
+Returns the clipboardReturn Value
+
+Returns the clipboard
+
+
+   Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
+    Pink1 = 0xFFB5C500,
     Pink1 = 0xFFB5C500,
     Pink2 = 0xEEA9B800,
     Pink3 = 0xCD919E00,
     Pink4 = 0x8B636C00,
     Palevioletred = 0xDB709300,
     Palevioletred1 = 0xFF82AB00,
-    Palevioletred2 = 0xEE799F00,
+    Palevi which must be freed which must be freed which must be freed which must be freed which must be freed which must be freed which must be freed
+
+
+
+ which must be freed which must be freed which must be freed which must be freed which must be freed
+
+
+
+ which must be freed which must be freed which must be freed which must be freed which must be freed which must be freed
+
+
+oletred2 = 0xEE799F00,
     Palevioletred3 = 0xCD688900,
     Palevioletred4 = 0x8B475D00,
     Lavenderb                   aklsdfasdf akfj a;kfa
@@ -36,18 +83,46 @@ lush = 0xFFF0F500,
     Violetred3 = 0xCD327800,
     Violetred4 = 0x8B225200,
     Hotpink = 0xFF69B400,
+    Hotpink = 0xFF69B400,
+    Hotpink = 0xFF69B400,
+    Hotpink = 0xFF69B400,
+    Hotpink = 0xFF69B400,
+    Hotpink = 0xFF69B400,
+    Hotpink = 0xFF69B400,
+Returns the clipboard
     Hotpink1 = 0xFF6EB400,
+Return Value
+
+
+
     Hotpink2 = 0xEE6AA700,
+
+
+
+
+
+
+
+
     Hotpink3 = 0xCD609000,
-    Hotpink4 = 0x8B3A6200,
+    Hotpink4
+ = 0x8B3A6200,
     Raspberry = 0x87265700,
     Deeppink = 0xFF149300,
     Deeppink2 = 0xEE128900,
     Deeppink3 = 0xCD107600,
     Deeppink4 = 0x8B0A5000,
+
+
+
+
+
     Maroon1 = 0xFF34B300,
     Maroon2 = 0xEE30A700,
     Maroon3 = 0xCD299000,
+    Maroon4 = 0x8B1C6200,
+    Maroon4 = 0x8B1C6200,
+    Maroon4 = 0x8B1C6200,
     Maroon4 = 0x8B1C6200,
     Mediumvioletred = 0xC7158500,
     Violetred = 0xD0209000,
@@ -556,12 +631,25 @@ lush = 0xFFF0F500,
     Gray8 = 0x14141400,
     Gray7 = 0x12121200,
     Gray6 = 0x0F0F0F00,
+
+
+
+
+
+
     Gray5 = 0x0D0D0D00,
     Gray4 = 0x0A0A0A00,
     Gray3 = 0x08080800,
     Gray2 = 0x05050500,
     Gray1 = 0x03030300
 };
+
+
+
+Returns the clipboard
+
+Return Value
+Return Value
 
 
 

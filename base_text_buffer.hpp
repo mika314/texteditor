@@ -14,13 +14,9 @@ public:
     std::wstring &operator[](int line);
     int size() const;
     virtual void render(Screen *) const;
-    void insert(std::wstring);
-    Coord cursor() const;
-    void setCursor(Coord);
-    void setCursor(int x, int y);
-    void del(int = 1);
-    void backspace(int = 1);
+    void insert(Coord &cursor, std::wstring);
+    void del(const Coord cursor, int = 1);
+    void backspace(Coord &cursor, int = 1);
 protected:
     std::vector<std::wstring> buffer_;
-    Coord cursor_;
 };

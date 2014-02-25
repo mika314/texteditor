@@ -29,14 +29,34 @@ public:
     void setHScroll(int);
     int vScroll() const;
     void setVScroll(int);
+    Coord startSelection() const;
+    void setStartSelection(Coord);
+    Coord endSelection() const;
+    void setEndSelection(Coord);
+    bool isSelected(Coord) const;
 private:
     int glyphWidth_;
     int glyphHeight_;
     Coord cursor_;
+    Coord startSelection_;
+    Coord endSelection_;
     int hScroll_;
     int vScroll_;
     BaseTextBuffer *textBuffer_;
     std::vector<std::vector<Char> > ch_;
+    void moveCursorLeft();
+    void moveCursorRight();
+    void moveCursorUp();
+    void moveCursorDown();
+    void moveCursorHome();
+    void moveCursorEnd();
+    void moveCursorPageUp();
+    void moveCursorPageDown();
+    void select(void (Screen::*moveCursor)());
+    void moveCursor(void (Screen::*moveCursor)());
+    void copy();
+    void paste();
+    void cut();
 protected:
     virtual void resizeEvent(ResizeEvent &);
     virtual void paintEvent(PaintEvent &);

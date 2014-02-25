@@ -4,7 +4,8 @@
 #include "key_event.hpp"
 #include "resize_event.hpp"
 #include "text_input_event.hpp"
-#include "SDL2/SDL_ttf.h"
+#include "to_utf16.hpp"
+#include <SDL2/SDL_ttf.h>
 #include <iostream>
 
 Screen::Char::Char(wchar_t ach, Color afg, Color abg):
@@ -16,6 +17,8 @@ Screen::Char::Char(wchar_t ach, Color afg, Color abg):
 Screen::Screen(Widget *parent):
     Widget(parent),
     cursor_{0, 0},
+    startSelection_{-1, -1},
+    endSelection_{-1, -1},
     hScroll_{0},
     vScroll_{0},
     textBuffer_{nullptr}
@@ -37,8 +40,10 @@ void Screen::paintEvent(PaintEvent &)
             p.renderGlyph(c.ch, x * glyphWidth_, y * glyphHeight_, c.fg, c.bg);
         }
     p.setColor(Gray);
-    p.drawLine(cursor_.x * glyphWidth_, cursor_.y * glyphHeight_,
-               cursor_.x * glyphWidth_, (cursor_.y + 1) * glyphHeight_);
+    auto xx = cursor_.x - hScroll_;
+    auto yy = cursor_.y - vScroll_;
+    p.drawLine(xx * glyphWidth_, yy * glyphHeight_,
+               xx * glyphWidth_, (yy + 1) * glyphHeight_);
 }
 
 bool Screen::keyPressEvent(KeyEvent &e)
@@ -51,135 +56,44 @@ bool Screen::keyPressEvent(KeyEvent &e)
         switch (e.key())
         {
         case KeyEvent::KDelete:
-            textBuffer_->del();
+            textBuffer_->del(cursor_);
+            setCursor(cursor_);
             textBuffer_->render(this);
             break;
         case KeyEvent::KBackspace:
-            textBuffer_->backspace();
+            textBuffer_->backspace(cursor_);
+            setCursor(cursor_);
             textBuffer_->render(this);
             break;
         case KeyEvent::KReturn:
-            textBuffer_->insert(L"\n");
+            textBuffer_->insert(cursor_, L"\n");
+            setCursor(cursor_);
             textBuffer_->render(this);
             break;
         case KeyEvent::KLeft:
-            {
-                auto cursor = textBuffer_->cursor();
-                if (cursor.x > 0)
-                    --cursor.x;
-                else
-                {
-                    if (cursor.y > 0)
-                    {
-                        --cursor.y;
-                        cursor.x = (*textBuffer_)[cursor.y].size();
-                    }
-                }
-                textBuffer_->setCursor(cursor);
-                textBuffer_->render(this);
-                break;
-            }
+            moveCursor(&Screen::moveCursorLeft);
+            break;
         case KeyEvent::KRight:
-            {
-                auto cursor = textBuffer_->cursor();
-                if (cursor.x < static_cast<int>((*textBuffer_)[cursor.y].size()))
-                    ++cursor.x;
-                else
-                {
-                    if (cursor.y < textBuffer_->size() - 1)
-                    {
-                        ++cursor.y;
-                        cursor.x = 0;
-                    }
-                }
-                textBuffer_->setCursor(cursor);
-                textBuffer_->render(this);
-                break;
-            }
+            moveCursor(&Screen::moveCursorRight);
+            break;
         case KeyEvent::KUp:
-            {
-                auto cursor = textBuffer_->cursor();
-                if (cursor.y > 0)
-                {
-                    --cursor.y;
-                    if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
-                        cursor.x = (*textBuffer_)[cursor.y].size();
-                }
-                textBuffer_->setCursor(cursor);
-                textBuffer_->render(this);
-                break;
-            }
+            moveCursor(&Screen::moveCursorUp);
+            break;
         case KeyEvent::KDown:
-            {
-                auto cursor = textBuffer_->cursor();
-                if (cursor.y < textBuffer_->size() - 1)
-                {
-                    ++cursor.y;
-                    if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
-                        cursor.x = (*textBuffer_)[cursor.y].size();
-                }
-                textBuffer_->setCursor(cursor);
-                textBuffer_->render(this);
-                break;
-            }
+            moveCursor(&Screen::moveCursorDown);
+            break;
         case KeyEvent::KHome:
-            {
-                auto cursor = textBuffer_->cursor();
-                cursor.x = 0;
-                textBuffer_->setCursor(cursor);
-                textBuffer_->render(this);
-                break;
-            }
+            moveCursor(&Screen::moveCursorHome);
+            break;
         case KeyEvent::KEnd:
-            {
-                auto cursor = textBuffer_->cursor();
-                cursor.x = (*textBuffer_)[cursor.y].size();
-                textBuffer_->setCursor(cursor);
-                textBuffer_->render(this);
-                break;
-            }
+            moveCursor(&Screen::moveCursorEnd);
+            break;
         case KeyEvent::KPageUp:
-            {
-                vScroll_ -= heightCh() - 1;
-                if (vScroll_ < 0)
-                    vScroll_ = 0;
-                auto cursor = textBuffer_->cursor();
-                cursor.y -= heightCh() - 1;
-                if (cursor.y < vScroll_)
-                    cursor.y = vScroll_;
-                else if (cursor.y >= vScroll_ + heightCh())
-                    cursor.y = vScroll_ + heightCh() - 1;
-                if (cursor.y >= textBuffer_->size())
-                    cursor.y = textBuffer_->size() - 1;
-                if (cursor.y < 0)
-                    cursor.y = 0;
-                if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
-                    cursor.x = (*textBuffer_)[cursor.y].size();
-                textBuffer_->setCursor(cursor);
-                textBuffer_->render(this);
-                break;
-            }
+            moveCursor(&Screen::moveCursorPageUp);
+            break;
         case KeyEvent::KPageDown:
-            {
-                vScroll_ += heightCh() - 1;
-                if (vScroll_ >= textBuffer_->size() - 1)
-                    vScroll_ = textBuffer_->size() - 2;
-                auto cursor = textBuffer_->cursor();
-                cursor.y += heightCh() - 1;
-                if (cursor.y < vScroll_)
-                    cursor.y = vScroll_;
-                else if (cursor.y >= vScroll_ + heightCh())
-                    cursor.y = vScroll_ + heightCh() - 1;
-                if (cursor.y >= textBuffer_->size())
-                    cursor.y = textBuffer_->size() - 1;
-                if (cursor.y < 0)
-                    cursor.y = 0;
-                if (cursor.x > static_cast<int>((*textBuffer_)[cursor.y].size()))
-                    cursor.x = (*textBuffer_)[cursor.y].size();
-                textBuffer_->setCursor(cursor);
-                textBuffer_->render(this);
-                break;
-            }
+            moveCursor(&Screen::moveCursorPageDown);
+            break;
         default:
             break;
         };
@@ -189,20 +103,56 @@ bool Screen::keyPressEvent(KeyEvent &e)
         switch (e.key())
         {
         case KeyEvent::KHome:
-            {
-                textBuffer_->setCursor(0, 0);
-                textBuffer_->render(this);
-                break;
-            }
+            setCursor(0, 0);
+            textBuffer_->render(this);
+            break;
         case KeyEvent::KEnd:
-            {
-                textBuffer_->setCursor((*textBuffer_)[textBuffer_->size() - 1].size(), textBuffer_->size() - 1);
-                textBuffer_->render(this);
-                break;
-            }
+            setCursor((*textBuffer_)[textBuffer_->size() - 1].size(), textBuffer_->size() - 1);
+            textBuffer_->render(this);
+            break;
+        case KeyEvent::KV:
+            paste();
+            textBuffer_->render(this);
+            break;
         default:
             break;
         }
+        break;
+    case KeyEvent::MLShift:
+    case KeyEvent::MRShift:
+        switch (e.key())
+        {
+        case KeyEvent::KLeft:
+            select(&Screen::moveCursorLeft);
+            break;
+        case KeyEvent::KRight:
+            select(&Screen::moveCursorRight);
+            break;
+        case KeyEvent::KUp:
+            select(&Screen::moveCursorUp);
+            break;
+        case KeyEvent::KDown:
+            select(&Screen::moveCursorDown);
+            break;
+        case KeyEvent::KHome:
+            select(&Screen::moveCursorHome);
+            break;
+        case KeyEvent::KEnd:
+            select(&Screen::moveCursorEnd);
+            break;
+        case KeyEvent::KPageUp:
+            select(&Screen::moveCursorPageUp);
+            break;
+        case KeyEvent::KPageDown:
+            select(&Screen::moveCursorPageDown);
+            break;
+        case KeyEvent::KInsert:
+            paste();
+            textBuffer_->render(this);
+            break;
+        default:
+            break;
+        };
         break;
     }
     
@@ -213,7 +163,8 @@ bool Screen::textInputEvent(TextInputEvent &e)
 {
     if (textBuffer_)
     {
-        textBuffer_->insert(e.text());
+        textBuffer_->insert(cursor_, e.text());
+        setCursor(cursor_);
         textBuffer_->render(this);
         return true;
     }
@@ -254,15 +205,15 @@ Coord Screen::cursor() const
 
 void Screen::setCursor(Coord value)
 {
-    if (value.y < 0)
+    if (value.y < vScroll_)
     {
-        vScroll_ += value.y;
-        value.y = 0;
+        vScroll_ = value.y;
+        value.y = vScroll_;
     }
-    if (value.y > heightCh() - 1)
+    if (value.y > vScroll_ + heightCh() - 1)
     {
-        vScroll_ += value.y - heightCh() + 1;
-        value.y = heightCh() - 1;
+        vScroll_ = value.y - heightCh() + 1;
+        value.y = vScroll_ + heightCh() - 1;
     }
     cursor_ = value;
 }
@@ -316,4 +267,187 @@ void Screen::setVScroll(int value)
     vScroll_ = value;
     if (textBuffer_)
         textBuffer_->render(this);
+}
+
+Coord Screen::startSelection() const
+{
+    return startSelection_;
+}
+
+void Screen::setStartSelection(Coord value)
+{
+    startSelection_ = value;
+}
+
+Coord Screen::endSelection() const
+{
+    return endSelection_;
+}
+
+void Screen::setEndSelection(Coord value)
+{
+    endSelection_ = value;
+}
+
+bool Screen::isSelected(Coord value) const
+{
+    Coord s, e;
+    if (startSelection().y > endSelection().y ||
+        (startSelection().y == endSelection().y && startSelection().x > endSelection().x))
+    {
+        s = endSelection();
+        e = startSelection();
+    }
+    else
+    {
+        s = startSelection();
+        e = endSelection();
+    }
+
+    if (s.x == -1 ||
+        s.y == -1 ||
+        e.x == -1 ||
+        e.y == -1)
+        return false;
+    return (value.y > s.y && value.y < e.y) ||
+        (value.y == s.y && value.y != e.y && value.x >= s.x) ||
+        (value.y == e.y && value.y != s.y && value.x < e.x) ||
+        (value.y == s.y && value.y != e.y && value.x >= s.x) ||
+        (value.y == e.y && value.y == s.y && value.x < e.x && value.x >= s.x);
+}
+
+void Screen::moveCursorLeft()
+{
+    if (cursor_.x > 0)
+        --cursor_.x;
+    else
+    {
+        if (cursor_.y > 0)
+        {
+            --cursor_.y;
+            cursor_.x = (*textBuffer_)[cursor_.y].size();
+        }
+    }
+    setCursor(cursor_);
+}
+
+void Screen::moveCursorRight()
+{
+    if (cursor_.x < static_cast<int>((*textBuffer_)[cursor_.y].size()))
+        ++cursor_.x;
+    else
+    {
+        if (cursor_.y < textBuffer_->size() - 1)
+        {
+            ++cursor_.y;
+            cursor_.x = 0;
+        }
+    }
+    setCursor(cursor_);
+}
+
+void Screen::moveCursorUp()
+{
+    if (cursor_.y > 0)
+    {
+        --cursor_.y;
+        if (cursor_.x > static_cast<int>((*textBuffer_)[cursor_.y].size()))
+            cursor_.x = (*textBuffer_)[cursor_.y].size();
+    }
+    setCursor(cursor_);
+}
+
+void Screen::moveCursorDown()
+{
+    if (cursor_.y < textBuffer_->size() - 1)
+    {
+        ++cursor_.y;
+        if (cursor_.x > static_cast<int>((*textBuffer_)[cursor_.y].size()))
+            cursor_.x = (*textBuffer_)[cursor_.y].size();
+    }
+    setCursor(cursor_);
+}
+
+void Screen::moveCursorHome()
+{
+    cursor_.x = 0;
+    setCursor(cursor_);
+}
+
+void Screen::moveCursorEnd()
+{
+    cursor_.x = (*textBuffer_)[cursor_.y].size();
+    setCursor(cursor_);
+}
+
+void Screen::moveCursorPageUp()
+{
+    vScroll_ -= heightCh() - 1;
+    if (vScroll_ < 0)
+        vScroll_ = 0;
+    cursor_.y -= heightCh() - 1;
+    if (cursor_.y < vScroll_)
+        cursor_.y = vScroll_;
+    else if (cursor_.y >= vScroll_ + heightCh())
+        cursor_.y = vScroll_ + heightCh() - 1;
+    if (cursor_.y >= textBuffer_->size())
+        cursor_.y = textBuffer_->size() - 1;
+    if (cursor_.y < 0)
+        cursor_.y = 0;
+    if (cursor_.x > static_cast<int>((*textBuffer_)[cursor_.y].size()))
+        cursor_.x = (*textBuffer_)[cursor_.y].size();
+    setCursor(cursor_);
+}
+
+void Screen::moveCursorPageDown()
+{
+    vScroll_ += heightCh() - 1;
+    if (vScroll_ >= textBuffer_->size() - 1)
+        vScroll_ = textBuffer_->size() - 2;
+    cursor_.y += heightCh() - 1;
+    if (cursor_.y < vScroll_)
+        cursor_.y = vScroll_;
+    else if (cursor_.y >= vScroll_ + heightCh())
+        cursor_.y = vScroll_ + heightCh() - 1;
+    if (cursor_.y >= textBuffer_->size())
+        cursor_.y = textBuffer_->size() - 1;
+    if (cursor_.y < 0)
+        cursor_.y = 0;
+    if (cursor_.x > static_cast<int>((*textBuffer_)[cursor_.y].size()))
+        cursor_.x = (*textBuffer_)[cursor_.y].size();
+    setCursor(cursor_);
+}
+
+void Screen::select(void (Screen::*moveCursor)())
+{
+    if (startSelection().x == -1)
+        setStartSelection(cursor());
+    (this->*moveCursor)();
+    setEndSelection(cursor());
+    textBuffer_->render(this);
+}
+
+void Screen::moveCursor(void (Screen::*moveCursor)())
+{
+    setStartSelection({-1, -1});
+    setEndSelection({-1, -1});
+    (this->*moveCursor)();
+    textBuffer_->render(this);
+}
+
+void Screen::copy()
+{
+    
+}
+
+void Screen::paste()
+{
+    std::clog << SDL_GetClipboardText() << std::endl;
+    textBuffer_->insert(cursor_, toUtf16(SDL_GetClipboardText()));
+    setCursor(cursor_);
+}
+
+void Screen::cut()
+{
+    
 }

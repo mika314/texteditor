@@ -1,8 +1,7 @@
 #include "base_text_buffer.hpp"
 #include "screen.hpp"
 
-BaseTextBuffer::BaseTextBuffer():
-    cursor_{ 0, 0 }
+BaseTextBuffer::BaseTextBuffer()
 {}
 
 BaseTextBuffer::~BaseTextBuffer()
@@ -26,8 +25,6 @@ int BaseTextBuffer::size() const
 
 void BaseTextBuffer::render(Screen *screen) const
 {
-    auto tmp = cursor();
-    screen->setCursor(tmp.x - screen->hScroll(), tmp.y - screen->vScroll());
     for (int y = 0; y < screen->heightCh(); ++y)
     {
         const auto yy = y + screen->vScroll();
@@ -35,83 +32,71 @@ void BaseTextBuffer::render(Screen *screen) const
         for (int x = 0; x < screen->widthCh(); ++x)
         {
             const auto xx = x + screen->hScroll();
-            screen->ch(x, y) = xx < static_cast<int>(line.size()) ? line[xx] : L'\0';
+            if (!screen->isSelected({ xx, yy }))
+                screen->ch(x, y) = xx < static_cast<int>(line.size()) ? line[xx] : L'\0';
+            else
+                screen->ch(x, y) = { xx < static_cast<int>(line.size()) ? line[xx] : L'\0', Black, Gray90 };
         }
     }
     screen->update();
 }
 
-void BaseTextBuffer::insert(std::wstring value)
+void BaseTextBuffer::insert(Coord &cursor, std::wstring value)
 {
-    auto &line = buffer_[cursor_.y];
     for (wchar_t c: value)
     {
+        auto &line = buffer_[cursor.y];
         if (c != L'\n')
         {
-            line.insert(begin(line) + cursor_.x, c);
-            ++cursor_.x;
+            line.insert(begin(line) + cursor.x, c);
+            ++cursor.x;
         }
         else
         {
-            std::wstring tmp { begin(line) + cursor_.x, end(line) };
-            line.erase(begin(line) + cursor_.x, end(line));
-            buffer_.insert(begin(buffer_) + cursor_.y + 1, tmp);
-            ++cursor_.y;
-            cursor_.x = 0;
+            std::wstring tmp { begin(line) + cursor.x, end(line) };
+            line.erase(begin(line) + cursor.x, end(line));
+            buffer_.insert(begin(buffer_) + cursor.y + 1, tmp);
+            ++cursor.y;
+            cursor.x = 0;
         }
     }
 }
 
-Coord BaseTextBuffer::cursor() const
-{
-    return cursor_;
-}
-
-void BaseTextBuffer::setCursor(Coord value)
-{
-    cursor_ = value;
-}
-
-void BaseTextBuffer::setCursor(int x, int y)
-{
-    cursor_ = { x, y };
-}
-
-void BaseTextBuffer::del(int value)
+void BaseTextBuffer::del(const Coord cursor, int value)
 {
     for (int i = 0; i < value; ++i)
     {
-        auto &line = buffer_[cursor_.y];
-        if (begin(line) + cursor_.x != end(line))
-            line.erase(begin(line) + cursor_.x);
+        auto &line = buffer_[cursor.y];
+        if (begin(line) + cursor.x != end(line))
+            line.erase(begin(line) + cursor.x);
         else
         {
-            if (cursor_.y < static_cast<int>(buffer_.size()))
+            if (cursor.y < static_cast<int>(buffer_.size()) - 1)
             {
-                auto tmp = buffer_[cursor_.y + 1];
-                buffer_.erase(begin(buffer_) + cursor_.y + 1);
-                buffer_[cursor_.y] += tmp;
+                auto tmp = buffer_[cursor.y + 1];
+                buffer_.erase(begin(buffer_) + cursor.y + 1);
+                buffer_[cursor.y] += tmp;
             }
         }
     }
 }
 
-void BaseTextBuffer::backspace(int value)
+void BaseTextBuffer::backspace(Coord &cursor, int value)
 {
     for (int i = 0; i < value; ++i)
     {
-        if (cursor_.x > 0)
-            --cursor_.x;
+        if (cursor.x > 0)
+            --cursor.x;
         else
         {
-            if (cursor_.y > 0)
+            if (cursor.y > 0)
             {
-                --cursor_.y;
-                cursor_.x = buffer_[cursor_.y].size();
+                --cursor.y;
+                cursor.x = buffer_[cursor.y].size();
             }
             else
                 return;
         }
-        del();
+        del(cursor);
     }
 }
