@@ -5,6 +5,7 @@
 #include "resize_event.hpp"
 #include "text_input_event.hpp"
 #include "to_utf16.hpp"
+#include "to_utf8.hpp"
 #include <SDL2/SDL_ttf.h>
 #include <iostream>
 
@@ -114,6 +115,20 @@ bool Screen::keyPressEvent(KeyEvent &e)
             paste();
             textBuffer_->render(this);
             break;
+        case KeyEvent::KInsert:
+        case KeyEvent::KC:
+            copy();
+            textBuffer_->render(this);
+            break;
+        case KeyEvent::KX:
+            cut();
+            setStartSelection({-1, -1});
+            setEndSelection({-1, -1});
+            textBuffer_->render(this);
+            break;
+        case KeyEvent::KA:
+            selectAll();
+            textBuffer_->render(this);
         default:
             break;
         }
@@ -148,6 +163,12 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KInsert:
             paste();
+            textBuffer_->render(this);
+            break;
+        case KeyEvent::KDelete:
+            cut();
+            setStartSelection({-1, -1});
+            setEndSelection({-1, -1});
             textBuffer_->render(this);
             break;
         default:
@@ -429,25 +450,70 @@ void Screen::select(void (Screen::*moveCursor)())
 
 void Screen::moveCursor(void (Screen::*moveCursor)())
 {
+    (this->*moveCursor)();
     setStartSelection({-1, -1});
     setEndSelection({-1, -1});
-    (this->*moveCursor)();
     textBuffer_->render(this);
 }
 
-void Screen::copy()
+int Screen::copy()
 {
-    
+    if (startSelection().y == endSelection().y)
+    {
+        auto s = std::min(startSelection().x, endSelection().x);
+        auto e = std::max(startSelection().x, endSelection().x);
+        const auto &line = (*textBuffer_)[startSelection().y];
+        std::wstring tmp{ begin(line) + s, begin(line) + e };
+        SDL_SetClipboardText(toUtf8(tmp).c_str());
+        return tmp.size();
+    }
+    else
+    {
+        Coord s, e;
+        if (startSelection().y > endSelection().y ||
+            (startSelection().y == endSelection().y && startSelection().x > endSelection().x))
+        {
+            s = endSelection();
+            e = startSelection();
+        }
+        else
+        {
+            s = startSelection();
+            e = endSelection();
+        }
+        std::wstring tmp;
+        const auto &firstLine = (*textBuffer_)[s.y] + L'\n';
+        tmp += { begin(firstLine) + s.x, end(firstLine) };
+        for (int y = s.y + 1; y <= e.y - 1; ++y)
+            tmp += (*textBuffer_)[y] + L'\n';
+        const auto &lastLine = (*textBuffer_)[e.y];
+        tmp += { begin(lastLine), begin(lastLine) + e.x };
+        SDL_SetClipboardText(toUtf8(tmp).c_str());
+        return tmp.size();
+    }
 }
 
 void Screen::paste()
 {
-    std::clog << SDL_GetClipboardText() << std::endl;
+    setStartSelection(cursor());
     textBuffer_->insert(cursor_, toUtf16(SDL_GetClipboardText()));
+    setEndSelection(cursor());
     setCursor(cursor_);
 }
 
 void Screen::cut()
 {
-    
+    if (startSelection().y > endSelection().y ||
+        (startSelection().y == endSelection().y && startSelection().x > endSelection().x))
+        textBuffer_->del(cursor_, copy());
+    else
+        textBuffer_->backspace(cursor_, copy());
+}
+
+void Screen::selectAll()
+{
+    setStartSelection({0, 0});
+    setEndSelection({static_cast<int>((*textBuffer_)[textBuffer_->size() - 1].size()), 
+                static_cast<int>(textBuffer_->size() - 1)});
+    setCursor(endSelection());
 }

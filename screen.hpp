@@ -54,9 +54,10 @@ private:
     void moveCursorPageDown();
     void select(void (Screen::*moveCursor)());
     void moveCursor(void (Screen::*moveCursor)());
-    void copy();
+    int copy();
     void paste();
     void cut();
+    void selectAll();
 protected:
     virtual void resizeEvent(ResizeEvent &);
     virtual void paintEvent(PaintEvent &);
