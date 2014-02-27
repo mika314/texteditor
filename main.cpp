@@ -1,4 +1,5 @@
 #include "widget.hpp"
+#include "layout.hpp"
 #include "application.hpp"
 #include "screen.hpp"
 #include "text_file.hpp"
@@ -7,6 +8,7 @@ int main(int argc, char **argv)
 {
     Application a(argc, argv);
     Widget w;
+    Layout v(Layout::Vertical);
     
     Screen w2(&w);
     TextFile f("text.txt");
@@ -16,6 +18,8 @@ int main(int argc, char **argv)
     w2.setHeight(480);
     w2.setFocus();
     w2.setTextBuffer(&f);
+    v.addWidget(&w2);
+    w.setLayout(&v);
     auto r = a.exec();
     f.save();
     return r;

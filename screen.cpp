@@ -197,6 +197,8 @@ void Screen::resizeEvent(ResizeEvent &e)
     ch_.resize(heightCh());
     for (auto &r: ch_)
         r.resize(widthCh());
+    if (textBuffer_)
+        textBuffer_->render(this);
 }
 
 int Screen::widthCh() const

@@ -1,5 +1,6 @@
 #pragma once
 #include "paint_device.hpp"
+#include "layoutable.hpp"
 #include <SDL2/SDL.h>
 #include <vector>
 
@@ -8,24 +9,25 @@ class TextInputEvent;
 class MouseEvent;
 struct ResizeEvent;
 class PaintEvent;
+class Layout;
 struct SDL_Window;
 struct SDL_Renderer;
 
-class Widget: public PaintDevice
+class Widget: public PaintDevice, public Layoutable
 {
     friend class Application;
 public:
     Widget(Widget *parent = nullptr);
     virtual ~Widget();
-    void resize(int width, int height);
+    virtual void resize(int width, int height);
     int width() const;
     void setWidth(int);
     int height() const;
     void setHeight(int);
     int left() const;
-    void setLeft(int);
+    virtual void setLeft(int);
     int top() const;
-    void setTop(int);
+    virtual void setTop(int);
     Widget *parent() const;
     Widget *ancestor();
     void setFocus();
@@ -37,6 +39,9 @@ public:
     virtual int gLeft() const;
     virtual int gTop() const;
     void update();
+    void setLayout(Layout *);
+    Layout *layout();
+    const Layout *layout() const;
 protected:
     // some of following events handlers return bool, true means event handled and does not require handling from the parent object
     virtual bool keyPressEvent(KeyEvent &);
@@ -58,6 +63,7 @@ private:
     int left_;
     int top_;
     bool needRepaint_;
+    Layout *layout_;
     void addChild(Widget *);
     void removeChild(Widget *);
     void internalPaint(PaintEvent &);

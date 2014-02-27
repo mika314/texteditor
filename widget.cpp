@@ -1,7 +1,8 @@
+#include "widget.hpp"
 #include "painter.hpp"
 #include "paint_event.hpp"
 #include "resize_event.hpp"
-#include "widget.hpp"
+#include "layout.hpp"
 #include "application.hpp"
 #include <SDL2/SDL.h>
 #include <algorithm>
@@ -14,7 +15,8 @@ Widget::Widget(Widget *parent):
     height_(480),
     left_(0),
     top_(0),
-    needRepaint_(true)
+    needRepaint_(true),
+    layout_(nullptr)
 {
     if (!parent_)
     {
@@ -48,6 +50,12 @@ void Widget::resize(int width, int height)
     ResizeEvent e;
     e.width = width;
     e.height = height;
+    if (layout_)
+    {
+        layout_->resize(width, height);
+        layout_->setLeft(0);
+        layout_->setTop(0);
+    }
     resizeEvent(e);
     update();
 }
@@ -165,6 +173,22 @@ void Widget::update()
 {
     ancestor()->needRepaint_ = true;
 }
+
+void Widget::setLayout(Layout *value)
+{
+    layout_ = value;
+}
+
+Layout *Widget::layout()
+{
+    return layout_;
+}
+
+const Layout *Widget::layout() const
+{
+    return layout_;
+}
+
 
 bool Widget::keyPressEvent(KeyEvent &)
 {
