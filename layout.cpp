@@ -34,16 +34,15 @@ void Layout::resize(int width, int height)
 {
     width_ = width;
     height_ = height;
-    // TODO nested layouts
     if (style_ == Vertical)
     {
         int i = 0;
         for (auto &l: layoutablesList_)
         {
-            l->setLeft(0);
-            l->setTop(i * height / layoutablesList_.size());
-            l->resize(width, i * height / layoutablesList_.size() - 
-                      (i - 1) * height / layoutablesList_.size() - 1);
+            l->setLeft(left_);
+            l->setTop(top_ + i * height / layoutablesList_.size());
+            l->resize(width, (i + 1) * height / layoutablesList_.size() - 
+                      i * height / layoutablesList_.size());
             ++i;
         }
     }
@@ -52,11 +51,12 @@ void Layout::resize(int width, int height)
         int i = 0;
         for (auto &l: layoutablesList_)
         {
-            l->setLeft(i * width / layoutablesList_.size());
-            l->setTop(0);
-            l->resize(i * width / layoutablesList_.size() - 
-                      (i - 1) * width / layoutablesList_.size() - 1, height);
+            l->setLeft(left_ + i * width / layoutablesList_.size());
+            l->setTop(top_);
+            l->resize((i + 1)* width / layoutablesList_.size() - 
+                      i * width / layoutablesList_.size(), height);
             ++i;
         }
     }
 }
+
