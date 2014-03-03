@@ -14,6 +14,10 @@ public:
     virtual void setLeft(int);
     virtual void setTop(int);
     virtual void resize(int width, int height);
+    virtual int maxHeight() const;
+    virtual int minHeight() const;
+    virtual int maxWidth() const;
+    virtual int minWidth() const;
 private:
     std::vector<Layoutable *> layoutablesList_;
     Style style_;

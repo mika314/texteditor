@@ -40,7 +40,10 @@ void Screen::paintEvent(PaintEvent &)
             const auto &c = ch_[y][x];
             p.renderGlyph(c.ch, x * glyphWidth_, y * glyphHeight_, c.fg, c.bg);
         }
-    p.setColor(Gray);
+    if (hasFocus())
+        p.setColor(Red);
+    else
+        p.setColor(Gray);
     auto xx = cursor_.x - hScroll_;
     auto yy = cursor_.y - vScroll_;
     p.drawLine(xx * glyphWidth_, yy * glyphHeight_,
@@ -203,12 +206,12 @@ void Screen::resizeEvent(ResizeEvent &e)
 
 int Screen::widthCh() const
 {
-    return width() / glyphWidth_;
+    return (width() + glyphWidth_ - 1) / glyphWidth_;
 }
 
 int Screen::heightCh() const
 {
-    return height() / glyphHeight_;
+    return (height() + glyphHeight_ - 1) / glyphHeight_;
 }
 
 Screen::Char &Screen::ch(int x, int y)
@@ -233,10 +236,10 @@ void Screen::setCursor(Coord value)
         vScroll_ = value.y;
         value.y = vScroll_;
     }
-    if (value.y > vScroll_ + heightCh() - 1)
+    if (value.y > vScroll_ + heightCh() - 2)
     {
-        vScroll_ = value.y - heightCh() + 1;
-        value.y = vScroll_ + heightCh() - 1;
+        vScroll_ = value.y - heightCh() + 2;
+        value.y = vScroll_ + heightCh() - 2;
     }
     cursor_ = value;
 }

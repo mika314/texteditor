@@ -42,6 +42,10 @@ public:
     void setLayout(Layout *);
     Layout *layout();
     const Layout *layout() const;
+    virtual int maxHeight() const;
+    virtual int minHeight() const;
+    virtual int maxWidth() const;
+    virtual int minWidth() const;
 protected:
     // some of following events handlers return bool, true means event handled and does not require handling from the parent object
     virtual bool keyPressEvent(KeyEvent &);

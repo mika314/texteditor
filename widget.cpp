@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
+#include <limits>
 
 Widget::Widget(Widget *parent):
     parent_(parent),
@@ -189,6 +190,25 @@ const Layout *Widget::layout() const
     return layout_;
 }
 
+int Widget::maxHeight() const
+{
+    return std::numeric_limits<int>::max();
+}
+
+int Widget::minHeight() const
+{
+    return 0;
+}
+
+int Widget::maxWidth() const
+{
+    return std::numeric_limits<int>::max();
+}
+
+int Widget::minWidth() const
+{
+    return 0;
+}
 
 bool Widget::keyPressEvent(KeyEvent &)
 {
