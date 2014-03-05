@@ -4,6 +4,7 @@
 #include "application.hpp"
 #include "screen.hpp"
 #include "text_file.hpp"
+#include "incremental_search_buffer.hpp"
 
 int main(int argc, char **argv)
 {
@@ -15,6 +16,8 @@ int main(int argc, char **argv)
     screen.setTextBuffer(&textFile);
     StatusBar statusBar(&mainWindow);
     Layout mainWindowLayout(Layout::Vertical);
+    IncrementalSearchBuffer incrementalSearchBuffer;
+    statusBar.setTextBuffer(&incrementalSearchBuffer);
     mainWindowLayout.addWidget(&screen);
     mainWindowLayout.addWidget(&statusBar);
     mainWindow.setLayout(&mainWindowLayout);

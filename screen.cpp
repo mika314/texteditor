@@ -342,6 +342,17 @@ bool Screen::isSelected(Coord value) const
         (value.y == e.y && value.y == s.y && value.x < e.x && value.x >= s.x);
 }
 
+int Screen::glyphHeight() const
+{
+    return glyphHeight_;
+}
+
+int Screen::glyphWidth() const
+{
+    return glyphWidth_;
+}
+
+
 void Screen::moveCursorLeft()
 {
     if (cursor_.x > 0)

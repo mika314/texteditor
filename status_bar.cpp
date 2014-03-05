@@ -6,11 +6,11 @@ StatusBar::StatusBar(Widget *parent):
 
 int StatusBar::maxHeight() const
 {
-    return 20; // TODO
+    return glyphHeight();
 }
 
 int StatusBar::minHeight() const
 {
-    return 20; // TODO
+    return glyphHeight();
 }
 

@@ -34,6 +34,9 @@ public:
     Coord endSelection() const;
     void setEndSelection(Coord);
     bool isSelected(Coord) const;
+protected:
+    int glyphHeight() const;
+    int glyphWidth() const;
 private:
     int glyphWidth_;
     int glyphHeight_;
