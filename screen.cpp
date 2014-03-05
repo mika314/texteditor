@@ -1,4 +1,6 @@
 #include "screen.hpp"
+#include "status_bar.hpp"
+#include "isearch_buffer.hpp"
 #include "base_text_buffer.hpp"
 #include "painter.hpp"
 #include "key_event.hpp"
@@ -22,7 +24,9 @@ Screen::Screen(Widget *parent):
     endSelection_{-1, -1},
     hScroll_{0},
     vScroll_{0},
-    textBuffer_{nullptr}
+    textBuffer_{nullptr},
+    statusBar_{nullptr},
+    isearchBuffer_{nullptr}
 {
     Painter p(this);
     glyphWidth_ = p.glyphWidth();
@@ -60,16 +64,28 @@ bool Screen::keyPressEvent(KeyEvent &e)
         switch (e.key())
         {
         case KeyEvent::KDelete:
+            endIsearch();
             textBuffer_->del(cursor_);
             setCursor(cursor_);
             textBuffer_->render(this);
             break;
         case KeyEvent::KBackspace:
-            textBuffer_->backspace(cursor_);
-            setCursor(cursor_);
-            textBuffer_->render(this);
+            if (!isearchBuffer_)
+            {
+                textBuffer_->backspace(cursor_);
+                setCursor(cursor_);
+                textBuffer_->render(this);
+            }
+            else
+            {
+                auto cursor = statusBar_->cursor();
+                isearchBuffer_->backspace(cursor);
+                statusBar_->setCursor(cursor);
+                isearchBuffer_->render(statusBar_);
+            }
             break;
         case KeyEvent::KReturn:
+            endIsearch();
             textBuffer_->insert(cursor_, L"\n");
             setCursor(cursor_);
             textBuffer_->render(this);
@@ -132,6 +148,9 @@ bool Screen::keyPressEvent(KeyEvent &e)
         case KeyEvent::KA:
             selectAll();
             textBuffer_->render(this);
+        case KeyEvent::KI:
+            startIsearch();
+            break;
         default:
             break;
         }
@@ -187,9 +206,19 @@ bool Screen::textInputEvent(TextInputEvent &e)
 {
     if (textBuffer_)
     {
-        textBuffer_->insert(cursor_, e.text());
-        setCursor(cursor_);
-        textBuffer_->render(this);
+        if (!isearchBuffer_)
+        {
+            textBuffer_->insert(cursor_, e.text());
+            setCursor(cursor_);
+            textBuffer_->render(this);
+        }
+        else
+        {
+            auto cursor = statusBar_->cursor();
+            isearchBuffer_->insert(cursor, e.text());
+            statusBar_->setCursor(cursor);
+            isearchBuffer_->render(statusBar_);
+        }
         return true;
     }
     return false;
@@ -236,7 +265,7 @@ void Screen::setCursor(Coord value)
         vScroll_ = value.y;
         value.y = vScroll_;
     }
-    if (value.y > vScroll_ + heightCh() - 2)
+    if (value.y > std::max(0, vScroll_ + heightCh() - 2))
     {
         vScroll_ = value.y - heightCh() + 2;
         value.y = vScroll_ + heightCh() - 2;
@@ -258,6 +287,7 @@ void Screen::setTextBuffer(BaseTextBuffer *value)
 {
     if (value != textBuffer_)
     {
+        setCursor(0, 0);
         textBuffer_ = value;
         if (textBuffer_)
             textBuffer_->render(this);
@@ -341,6 +371,16 @@ bool Screen::isSelected(Coord value) const
         (value.y == s.y && value.y != e.y && value.x >= s.x) ||
         (value.y == e.y && value.y == s.y && value.x < e.x && value.x >= s.x);
 }
+
+StatusBar *Screen::statusBar() const
+{
+    return statusBar_;
+}
+void Screen::setStatusBar(StatusBar *value)
+{
+    statusBar_ = value;
+}
+
 
 int Screen::glyphHeight() const
 {
@@ -464,9 +504,10 @@ void Screen::select(void (Screen::*moveCursor)())
     textBuffer_->render(this);
 }
 
-void Screen::moveCursor(void (Screen::*moveCursor)())
+void Screen::moveCursor(void (Screen::*moveCursorFunc)())
 {
-    (this->*moveCursor)();
+    endIsearch();
+    (this->*moveCursorFunc)();
     setStartSelection({-1, -1});
     setEndSelection({-1, -1});
     textBuffer_->render(this);
@@ -532,4 +573,29 @@ void Screen::selectAll()
     setEndSelection({static_cast<int>((*textBuffer_)[textBuffer_->size() - 1].size()), 
                 static_cast<int>(textBuffer_->size() - 1)});
     setCursor(endSelection());
+}
+
+void Screen::startIsearch()
+{
+    if (!statusBar_)
+        return;
+    if (!isearchBuffer_)
+    {
+        isearchBuffer_ = new IsearchBuffer;
+        statusBar_->setTextBuffer(isearchBuffer_);
+        statusBar_->moveCursorEnd();
+    }
+}
+
+void Screen::endIsearch()
+{
+    if (!statusBar_)
+        return;
+    if (isearchBuffer_)
+    {
+        delete isearchBuffer_;
+        isearchBuffer_ = nullptr;
+        statusBar_->setTextBuffer(nullptr);
+        
+    }
 }

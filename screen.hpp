@@ -4,6 +4,8 @@
 #include "coord.hpp"
 
 class BaseTextBuffer;
+class StatusBar;
+class IsearchBuffer;
 
 class Screen: public Widget
 {
@@ -34,6 +36,8 @@ public:
     Coord endSelection() const;
     void setEndSelection(Coord);
     bool isSelected(Coord) const;
+    StatusBar *statusBar() const;
+    void setStatusBar(StatusBar *);
 protected:
     int glyphHeight() const;
     int glyphWidth() const;
@@ -46,6 +50,8 @@ private:
     int hScroll_;
     int vScroll_;
     BaseTextBuffer *textBuffer_;
+    StatusBar *statusBar_;
+    IsearchBuffer *isearchBuffer_;
     std::vector<std::vector<Char> > ch_;
     void moveCursorLeft();
     void moveCursorRight();
@@ -61,6 +67,8 @@ private:
     void paste();
     void cut();
     void selectAll();
+    void startIsearch();
+    void endIsearch();
 protected:
     virtual void resizeEvent(ResizeEvent &);
     virtual void paintEvent(PaintEvent &);
