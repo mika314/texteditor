@@ -1,7 +1,8 @@
 #include "base_text_buffer.hpp"
 #include "screen.hpp"
 
-BaseTextBuffer::BaseTextBuffer()
+BaseTextBuffer::BaseTextBuffer():
+    isReadOnly_(false)
 {}
 
 BaseTextBuffer::~BaseTextBuffer()
@@ -43,6 +44,8 @@ void BaseTextBuffer::render(Screen *screen) const
 
 void BaseTextBuffer::insert(Coord &cursor, std::wstring value)
 {
+    if (isReadOnly())
+        return;
     for (wchar_t c: value)
     {
         auto &line = buffer_[cursor.y];
@@ -64,6 +67,8 @@ void BaseTextBuffer::insert(Coord &cursor, std::wstring value)
 
 void BaseTextBuffer::del(const Coord cursor, int value)
 {
+    if (isReadOnly())
+        return;
     for (int i = 0; i < value; ++i)
     {
         auto &line = buffer_[cursor.y];
@@ -83,6 +88,8 @@ void BaseTextBuffer::del(const Coord cursor, int value)
 
 void BaseTextBuffer::backspace(Coord &cursor, int value)
 {
+    if (isReadOnly())
+        return;
     for (int i = 0; i < value; ++i)
     {
         if (cursor.x > 0)
@@ -99,4 +106,14 @@ void BaseTextBuffer::backspace(Coord &cursor, int value)
         }
         del(cursor);
     }
+}
+
+bool BaseTextBuffer::isReadOnly() const
+{
+    return isReadOnly_;
+}
+
+void BaseTextBuffer::setReadOnly(bool value)
+{
+    isReadOnly_ = value;
 }

@@ -17,6 +17,9 @@ public:
     virtual void insert(Coord &cursor, std::wstring);
     virtual void del(const Coord cursor, int = 1);
     virtual void backspace(Coord &cursor, int = 1);
+    bool isReadOnly() const;
+    void setReadOnly(bool);
 protected:
     std::vector<std::wstring> buffer_;
+    bool isReadOnly_;
 };
