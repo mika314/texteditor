@@ -17,9 +17,9 @@ int main(int argc, char **argv)
     StatusBar statusBar(&mainWindow);
     screen.setStatusBar(&statusBar);
     Layout mainWindowLayout(Layout::Vertical);
+    mainWindow.setLayout(&mainWindowLayout);
     mainWindowLayout.addWidget(&screen);
     mainWindowLayout.addWidget(&statusBar);
-    mainWindow.setLayout(&mainWindowLayout);
     auto r = a.exec();
     textFile.save();
     return r;

@@ -60,7 +60,6 @@ int Application::exec()
                             break;
                         }
                     case SDL_WINDOWEVENT_MOVED:
-                        std::cout << "Window " << e.window.windowID << " moved to " << e.window.data1 << "," << e.window.data2 << std::endl;
                         break;
                     case SDL_WINDOWEVENT_RESIZED:
                         {

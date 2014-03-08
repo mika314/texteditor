@@ -14,11 +14,13 @@ Layout::Layout(Style style):
 void Layout::addWidget(Widget *widget)
 {
     layoutablesList_.push_back(widget);
+    resize(width_, height_);
 }
 
 void Layout::addLayout(Layout *layout)
 {
     layoutablesList_.push_back(layout);
+    resize(width_, height_);
 }
 
 void Layout::setLeft(int value)

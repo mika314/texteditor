@@ -29,7 +29,6 @@ Widget::Widget(Widget *parent):
     }
     else
         parent_->addChild(this);
-
 }
 
 Widget::~Widget()
@@ -178,6 +177,7 @@ void Widget::update()
 void Widget::setLayout(Layout *value)
 {
     layout_ = value;
+    ancestor()->resize(width_, height_);
 }
 
 Layout *Widget::layout()
