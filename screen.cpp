@@ -587,6 +587,11 @@ void Screen::startIsearch()
         statusBar_->setTextBuffer(isearchBuffer_);
         statusBar_->moveCursorEnd();
     }
+    else
+    {
+        isearchBuffer_->findNext();
+        textBuffer_->render(this);
+    }
 }
 
 void Screen::endIsearch()

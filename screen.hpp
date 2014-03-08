@@ -38,6 +38,21 @@ public:
     bool isSelected(Coord) const;
     StatusBar *statusBar() const;
     void setStatusBar(StatusBar *);
+
+    void moveCursorLeft();
+    void moveCursorRight();
+    void moveCursorUp();
+    void moveCursorDown();
+    void moveCursorHome();
+    void moveCursorEnd();
+    void moveCursorPageUp();
+    void moveCursorPageDown();
+    int copy();
+    void paste();
+    void cut();
+    void selectAll();
+    void startIsearch();
+    void endIsearch();
 protected:
     int glyphHeight() const;
     int glyphWidth() const;
@@ -53,22 +68,8 @@ private:
     StatusBar *statusBar_;
     IsearchBuffer *isearchBuffer_;
     std::vector<std::vector<Char> > ch_;
-    void moveCursorLeft();
-    void moveCursorRight();
-    void moveCursorUp();
-    void moveCursorDown();
-    void moveCursorHome();
-    void moveCursorEnd();
-    void moveCursorPageUp();
-    void moveCursorPageDown();
     void select(void (Screen::*moveCursor)());
     void moveCursor(void (Screen::*moveCursor)());
-    int copy();
-    void paste();
-    void cut();
-    void selectAll();
-    void startIsearch();
-    void endIsearch();
 protected:
     virtual void resizeEvent(ResizeEvent &);
     virtual void paintEvent(PaintEvent &);

@@ -31,7 +31,19 @@ void IsearchBuffer::backspace(Coord &cursor, int value)
     }
 }
 
-void IsearchBuffer::search()
+void IsearchBuffer::findNext()
+{
+    if (searchString_.empty())
+        return;
+    screen_->moveCursorRight();
+    if (!search())
+    {
+        screen_->setCursor(initialCursor_);
+        search();
+    }
+}
+
+bool IsearchBuffer::search()
 {
     size_t x = std::max(0, static_cast<int>(screen_->cursor().x - searchString_.size()));
     int y = screen_->cursor().y;
@@ -45,9 +57,10 @@ void IsearchBuffer::search()
             screen_->setCursor(tmp + searchString_.size(), y);
             screen_->setStartSelection(Coord{ static_cast<int>(tmp), y });
             screen_->setEndSelection(Coord{ static_cast<int>(tmp + searchString_.size()), y });
-            break;
+            return true;
         }
         ++y;
         x = 0;
     }
+    return false;
 }

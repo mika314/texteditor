@@ -9,9 +9,10 @@ public:
     IsearchBuffer(Screen *);
     virtual void insert(Coord &cursor, std::wstring);
     virtual void backspace(Coord &cursor, int = 1);
+    void findNext();
 private:
     Screen *screen_;
     std::wstring searchString_;
     Coord initialCursor_;
-    void search();
+    bool search();
 };
