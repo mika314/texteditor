@@ -82,6 +82,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
                 isearchBuffer_->backspace(cursor);
                 statusBar_->setCursor(cursor);
                 isearchBuffer_->render(statusBar_);
+                textBuffer_->render(this);
             }
             break;
         case KeyEvent::KReturn:
@@ -218,6 +219,7 @@ bool Screen::textInputEvent(TextInputEvent &e)
             isearchBuffer_->insert(cursor, e.text());
             statusBar_->setCursor(cursor);
             isearchBuffer_->render(statusBar_);
+            textBuffer_->render(this);
         }
         return true;
     }
@@ -581,7 +583,7 @@ void Screen::startIsearch()
         return;
     if (!isearchBuffer_)
     {
-        isearchBuffer_ = new IsearchBuffer;
+        isearchBuffer_ = new IsearchBuffer(this);
         statusBar_->setTextBuffer(isearchBuffer_);
         statusBar_->moveCursorEnd();
     }
