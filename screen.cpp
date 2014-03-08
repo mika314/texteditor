@@ -52,6 +52,13 @@ void Screen::paintEvent(PaintEvent &)
     auto yy = cursor_.y - vScroll_;
     p.drawLine(xx * glyphWidth_, yy * glyphHeight_,
                xx * glyphWidth_, (yy + 1) * glyphHeight_);
+    if (textBuffer_)
+    {
+        int sbHeight = heightCh() * height() / textBuffer_->size();
+        int sbTop = vScroll() * height() / textBuffer_->size();
+        p.setColor(Blue);
+        p.drawLine(width() - 1, sbTop, width() - 1, sbTop + sbHeight);
+    }
 }
 
 bool Screen::keyPressEvent(KeyEvent &e)
