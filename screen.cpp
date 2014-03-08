@@ -54,7 +54,7 @@ void Screen::paintEvent(PaintEvent &)
                xx * glyphWidth_, (yy + 1) * glyphHeight_);
     if (textBuffer_)
     {
-        int sbHeight = heightCh() * height() / textBuffer_->size();
+        int sbHeight = std::max(3, heightCh() * height() / textBuffer_->size());
         int sbTop = vScroll() * height() / textBuffer_->size();
         p.setColor(Blue);
         p.drawLine(width() - 1, sbTop, width() - 1, sbTop + sbHeight);
