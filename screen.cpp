@@ -1,4 +1,5 @@
 #include "screen.hpp"
+#include "open_dialog.hpp"
 #include "status_bar.hpp"
 #include "isearch_buffer.hpp"
 #include "base_text_buffer.hpp"
@@ -63,6 +64,21 @@ void Screen::paintEvent(PaintEvent &)
 
 bool Screen::keyPressEvent(KeyEvent &e)
 {
+    switch (e.modifiers()) 
+    {
+    case KeyEvent::MLCtrl:
+    case KeyEvent::MRCtrl:
+        switch (e.key())
+        {
+        case KeyEvent::KO:
+            setTextBuffer(std::make_shared<OpenDialog>(this));
+            break;
+        default:
+            break;
+        }
+    default:
+        break;
+    }
     if (!textBuffer_)
         return false;
     switch (e.modifiers()) 
@@ -287,16 +303,19 @@ void Screen::setCursor(int x, int y)
     setCursor(Coord{ x, y });
 }
 
-BaseTextBuffer *Screen::textBuffer() const
+std::shared_ptr<BaseTextBuffer> Screen::textBuffer() const
 {
     return textBuffer_;
 }
 
-void Screen::setTextBuffer(BaseTextBuffer *value)
+void Screen::setTextBuffer(std::shared_ptr<BaseTextBuffer> value)
 {
     if (value != textBuffer_)
     {
         setCursor(0, 0);
+        setStartSelection(Coord{-1, -1});
+        setEndSelection(Coord{-1, -1});
+        
         textBuffer_ = value;
         if (textBuffer_)
             textBuffer_->render(this);
@@ -590,7 +609,7 @@ void Screen::startIsearch()
         return;
     if (!isearchBuffer_)
     {
-        isearchBuffer_ = new IsearchBuffer(this);
+        isearchBuffer_ = std::make_shared<IsearchBuffer>(this);
         statusBar_->setTextBuffer(isearchBuffer_);
         statusBar_->moveCursorEnd();
     }
@@ -607,7 +626,6 @@ void Screen::endIsearch()
         return;
     if (isearchBuffer_)
     {
-        delete isearchBuffer_;
         isearchBuffer_ = nullptr;
         statusBar_->setTextBuffer(nullptr);
         

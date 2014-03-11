@@ -2,6 +2,7 @@
 #include "widget.hpp"
 #include "color.hpp"
 #include "coord.hpp"
+#include <memory>
 
 class BaseTextBuffer;
 class StatusBar;
@@ -25,8 +26,8 @@ public:
     Coord cursor() const;
     void setCursor(Coord);
     void setCursor(int x, int y);
-    BaseTextBuffer *textBuffer() const;
-    void setTextBuffer(BaseTextBuffer *);
+    std::shared_ptr<BaseTextBuffer> textBuffer() const;
+    void setTextBuffer(std::shared_ptr<BaseTextBuffer>);
     int hScroll() const;
     void setHScroll(int);
     int vScroll() const;
@@ -64,9 +65,9 @@ private:
     Coord endSelection_;
     int hScroll_;
     int vScroll_;
-    BaseTextBuffer *textBuffer_;
+    std::shared_ptr<BaseTextBuffer> textBuffer_;
     StatusBar *statusBar_;
-    IsearchBuffer *isearchBuffer_;
+    std::shared_ptr<IsearchBuffer> isearchBuffer_;
     std::vector<std::vector<Char> > ch_;
     void select(void (Screen::*moveCursor)());
     void moveCursor(void (Screen::*moveCursor)());

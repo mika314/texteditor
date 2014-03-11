@@ -3,7 +3,6 @@
 #include "layout.hpp"
 #include "application.hpp"
 #include "screen.hpp"
-#include "open_dialog.hpp"
 #include "isearch_buffer.hpp"
 
 int main(int argc, char **argv)
@@ -11,9 +10,7 @@ int main(int argc, char **argv)
     Application a(argc, argv);
     Widget mainWindow;
     Screen screen(&mainWindow);
-    OpenDialog openDialog;
     screen.setFocus();
-    screen.setTextBuffer(&openDialog);
     StatusBar statusBar(&mainWindow);
     screen.setStatusBar(&statusBar);
     Layout mainWindowLayout(Layout::Vertical);
