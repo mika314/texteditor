@@ -99,7 +99,7 @@ int Application::exec()
                 }
             case SDL_KEYDOWN:
                 {
-                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), e.key.repeat };
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), static_cast<bool>(e.key.repeat) };
                     auto w = focusWidget();
                     if (!w)
                         w = widgetByWindowId(e.key.windowID);
@@ -115,7 +115,7 @@ int Application::exec()
                 }
             case SDL_KEYUP:
                 {
-                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), e.key.repeat };
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), static_cast<bool>(e.key.repeat) };
                     auto w = focusWidget();
                     if (!w)
                         w = widgetByWindowId(e.key.windowID);
