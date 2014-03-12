@@ -10,11 +10,12 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/param.h>
 
 OpenDialog::OpenDialog(Screen *screen):
     screen_(screen)
 {
-    char *tmp = get_current_dir_name();
+    char *tmp = getcwd(nullptr, MAXPATHLEN);
     auto currentDir = toUtf16(tmp);
     free(tmp);
     buffer_.push_back(currentDir + L":");
