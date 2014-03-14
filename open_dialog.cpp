@@ -33,9 +33,9 @@ OpenDialog::OpenDialog(Screen *screen):
     setReadOnly(true);
 }
 
-void OpenDialog::insert(Coord &cursor, std::wstring value)
+void OpenDialog::internalInsert(Coord &cursor, std::wstring value)
 {
-    BaseTextBuffer::insert(cursor, value);
+    BaseTextBuffer::internalInsert(cursor, value);
     if (value.find(L"\n") != std::wstring::npos && cursor.y > 0)
     {
         struct stat buf;

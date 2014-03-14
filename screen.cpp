@@ -175,6 +175,22 @@ bool Screen::keyPressEvent(KeyEvent &e)
         case KeyEvent::KI:
             startIsearch();
             break;
+        case KeyEvent::KZ:
+            {
+                Coord c = cursor();
+                textBuffer_->undo(c);
+                setCursor(c);
+                textBuffer_->render(this);
+                break;
+            }
+        case KeyEvent::KR:
+            {
+                Coord c = cursor();
+                textBuffer_->redo(c);
+                setCursor(c);
+                textBuffer_->render(this);
+                break;
+            }
         default:
             break;
         }

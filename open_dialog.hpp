@@ -7,7 +7,7 @@ class OpenDialog: public BaseTextBuffer
 {
 public:
     OpenDialog(Screen *screen);
-    virtual void insert(Coord &cursor, std::wstring);
 private:
+    virtual void internalInsert(Coord &cursor, std::wstring);
     Screen *screen_;
 };

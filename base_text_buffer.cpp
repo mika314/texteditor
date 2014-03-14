@@ -24,6 +24,17 @@ int BaseTextBuffer::size() const
     return buffer_.size();
 }
 
+void BaseTextBuffer::undo(Coord &cursor)
+{
+    undoStack_.undo(cursor);
+}
+
+void BaseTextBuffer::redo(Coord &cursor)
+{
+    undoStack_.redo(cursor);
+}
+
+
 void BaseTextBuffer::render(Screen *screen) const
 {
     for (int y = 0; y < screen->heightCh(); ++y)
@@ -43,6 +54,20 @@ void BaseTextBuffer::render(Screen *screen) const
 }
 
 void BaseTextBuffer::insert(Coord &cursor, std::wstring value)
+{
+    undoStack_.push(cursor, 
+                    [value, this](Coord &c) -> int
+                    { 
+                        internalInsert(c, value);
+                        return value.size();
+                    },
+                    [this](Coord &c, int size)
+                    {
+                        internalDelete(c, size);
+                    });
+}
+
+void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
 {
     if (isReadOnly())
         return;
@@ -65,31 +90,69 @@ void BaseTextBuffer::insert(Coord &cursor, std::wstring value)
     }
 }
 
-void BaseTextBuffer::del(const Coord cursor, int value)
+void BaseTextBuffer::del(Coord &cursor, int value)
+{
+    undoStack_.push(cursor, 
+                    [value, this](Coord &c) -> std::wstring
+                    { 
+                        return internalDelete(c, value); 
+                    },
+                    [this](Coord &c, const std::wstring &str)
+                    {
+                        Coord tmp = c;
+                        internalInsert(c, str);
+                        c = tmp;
+                    });
+}
+
+std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
 {
     if (isReadOnly())
-        return;
+        return L"";
+    std::wstring result;
     for (int i = 0; i < value; ++i)
     {
         auto &line = buffer_[cursor.y];
         if (begin(line) + cursor.x != end(line))
+        {
+            result += line[cursor.x];
             line.erase(begin(line) + cursor.x);
+        }
         else
         {
             if (cursor.y < static_cast<int>(buffer_.size()) - 1)
             {
+                result += L"\n";
                 auto tmp = buffer_[cursor.y + 1];
                 buffer_.erase(begin(buffer_) + cursor.y + 1);
                 buffer_[cursor.y] += tmp;
             }
         }
     }
+    return result;
 }
 
 void BaseTextBuffer::backspace(Coord &cursor, int value)
 {
+    undoStack_.push(cursor, 
+                    [value, this](Coord &c) -> std::pair<std::wstring, Coord>
+                    { 
+                        auto result = internalBackspace(c, value);
+                        return std::make_pair(result, c);
+                    },
+                    [this](Coord &c, const std::pair<std::wstring, Coord> &s)
+                    {
+                        Coord ccc = s.second;
+                        internalInsert(ccc, s.first);
+                        c = ccc;
+                    });
+}
+
+std::wstring BaseTextBuffer::internalBackspace(Coord &cursor, int value)
+{
     if (isReadOnly())
-        return;
+        return L"";
+    std::wstring result;
     for (int i = 0; i < value; ++i)
     {
         if (cursor.x > 0)
@@ -102,10 +165,12 @@ void BaseTextBuffer::backspace(Coord &cursor, int value)
                 cursor.x = buffer_[cursor.y].size();
             }
             else
-                return;
+                return L"";
         }
-        del(cursor);
+        result += internalDelete(cursor);
     }
+    
+    return { result.rbegin(), result.rend() };
 }
 
 bool BaseTextBuffer::isReadOnly() const
