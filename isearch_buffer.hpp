@@ -7,10 +7,10 @@ class IsearchBuffer: public BaseTextBuffer
 {
 public:
     IsearchBuffer(Screen *);
-    virtual void insert(Coord &cursor, std::wstring);
-    virtual void backspace(Coord &cursor, int = 1);
     void findNext();
 private:
+    virtual void internalInsert(Coord &cursor, std::wstring);
+    virtual std::wstring internalBackspace(Coord &cursor, int = 1);
     Screen *screen_;
     std::wstring searchString_;
     Coord initialCursor_;
