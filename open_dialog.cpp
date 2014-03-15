@@ -46,6 +46,7 @@ void OpenDialog::insert(Coord &cursor, std::wstring value)
             auto folderName = buffer_[0];
             folderName = { begin(folderName) + folderName.rfind(L"/") + 1, end(folderName) - 1 };
             chdir(fileName.c_str());
+            auto screen = screen_;
             auto newOpenDialog = std::make_shared<OpenDialog>(screen_);
             int line = -1;
             for (size_t i = 0; i < newOpenDialog->buffer_.size(); ++i)
@@ -54,9 +55,9 @@ void OpenDialog::insert(Coord &cursor, std::wstring value)
                     line = i;
                     break;
                 }
-            screen_->setTextBuffer(newOpenDialog);
+            screen->setTextBuffer(newOpenDialog);
             if (line != -1)
-                screen_->setCursor({ 0, line });
+                screen->setCursor({ 0, line });
         }
         else
             screen_->setTextBuffer(std::make_shared<TextFile>(fileName));
