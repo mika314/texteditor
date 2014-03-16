@@ -4,6 +4,7 @@
 #include "application.hpp"
 #include "screen.hpp"
 #include "isearch_buffer.hpp"
+#include "text_file.hpp"
 
 int main(int argc, char **argv)
 {
@@ -16,6 +17,7 @@ int main(int argc, char **argv)
     Layout mainWindowLayout(Layout::Vertical);
     mainWindow.setLayout(&mainWindowLayout);
     mainWindowLayout.addWidget(&screen);
+    screen.setTextBuffer(std::make_shared<TextFile>());
     mainWindowLayout.addWidget(&statusBar);
     auto r = a.exec();
     return r;

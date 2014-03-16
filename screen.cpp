@@ -1,5 +1,7 @@
 #include "screen.hpp"
+#include "save_dialog.hpp"
 #include "open_dialog.hpp"
+#include "text_file.hpp"
 #include "status_bar.hpp"
 #include "isearch_buffer.hpp"
 #include "base_text_buffer.hpp"
@@ -55,8 +57,13 @@ void Screen::paintEvent(PaintEvent &)
                xx * glyphWidth_, (yy + 1) * glyphHeight_);
     if (textBuffer_)
     {
-        int sbHeight = std::max(3, heightCh() * height() / textBuffer_->size());
-        int sbTop = vScroll() * height() / textBuffer_->size();
+        int sbHeight = std::max(3, 
+                                textBuffer_->size() != 0 ? 
+                                heightCh() * height() / textBuffer_->size() : 
+                                heightCh() * height());
+        int sbTop = textBuffer_->size() != 0 ? 
+            vScroll() * height() / textBuffer_->size() :
+            0;
         p.setColor(Blue);
         p.drawLine(width() - 1, sbTop, width() - 1, sbTop + sbHeight);
     }
@@ -191,6 +198,15 @@ bool Screen::keyPressEvent(KeyEvent &e)
                 textBuffer_->render(this);
                 break;
             }
+        case KeyEvent::KS:
+            if (auto textFile = std::dynamic_pointer_cast<TextFile>(textBuffer_))
+            {
+                if (textFile->fileName().empty())
+                    setTextBuffer(std::make_shared<SaveDialog>(this, textFile));
+                else
+                    textFile->save();
+            }
+            break;
         default:
             break;
         }

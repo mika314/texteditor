@@ -7,17 +7,26 @@ TextFile::TextFile(std::string fileName):
     fileName_(fileName)
 {
     std::ifstream f(fileName_);
-    while (!f.eof())
-    {
-        std::string line;
-        std::getline(f, line);
-        buffer_.push_back(toUtf16(line));
-    }
+    if (f.is_open())
+        while (!f.eof())
+        {
+            std::string line;
+            std::getline(f, line);
+            buffer_.push_back(toUtf16(line));
+        }
+    else
+        buffer_.push_back(L"");
+}
+
+std::string TextFile::fileName() const
+{
+    return fileName_;
 }
 
 void TextFile::save()
 {
-    saveAs(fileName_);
+    if (!fileName_.empty())
+        saveAs(fileName_);
 }
 
 void TextFile::saveAs(std::string fileName)
@@ -26,4 +35,5 @@ void TextFile::saveAs(std::string fileName)
     std::ofstream f(fileName_);
     for (const auto &l: buffer_)
         f << toUtf8(l) << std::endl;
+    clearModified();
 }

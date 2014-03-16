@@ -4,7 +4,8 @@
 class TextFile: public BaseTextBuffer
 {
 public:
-    TextFile(std::string fileName);
+    TextFile(std::string fileName = "");
+    std::string fileName() const;
     void save();
     void saveAs(std::string fileName);
 private:
