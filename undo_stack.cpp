@@ -3,6 +3,9 @@
 BaseUndoCommand::~BaseUndoCommand()
 {}
 
+UndoStack::UndoStack():
+    originalState_(0)
+{}
 
 UndoStack::~UndoStack()
 {
@@ -33,3 +36,32 @@ void UndoStack::redo(Coord &cursor)
     command->redo(cursor);
 }
 
+bool UndoStack::canUndo() const
+{
+    return !undoStack_.empty();
+}
+
+bool UndoStack::canRedo() const
+{
+    return !redoStack_.empty();
+}
+
+void UndoStack::clean()
+{
+    for (auto c: undoStack_)
+        delete c;
+    undoStack_.clear();
+    for (auto c: redoStack_)
+        delete c;
+    redoStack_.clear();
+}
+
+bool UndoStack::isModified() const
+{
+    return originalState_ == undoStack_.size();
+}
+
+void UndoStack::clearModified()
+{
+    originalState_ = undoStack_.size();
+}

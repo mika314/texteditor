@@ -182,3 +182,13 @@ void BaseTextBuffer::setReadOnly(bool value)
 {
     isReadOnly_ = value;
 }
+
+bool BaseTextBuffer::isModified() const
+{
+    return undoStack_.isModified();
+}
+
+void BaseTextBuffer::clearModified()
+{
+    undoStack_.clearModified();
+}

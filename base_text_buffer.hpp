@@ -19,6 +19,7 @@ public:
     bool canUndo() const;
     bool canRedo() const;
     bool isModified() const;
+    void clearModified();
     void render(Screen *) const;
     void insert(Coord &cursor, std::wstring);
     void del(Coord &cursor, int = 1);
