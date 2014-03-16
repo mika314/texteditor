@@ -57,10 +57,16 @@ void OpenDialog::internalInsert(Coord &cursor, std::wstring value)
                 }
             screen->setTextBuffer(newOpenDialog);
             if (line != -1)
-                screen->setCursor({ 0, line });
+                cursor = { 0, line };
+            else
+                cursor = { 0, 1 };
         }
         else
-            screen_->setTextBuffer(std::make_shared<TextFile>(fileName));
+        {
+            auto screen = screen_;
+            screen->setTextBuffer(std::make_shared<TextFile>(fileName));
+            cursor = { 0, 0 };
+        }
     }
 }
 
