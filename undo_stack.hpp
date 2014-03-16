@@ -42,6 +42,7 @@ private:
 class UndoStack
 {
 public:
+    UndoStack();
     ~UndoStack();
     template <typename RedoFunc, typename UndoFunc>
     void push(Coord &cursor, const RedoFunc &redoFunc, const UndoFunc &undoFunc)
@@ -57,7 +58,11 @@ public:
     void redo(Coord &cursor);
     bool canUndo() const;
     bool canRedo() const;
+    void clean();
+    bool isModified() const;
+    void clearModified();
 public:
     std::vector<BaseUndoCommand *> undoStack_;
     std::vector<BaseUndoCommand *> redoStack_;
+    std::vector<BaseUndoCommand *>::size_type originalState_;
 };
