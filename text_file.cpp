@@ -6,6 +6,7 @@
 TextFile::TextFile(std::string fileName):
     fileName_(fileName)
 {
+    setName(toUtf16(fileName));
     std::ifstream f(fileName_);
     if (f.is_open())
         while (!f.eof())
@@ -32,6 +33,7 @@ void TextFile::save()
 void TextFile::saveAs(std::string fileName)
 {
     fileName_ = fileName;
+    setName(toUtf16(fileName));
     std::ofstream f(fileName_);
     for (const auto &l: buffer_)
         f << toUtf8(l) << std::endl;

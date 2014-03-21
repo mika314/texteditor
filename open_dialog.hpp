@@ -9,5 +9,6 @@ public:
     OpenDialog(Screen *screen);
 private:
     virtual void internalInsert(Coord &cursor, std::wstring);
+    void scanDirectory();
     Screen *screen_;
 };

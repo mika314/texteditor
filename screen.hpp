@@ -2,7 +2,7 @@
 #include "widget.hpp"
 #include "color.hpp"
 #include "coord.hpp"
-#include <memory>
+#include "signal_slot.hpp"
 
 class BaseTextBuffer;
 class StatusBar;
@@ -12,6 +12,7 @@ class Screen: public Widget
 {
 public:
     Screen(Widget * = nullptr);
+    ~Screen();
     struct Char
     {
         Char(wchar_t = L'\0', Color fg = Black, Color bg = White);
@@ -26,8 +27,8 @@ public:
     Coord cursor() const;
     void setCursor(Coord);
     void setCursor(int x, int y);
-    std::shared_ptr<BaseTextBuffer> textBuffer() const;
-    void setTextBuffer(std::shared_ptr<BaseTextBuffer>);
+    BaseTextBuffer *textBuffer() const;
+    void setTextBuffer(BaseTextBuffer *);
     int hScroll() const;
     void setHScroll(int);
     int vScroll() const;
@@ -54,6 +55,7 @@ public:
     void selectAll();
     void startIsearch();
     void endIsearch();
+    Signal<void, BaseTextBuffer *> newTextBuffer;
 protected:
     int glyphHeight() const;
     int glyphWidth() const;
@@ -65,9 +67,9 @@ private:
     Coord endSelection_;
     int hScroll_;
     int vScroll_;
-    std::shared_ptr<BaseTextBuffer> textBuffer_;
+    BaseTextBuffer *textBuffer_;
     StatusBar *statusBar_;
-    std::shared_ptr<IsearchBuffer> isearchBuffer_;
+    IsearchBuffer *isearchBuffer_;
     std::vector<std::vector<Char> > ch_;
     void select(void (Screen::*moveCursor)());
     void moveCursor(void (Screen::*moveCursor)());

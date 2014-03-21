@@ -183,6 +183,16 @@ void BaseTextBuffer::setReadOnly(bool value)
     isReadOnly_ = value;
 }
 
+std::wstring BaseTextBuffer::name() const
+{
+    return name_;
+}
+
+void BaseTextBuffer::setName(std::wstring value)
+{
+    name_ = value;
+}
+
 bool BaseTextBuffer::isModified() const
 {
     return undoStack_.isModified();

@@ -15,21 +15,7 @@
 OpenDialog::OpenDialog(Screen *screen):
     screen_(screen)
 {
-    char *tmp = getcwd(nullptr, MAXPATHLEN);
-    auto currentDir = toUtf16(tmp);
-    free(tmp);
-    buffer_.push_back(currentDir + L":");
-
-    auto d = opendir(".");
-    while (auto de = readdir(d))
-    {
-        auto fileName = toUtf16(de->d_name);
-        if (fileName == L".." || 
-            (fileName.size() > 0 && fileName[0] != L'.' && fileName[fileName.size() - 1] != L'~'))
-            buffer_.push_back(fileName);
-    }
-    closedir(d);
-    std::sort(begin(buffer_) + 1, end(buffer_));
+    scanDirectory();
     setReadOnly(true);
 }
 
@@ -46,16 +32,14 @@ void OpenDialog::internalInsert(Coord &cursor, std::wstring value)
             auto folderName = buffer_[0];
             folderName = { begin(folderName) + folderName.rfind(L"/") + 1, end(folderName) - 1 };
             chdir(fileName.c_str());
-            auto screen = screen_;
-            auto newOpenDialog = std::make_shared<OpenDialog>(screen_);
+            scanDirectory();
             int line = -1;
-            for (size_t i = 0; i < newOpenDialog->buffer_.size(); ++i)
-                if (newOpenDialog->buffer_[i] == folderName)
+            for (size_t i = 0; i < buffer_.size(); ++i)
+                if (buffer_[i] == folderName)
                 {
                     line = i;
                     break;
                 }
-            screen->setTextBuffer(newOpenDialog);
             if (line != -1)
                 cursor = { 0, line };
             else
@@ -64,9 +48,27 @@ void OpenDialog::internalInsert(Coord &cursor, std::wstring value)
         else
         {
             auto screen = screen_;
-            screen->setTextBuffer(std::make_shared<TextFile>(fileName));
+            screen->newTextBuffer(new TextFile(fileName));
             cursor = { 0, 0 };
         }
     }
 }
 
+void OpenDialog::scanDirectory()
+{
+    char *tmp = getcwd(nullptr, MAXPATHLEN);
+    auto currentDir = toUtf16(tmp);
+    free(tmp);
+    buffer_.push_back(currentDir + L":");
+
+    auto d = opendir(".");
+    while (auto de = readdir(d))
+    {
+        auto fileName = toUtf16(de->d_name);
+        if (fileName == L".." || 
+            (fileName.size() > 0 && fileName[0] != L'.' && fileName[fileName.size() - 1] != L'~'))
+            buffer_.push_back(fileName);
+    }
+    closedir(d);
+    std::sort(begin(buffer_) + 1, end(buffer_));
+}

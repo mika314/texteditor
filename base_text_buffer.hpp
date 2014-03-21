@@ -26,6 +26,8 @@ public:
     virtual void backspace(Coord &cursor, int = 1);
     bool isReadOnly() const;
     void setReadOnly(bool);
+    std::wstring name() const;
+    void setName(std::wstring);
 protected:
     virtual void internalInsert(Coord &cursor, std::wstring);
     virtual std::wstring internalDelete(const Coord cursor, int = 1);
@@ -33,4 +35,5 @@ protected:
     std::vector<std::wstring> buffer_;
     bool isReadOnly_;
     UndoStack undoStack_;
+    std::wstring name_;
 };

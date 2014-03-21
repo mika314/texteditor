@@ -38,6 +38,12 @@ Screen::Screen(Widget *parent):
     resizeEvent(e);
 }
 
+Screen::~Screen()
+{
+    delete isearchBuffer_;
+}
+
+
 void Screen::paintEvent(PaintEvent &)
 {
     Painter p(this);
@@ -78,7 +84,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
         switch (e.key())
         {
         case KeyEvent::KO:
-            setTextBuffer(std::make_shared<OpenDialog>(this));
+            newTextBuffer(new OpenDialog(this));
             break;
         default:
             break;
@@ -199,10 +205,10 @@ bool Screen::keyPressEvent(KeyEvent &e)
                 break;
             }
         case KeyEvent::KS:
-            if (auto textFile = std::dynamic_pointer_cast<TextFile>(textBuffer_))
+            if (auto textFile = dynamic_cast<TextFile *>(textBuffer_))
             {
                 if (textFile->fileName().empty())
-                    setTextBuffer(std::make_shared<SaveDialog>(this, textFile));
+                    newTextBuffer(new SaveDialog(this, textFile));
                 else
                     textFile->save();
             }
@@ -335,12 +341,12 @@ void Screen::setCursor(int x, int y)
     setCursor(Coord{ x, y });
 }
 
-std::shared_ptr<BaseTextBuffer> Screen::textBuffer() const
+BaseTextBuffer *Screen::textBuffer() const
 {
     return textBuffer_;
 }
 
-void Screen::setTextBuffer(std::shared_ptr<BaseTextBuffer> value)
+void Screen::setTextBuffer(BaseTextBuffer *value)
 {
     if (value != textBuffer_)
     {
@@ -641,7 +647,7 @@ void Screen::startIsearch()
         return;
     if (!isearchBuffer_)
     {
-        isearchBuffer_ = std::make_shared<IsearchBuffer>(this);
+        isearchBuffer_ = new IsearchBuffer(this);
         statusBar_->setTextBuffer(isearchBuffer_);
         statusBar_->moveCursorEnd();
     }
@@ -658,6 +664,7 @@ void Screen::endIsearch()
         return;
     if (isearchBuffer_)
     {
+        delete isearchBuffer_;
         isearchBuffer_ = nullptr;
         statusBar_->setTextBuffer(nullptr);
         
