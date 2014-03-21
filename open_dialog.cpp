@@ -47,8 +47,7 @@ void OpenDialog::internalInsert(Coord &cursor, std::wstring value)
         }
         else
         {
-            auto screen = screen_;
-            screen->newTextBuffer(new TextFile(fileName));
+            openFile(this, fileName);
             cursor = { 0, 0 };
         }
     }
@@ -56,9 +55,11 @@ void OpenDialog::internalInsert(Coord &cursor, std::wstring value)
 
 void OpenDialog::scanDirectory()
 {
+    buffer_.clear();
     char *tmp = getcwd(nullptr, MAXPATHLEN);
     auto currentDir = toUtf16(tmp);
     free(tmp);
+    setName(std::wstring{begin(currentDir) + currentDir.rfind(L'/') + 1, end(currentDir)});
     buffer_.push_back(currentDir + L":");
 
     auto d = opendir(".");

@@ -6,7 +6,6 @@
 
 class BaseTextBuffer;
 class StatusBar;
-class IsearchBuffer;
 
 class Screen: public Widget
 {
@@ -55,7 +54,6 @@ public:
     void selectAll();
     void startIsearch();
     void endIsearch();
-    Signal<void, BaseTextBuffer *> newTextBuffer;
 protected:
     int glyphHeight() const;
     int glyphWidth() const;
@@ -69,7 +67,6 @@ private:
     int vScroll_;
     BaseTextBuffer *textBuffer_;
     StatusBar *statusBar_;
-    IsearchBuffer *isearchBuffer_;
     std::vector<std::vector<Char> > ch_;
     void select(void (Screen::*moveCursor)());
     void moveCursor(void (Screen::*moveCursor)());

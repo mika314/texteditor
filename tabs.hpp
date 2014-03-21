@@ -1,5 +1,6 @@
 #pragma once
 #include "widget.hpp"
+#include "signal_slot.hpp"
 #include <vector>
 
 class BaseTextBuffer;
@@ -8,19 +9,25 @@ class Screen;
 class Tabs: public Widget
 {
 public:
-    Tabs(Widget *parent, Screen *);
+    Tabs(Widget *parent);
     void addTextBuffer(BaseTextBuffer *);
+    void closeTextBuffer(BaseTextBuffer *);
+    void closeActiveTextBuffer();
+    void switchToNextTextBuffer();
+    void switchToPrevTextBuffer();
+    void moveTextBufferLeft();
+    void moveTextBufferRight();
     std::vector<BaseTextBuffer *> &textBuffersList();
     const std::vector<BaseTextBuffer *> &textBuffersList() const;
-    void setActiveBuffer(BaseTextBuffer *);
-    const BaseTextBuffer *activeBuffer() const;
-    BaseTextBuffer *activeBuffer();
+    void setActiveTextBuffer(BaseTextBuffer *);
+    const BaseTextBuffer *activeTextBuffer() const;
+    BaseTextBuffer *activeTextBuffer();
     virtual int maxHeight() const;
     virtual int minHeight() const;
+    Signal<void, BaseTextBuffer *> setTextBuffer;
 private:
     virtual void paintEvent(PaintEvent &);
     std::vector<BaseTextBuffer *> textBuffersList_;
-    Screen *screen_;
-    BaseTextBuffer *activeBuffer_;
+    BaseTextBuffer *activeTextBuffer_;
     
 };

@@ -2,17 +2,85 @@
 #include "painter.hpp"
 #include "base_text_buffer.hpp"
 #include "screen.hpp"
+#include "application.hpp"
+#include <algorithm>
 
-Tabs::Tabs(Widget *parent, Screen *screen):
+Tabs::Tabs(Widget *parent):
     Widget(parent),
-    screen_(screen),
-    activeBuffer_(nullptr)
+    activeTextBuffer_(nullptr)
 {}
 
 void Tabs::addTextBuffer(BaseTextBuffer *textBuffer)
 {
     textBuffersList_.push_back(textBuffer);
-    setActiveBuffer(textBuffer);
+    setActiveTextBuffer(textBuffer);
+}
+
+void Tabs::closeTextBuffer(BaseTextBuffer *textBuffer)
+{
+    auto iter = find(begin(textBuffersList_), end(textBuffersList_), activeTextBuffer_);
+    if (iter == end(textBuffersList_))
+        return;
+    textBuffersList_.erase(iter);
+    Application::instance()->queueDelete(textBuffer);
+}
+
+void Tabs::closeActiveTextBuffer()
+{
+    auto iter = find(begin(textBuffersList_), end(textBuffersList_), activeTextBuffer_);
+    if (iter == end(textBuffersList_))
+        return;
+    Application::instance()->queueDelete(activeTextBuffer_);
+    iter = textBuffersList_.erase(iter);
+    
+    if (iter != end(textBuffersList_))
+        setActiveTextBuffer(*iter);
+    else if (!textBuffersList_.empty())
+        setActiveTextBuffer(textBuffersList_.back());
+    else
+        setActiveTextBuffer(nullptr);
+}
+
+void Tabs::switchToNextTextBuffer()
+{
+    auto iter = find(begin(textBuffersList_), end(textBuffersList_), activeTextBuffer_);
+    if (iter == end(textBuffersList_))
+        return;
+    ++iter;
+    if (iter == end(textBuffersList_))
+        return;
+    setActiveTextBuffer(*iter);
+}
+
+void Tabs::switchToPrevTextBuffer()
+{
+    auto iter = find(begin(textBuffersList_), end(textBuffersList_), activeTextBuffer_);
+    if (iter == end(textBuffersList_))
+        return;
+    if (*iter == textBuffersList_.front())
+        return;
+    --iter;
+    setActiveTextBuffer(*iter);
+}
+
+void Tabs::moveTextBufferLeft()
+{
+    auto iter = find(begin(textBuffersList_), end(textBuffersList_), activeTextBuffer_);
+    if (iter == end(textBuffersList_))
+        return;
+    if (*iter == textBuffersList_.front())
+        return;
+    std::swap(*iter, *(iter - 1));
+    update();
+}
+
+void Tabs::moveTextBufferRight()
+{
+    auto iter = find(begin(textBuffersList_), end(textBuffersList_), activeTextBuffer_);
+    if (iter == end(textBuffersList_) || iter + 1 == end(textBuffersList_))
+        return;
+    std::swap(*iter, *(iter + 1));
+    update();
 }
 
 std::vector<BaseTextBuffer *> &Tabs::textBuffersList()
@@ -25,22 +93,21 @@ const std::vector<BaseTextBuffer *> &Tabs::textBuffersList() const
     return textBuffersList_;
 }
 
-void Tabs::setActiveBuffer(BaseTextBuffer *value)
+void Tabs::setActiveTextBuffer(BaseTextBuffer *value)
 {
-    activeBuffer_ = value;
-    if (screen_)
-        screen_->setTextBuffer(value);
+    activeTextBuffer_ = value;
+    setTextBuffer(value);
     update();
 }
 
-const BaseTextBuffer *Tabs::activeBuffer() const
+const BaseTextBuffer *Tabs::activeTextBuffer() const
 {
-    return activeBuffer_;
+    return activeTextBuffer_;
 }
 
-BaseTextBuffer *Tabs::activeBuffer()
+BaseTextBuffer *Tabs::activeTextBuffer()
 {
-    return activeBuffer_;
+    return activeTextBuffer_;
 }
 
 int Tabs::maxHeight() const
@@ -62,7 +129,7 @@ void Tabs::paintEvent(PaintEvent &)
     for (auto buff: textBuffersList_)
     {
         auto w = buff->name().size() * p.glyphWidth();
-        auto bgColor = activeBuffer_ == buff ? Gray76 : Gray40;
+        auto bgColor = activeTextBuffer_ == buff ? Gray76 : Gray40;
         p.setColor(bgColor);
         p.drawRect(x, 0, w + p.glyphWidth() * 5 / 2, height());
         int chP = x + p.glyphWidth() / 2;
@@ -77,3 +144,4 @@ void Tabs::paintEvent(PaintEvent &)
         x += w + p.glyphWidth() * 5 / 2;
     }
 }
+

@@ -1,7 +1,4 @@
 #include "screen.hpp"
-#include "save_dialog.hpp"
-#include "open_dialog.hpp"
-#include "text_file.hpp"
 #include "status_bar.hpp"
 #include "isearch_buffer.hpp"
 #include "base_text_buffer.hpp"
@@ -28,8 +25,7 @@ Screen::Screen(Widget *parent):
     hScroll_{0},
     vScroll_{0},
     textBuffer_{nullptr},
-    statusBar_{nullptr},
-    isearchBuffer_{nullptr}
+    statusBar_{nullptr}
 {
     Painter p(this);
     glyphWidth_ = p.glyphWidth();
@@ -40,9 +36,9 @@ Screen::Screen(Widget *parent):
 
 Screen::~Screen()
 {
-    delete isearchBuffer_;
+    if (statusBar_)
+        delete statusBar_->textBuffer();
 }
-
 
 void Screen::paintEvent(PaintEvent &)
 {
@@ -77,23 +73,9 @@ void Screen::paintEvent(PaintEvent &)
 
 bool Screen::keyPressEvent(KeyEvent &e)
 {
-    switch (e.modifiers()) 
-    {
-    case KeyEvent::MLCtrl:
-    case KeyEvent::MRCtrl:
-        switch (e.key())
-        {
-        case KeyEvent::KO:
-            newTextBuffer(new OpenDialog(this));
-            break;
-        default:
-            break;
-        }
-    default:
-        break;
-    }
     if (!textBuffer_)
         return false;
+    bool result = true;
     switch (e.modifiers()) 
     {
     case KeyEvent::MNone:
@@ -106,7 +88,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             textBuffer_->render(this);
             break;
         case KeyEvent::KBackspace:
-            if (!isearchBuffer_)
+            if (!statusBar_ || !statusBar_->textBuffer())
             {
                 textBuffer_->backspace(cursor_);
                 setCursor(cursor_);
@@ -114,10 +96,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             }
             else
             {
-                auto cursor = statusBar_->cursor();
-                isearchBuffer_->backspace(cursor);
-                statusBar_->setCursor(cursor);
-                isearchBuffer_->render(statusBar_);
+                statusBar_->keyPressEvent(e);
                 textBuffer_->render(this);
             }
             break;
@@ -152,6 +131,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             moveCursor(&Screen::moveCursorPageDown);
             break;
         default:
+            result = false;
             break;
         };
         break;
@@ -204,16 +184,8 @@ bool Screen::keyPressEvent(KeyEvent &e)
                 textBuffer_->render(this);
                 break;
             }
-        case KeyEvent::KS:
-            if (auto textFile = dynamic_cast<TextFile *>(textBuffer_))
-            {
-                if (textFile->fileName().empty())
-                    newTextBuffer(new SaveDialog(this, textFile));
-                else
-                    textFile->save();
-            }
-            break;
         default:
+            result = false;
             break;
         }
         break;
@@ -256,19 +228,23 @@ bool Screen::keyPressEvent(KeyEvent &e)
             textBuffer_->render(this);
             break;
         default:
+            result = false;
             break;
         };
         break;
+    default:
+        result = false;
+        break;
     }
     
-    return true;
+    return result;
 }
 
 bool Screen::textInputEvent(TextInputEvent &e)
 {
     if (textBuffer_)
     {
-        if (!isearchBuffer_)
+        if (!statusBar_ || !statusBar_->textBuffer())
         {
             textBuffer_->insert(cursor_, e.text());
             setCursor(cursor_);
@@ -276,10 +252,7 @@ bool Screen::textInputEvent(TextInputEvent &e)
         }
         else
         {
-            auto cursor = statusBar_->cursor();
-            isearchBuffer_->insert(cursor, e.text());
-            statusBar_->setCursor(cursor);
-            isearchBuffer_->render(statusBar_);
+            statusBar_->textInputEvent(e);
             textBuffer_->render(this);
         }
         return true;
@@ -644,17 +617,22 @@ void Screen::selectAll()
 void Screen::startIsearch()
 {
     if (!statusBar_)
-        return;
-    if (!isearchBuffer_)
     {
-        isearchBuffer_ = new IsearchBuffer(this);
-        statusBar_->setTextBuffer(isearchBuffer_);
-        statusBar_->moveCursorEnd();
+        if (auto *buffer = dynamic_cast<IsearchBuffer *>(textBuffer_))
+            buffer->findNext();
     }
     else
     {
-        isearchBuffer_->findNext();
-        textBuffer_->render(this);
+        if (!statusBar_->textBuffer())
+        {
+            statusBar_->setTextBuffer(new IsearchBuffer(this));
+            statusBar_->moveCursorEnd();
+        }
+        else
+        {
+            statusBar_->startIsearch();
+            textBuffer_->render(this);
+        }
     }
 }
 
@@ -662,11 +640,9 @@ void Screen::endIsearch()
 {
     if (!statusBar_)
         return;
-    if (isearchBuffer_)
+    if (statusBar_->textBuffer())
     {
-        delete isearchBuffer_;
-        isearchBuffer_ = nullptr;
+        delete statusBar_->textBuffer();
         statusBar_->setTextBuffer(nullptr);
-        
     }
 }

@@ -75,9 +75,11 @@ std::wstring SaveDialog::internalBackspace(Coord &cursor, int value)
 
 void SaveDialog::scanDirectory()
 {
+    buffer_.clear();
     char *tmp = getcwd(nullptr, MAXPATHLEN);
     auto currentDir = toUtf16(tmp);
     free(tmp);
+    setName(std::wstring{begin(currentDir) + currentDir.rfind(L'/'), end(currentDir)});
     buffer_.push_back(currentDir + L":");
 
     auto d = opendir(".");

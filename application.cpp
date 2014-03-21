@@ -159,6 +159,9 @@ int Application::exec()
                     w->internalPaint(e);
                     SDL_RenderPresent(w->renderer_);
                 }
+        for (auto obj: deletingObjects_)
+            delete obj;
+        deletingObjects_.clear();
     }
     return 0;
 }
