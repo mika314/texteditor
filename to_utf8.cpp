@@ -4,10 +4,10 @@
 
 std::string toUtf8(const std::wstring &value)
 {
-    return { begin(value), end(value) };
+    return std::string{ begin(value), end(value) };
 }
 
 std::string toUtf8(const wchar_t *value)
 {
-    return { value, value + wcslen(value) };
+    return std::string{ value, value + wcslen(value) };
 }

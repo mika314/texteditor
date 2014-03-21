@@ -10,5 +10,5 @@ std::wstring toUtf16(const char *value)
 std::wstring toUtf16(const std::string &value)
 {
     // TODO
-    return { begin(value), end(value) };
+    return std::wstring{ begin(value), end(value) };
 }

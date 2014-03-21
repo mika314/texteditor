@@ -8,7 +8,7 @@ class Application
 {
     friend class Widget;
 public:
-    Application(int &argc, char **argv);
+    Application(int &argc, char *argv[]);
     ~Application();
     int exec();
     static Application *instance();

@@ -34,7 +34,7 @@ public:
 private:
     RedoFunc redoFunc_;
     UndoFunc undoFunc_;
-    typedef decltype(redoFunc_(*(new Coord))) Data;
+    typedef decltype(std::declval<RedoFunc>()(std::declval<Coord &>())) Data;
     Data data_;
     Coord cursor_;
 };

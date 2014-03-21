@@ -170,7 +170,7 @@ std::wstring BaseTextBuffer::internalBackspace(Coord &cursor, int value)
         result += internalDelete(cursor);
     }
     
-    return { result.rbegin(), result.rend() };
+    return std::wstring{ result.rbegin(), result.rend() };
 }
 
 bool BaseTextBuffer::isReadOnly() const

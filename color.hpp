@@ -5,7 +5,7 @@
 typedef uint32_t Color;
 SDL_Color toSdlColor(Color);
 
-enum {
+enum: uint32_t {
     IndianRed = 0xB0171F00,
     Crimson = 0xDC143C00,
     Lightpink = 0xFFB6C100,

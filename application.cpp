@@ -7,6 +7,7 @@
 #include "widget.hpp"
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL.h>
+
 #include <stdexcept>
 #include <string>
 #include <algorithm>
@@ -15,7 +16,7 @@
 
 Application *Application::instance_ = nullptr;
 
-Application::Application(int &argc, char **argv):
+Application::Application(int &argc, char *argv[]):
     focusWidget_(nullptr)
 {
     if (instance_ != nullptr)
@@ -99,7 +100,7 @@ int Application::exec()
                 }
             case SDL_KEYDOWN:
                 {
-                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), static_cast<bool>(e.key.repeat) };
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), static_cast<unsigned>(SDL_GetModState()), e.key.repeat != 0};
                     auto w = focusWidget();
                     if (!w)
                         w = widgetByWindowId(e.key.windowID);
@@ -115,7 +116,7 @@ int Application::exec()
                 }
             case SDL_KEYUP:
                 {
-                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), static_cast<bool>(e.key.repeat) };
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), static_cast<unsigned>(SDL_GetModState()), e.key.repeat != 0};
                     auto w = focusWidget();
                     if (!w)
                         w = widgetByWindowId(e.key.windowID);

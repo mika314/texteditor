@@ -3,14 +3,15 @@
 #include "to_utf8.hpp"
 #include "text_file.hpp"
 #include "screen.hpp"
+#include "unistd.h"
 #include <sys/types.h>
 #include <dirent.h>
 #include <iostream>
 #include <algorithm>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
-#include <sys/param.h>
+//#include <unistd.h>
+//#include <sys/param.h>
 
 SaveDialog::SaveDialog(Screen *screen, std::shared_ptr<TextFile> textFile):
     screen_(screen),

@@ -5,8 +5,9 @@
 #include "screen.hpp"
 #include "isearch_buffer.hpp"
 #include "text_file.hpp"
+#include "SDL2/SDL.h"
 
-int main(int argc, char **argv)
+int main(int argc, char *argv[])
 {
     Application a(argc, argv);
     Widget mainWindow;

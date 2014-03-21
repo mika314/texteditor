@@ -12,6 +12,7 @@
 #include "to_utf16.hpp"
 #include "to_utf8.hpp"
 #include <SDL2/SDL_ttf.h>
+#include <algorithm>
 #include <iostream>
 
 Screen::Char::Char(wchar_t ach, Color afg, Color abg):
