@@ -4,6 +4,7 @@ template <typename Result, typename... Arguments>
 class BaseSlot
 {
 public:
+    virtual ~BaseSlot() {}
     virtual Result operator()(Arguments...) = 0;
 };
 
