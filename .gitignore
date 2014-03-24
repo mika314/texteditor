@@ -14,3 +14,7 @@
 *~
 /tmp/*
 /texteditor
+/CMakeFiles/*
+/CMakeCache.txt
+/Makefile
+/cmake_install.cmake
