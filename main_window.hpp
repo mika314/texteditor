@@ -7,6 +7,8 @@
 #include <string>
 
 class OpenDialog;
+class SaveDialog;
+class TextFile;
 
 class MainWindow: public Widget
 {
@@ -20,4 +22,5 @@ private:
     StatusBar statusBar_;
     Layout layout_;
     void openFile(OpenDialog *, std::string);
+    void saveAs(SaveDialog *sender, TextFile *textFile, std::string fileName);
 };

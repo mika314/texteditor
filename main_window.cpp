@@ -40,10 +40,17 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
             if (auto textFile = dynamic_cast<TextFile *>(screen_.textBuffer()))
             {
                 if (textFile->fileName().empty())
-                    tabs_.addTextBuffer(new SaveDialog(&screen_, textFile));
+                {
+                    auto saveDialog = new SaveDialog(&screen_, textFile);
+                    tabs_.addTextBuffer(saveDialog);
+                    connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAs));
+                }
                 else
                     textFile->save();
             }
+            break;
+        case KeyEvent::KN:
+            tabs_.addTextBuffer(new TextFile);
             break;
         case KeyEvent::KW:
             tabs_.closeActiveTextBuffer();
@@ -86,4 +93,11 @@ void MainWindow::openFile(OpenDialog *sender, std::string fileName)
 {
     tabs_.closeTextBuffer(sender);
     tabs_.addTextBuffer(new TextFile(fileName));
+}
+
+void MainWindow::saveAs(SaveDialog *sender, TextFile *textFile, std::string fileName)
+{
+    tabs_.closeTextBuffer(sender);
+    tabs_.setActiveTextBuffer(textFile);
+    textFile->saveAs(fileName);
 }

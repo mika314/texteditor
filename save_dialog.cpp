@@ -14,8 +14,7 @@
 
 SaveDialog::SaveDialog(Screen *screen, TextFile *textFile):
     screen_(screen),
-    textFile_(textFile),
-    cursor_(screen->cursor())
+    textFile_(textFile)
 {
     scanDirectory();
 }
@@ -48,11 +47,7 @@ void SaveDialog::internalInsert(Coord &cursor, std::wstring value)
                 cursor = { 0, 1 };
         }
         else
-        {
-            textFile_->saveAs(fileName);
-            screen_->setTextBuffer(textFile_);
-            cursor = cursor_;
-        }
+            saveAs(this, textFile_, fileName);
     }
 }
 

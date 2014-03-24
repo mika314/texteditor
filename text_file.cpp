@@ -6,7 +6,11 @@
 TextFile::TextFile(std::string fileName):
     fileName_(fileName)
 {
-    setName(toUtf16(fileName));
+    if (!fileName.empty())
+        setName(toUtf16(fileName));
+    else
+        setName(L"Untitled");
+        
     std::ifstream f(fileName_);
     if (f.is_open())
         while (!f.eof())
