@@ -165,7 +165,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
         case KeyEvent::KA:
             selectAll();
             textBuffer_->render(this);
-        case KeyEvent::KI:
+        case KeyEvent::KF:
             startIsearch();
             break;
         case KeyEvent::KZ:
