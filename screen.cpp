@@ -86,6 +86,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KDelete:
             endIsearch();
+            cut();
             textBuffer_->del(cursor_);
             setCursor(cursor_);
             textBuffer_->render(this);
@@ -93,6 +94,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
         case KeyEvent::KBackspace:
             if (!statusBar_ || !statusBar_->textBuffer())
             {
+                cut();
                 textBuffer_->backspace(cursor_);
                 setCursor(cursor_);
                 textBuffer_->render(this);
@@ -104,6 +106,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             }
             break;
         case KeyEvent::KReturn:
+            cut();
             endIsearch();
             textBuffer_->insert(cursor_, L"\n");
             setCursor(cursor_);
@@ -161,8 +164,6 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KX:
             cut();
-            setStartSelection({-1, -1});
-            setEndSelection({-1, -1});
             textBuffer_->render(this);
             break;
         case KeyEvent::KA:
@@ -226,8 +227,6 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KDelete:
             cut();
-            setStartSelection({-1, -1});
-            setEndSelection({-1, -1});
             textBuffer_->render(this);
             break;
         default:
@@ -249,6 +248,7 @@ bool Screen::textInputEvent(TextInputEvent &e)
     {
         if (!statusBar_ || !statusBar_->textBuffer())
         {
+            cut();
             textBuffer_->insert(cursor_, e.text());
             setCursor(cursor_);
             textBuffer_->render(this);
@@ -555,7 +555,7 @@ void Screen::moveCursor(void (Screen::*moveCursorFunc)())
     textBuffer_->render(this);
 }
 
-int Screen::copy()
+std::wstring Screen::getSelected() const
 {
     if (startSelection().y == endSelection().y)
     {
@@ -563,8 +563,7 @@ int Screen::copy()
         auto e = std::max(startSelection().x, endSelection().x);
         const auto &line = (*textBuffer_)[startSelection().y];
         std::wstring tmp{ begin(line) + s, begin(line) + e };
-        SDL_SetClipboardText(toUtf8(tmp).c_str());
-        return tmp.size();
+        return tmp;
     }
     else
     {
@@ -587,17 +586,25 @@ int Screen::copy()
             tmp += (*textBuffer_)[y] + L'\n';
         const auto &lastLine = (*textBuffer_)[e.y];
         tmp += { begin(lastLine), begin(lastLine) + e.x };
-        SDL_SetClipboardText(toUtf8(tmp).c_str());
-        return tmp.size();
+        return tmp;
     }
+}
+
+
+int Screen::copy()
+{
+    std::wstring tmp = getSelected();
+    if (!tmp.empty())
+        SDL_SetClipboardText(toUtf8(tmp).c_str());
+    return tmp.size();
 }
 
 void Screen::paste()
 {
     setStartSelection(cursor());
     textBuffer_->insert(cursor_, toUtf16(SDL_GetClipboardText()));
-    setEndSelection(cursor());
-    setCursor(cursor_);
+    setStartSelection({-1, -1});
+    setEndSelection({-1, -1});
 }
 
 void Screen::cut()
@@ -607,6 +614,8 @@ void Screen::cut()
         textBuffer_->del(cursor_, copy());
     else
         textBuffer_->backspace(cursor_, copy());
+    setStartSelection({-1, -1});
+    setEndSelection({-1, -1});
 }
 
 void Screen::selectAll()

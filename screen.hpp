@@ -3,6 +3,7 @@
 #include "color.hpp"
 #include "coord.hpp"
 #include "signal_slot.hpp"
+#include <string>
 
 class BaseTextBuffer;
 class StatusBar;
@@ -70,6 +71,7 @@ private:
     std::vector<std::vector<Char> > ch_;
     void select(void (Screen::*moveCursor)());
     void moveCursor(void (Screen::*moveCursor)());
+    std::wstring getSelected() const;
 protected:
     virtual void resizeEvent(ResizeEvent &);
     virtual void paintEvent(PaintEvent &);
