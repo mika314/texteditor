@@ -81,6 +81,9 @@ bool Screen::keyPressEvent(KeyEvent &e)
     case KeyEvent::MNone:
         switch (e.key())
         {
+        case KeyEvent::KEscape:
+            endIsearch();
+            break;
         case KeyEvent::KDelete:
             endIsearch();
             textBuffer_->del(cursor_);
