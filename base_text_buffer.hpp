@@ -28,6 +28,8 @@ public:
     void setReadOnly(bool);
     std::wstring name() const;
     void setName(std::wstring);
+    Coord cursor() const;
+    void setCursor(Coord);
 protected:
     virtual void internalInsert(Coord &cursor, std::wstring);
     virtual std::wstring internalDelete(const Coord cursor, int = 1);
@@ -36,4 +38,5 @@ protected:
     bool isReadOnly_;
     UndoStack undoStack_;
     std::wstring name_;
+    Coord cursor_;
 };

@@ -2,7 +2,8 @@
 #include "screen.hpp"
 
 BaseTextBuffer::BaseTextBuffer():
-    isReadOnly_(false)
+    isReadOnly_(false),
+    cursor_{0, 0}
 {}
 
 BaseTextBuffer::~BaseTextBuffer()
@@ -191,6 +192,16 @@ std::wstring BaseTextBuffer::name() const
 void BaseTextBuffer::setName(std::wstring value)
 {
     name_ = value;
+}
+
+Coord BaseTextBuffer::cursor() const
+{
+    return cursor_;
+}
+
+void BaseTextBuffer::setCursor(Coord value)
+{
+    cursor_ = value;
 }
 
 bool BaseTextBuffer::isModified() const

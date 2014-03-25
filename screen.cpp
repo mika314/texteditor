@@ -326,11 +326,16 @@ void Screen::setTextBuffer(BaseTextBuffer *value)
 {
     if (value != textBuffer_)
     {
-        setCursor(0, 0);
         setStartSelection(Coord{-1, -1});
         setEndSelection(Coord{-1, -1});
         
+        if (textBuffer_)
+            textBuffer_->setCursor(cursor());
         textBuffer_ = value;
+        if (value)
+            setCursor(value->cursor());
+        else
+            setCursor(0, 0);
         if (textBuffer_)
             textBuffer_->render(this);
         else
