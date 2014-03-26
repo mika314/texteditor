@@ -1,10 +1,20 @@
 #include "text_file.hpp"
 #include "to_utf16.hpp"
 #include "to_utf8.hpp"
+#include "current_dir.hpp"
 #include <fstream>
 
+static std::string getFullFileName(std::string fileName)
+{
+    
+    if (!fileName.empty() && fileName[0] == L'/') 
+        return fileName;
+    else
+        return getCurrentDir() + '/' + fileName;
+}
+
 TextFile::TextFile(std::string fileName):
-    fileName_(fileName)
+    fileName_(getFullFileName(fileName))
 {
     if (!fileName.empty())
         setName(toUtf16(fileName));

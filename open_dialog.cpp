@@ -3,14 +3,13 @@
 #include "to_utf8.hpp"
 #include "text_file.hpp"
 #include "screen.hpp"
+#include "current_dir.hpp"
 #include <sys/types.h>
 #include <dirent.h>
 #include <iostream>
 #include <algorithm>
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
-#include <sys/param.h>
 
 OpenDialog::OpenDialog(Screen *screen):
     screen_(screen)
@@ -56,9 +55,7 @@ void OpenDialog::internalInsert(Coord &cursor, std::wstring value)
 void OpenDialog::scanDirectory()
 {
     buffer_.clear();
-    char *tmp = getcwd(nullptr, MAXPATHLEN);
-    auto currentDir = toUtf16(tmp);
-    free(tmp);
+    auto currentDir = toUtf16(getCurrentDir());
     setName(std::wstring{begin(currentDir) + currentDir.rfind(L'/') + 1, end(currentDir)});
     buffer_.push_back(currentDir + L":");
 
