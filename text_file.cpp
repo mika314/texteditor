@@ -6,10 +6,9 @@
 
 static std::string getFullFileName(std::string fileName)
 {
-    
-    if (!fileName.empty() && fileName[0] == L'/') 
+    if (fileName.empty() || fileName[0] == L'/') 
         return fileName;
-    else
+    else 
         return getCurrentDir() + '/' + fileName;
 }
 
