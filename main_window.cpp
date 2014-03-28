@@ -47,6 +47,7 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
                 }
                 else
                     textFile->save();
+                tabs_.update();
             }
             break;
         case KeyEvent::KN:

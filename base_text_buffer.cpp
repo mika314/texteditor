@@ -56,16 +56,17 @@ void BaseTextBuffer::render(Screen *screen) const
 
 void BaseTextBuffer::insert(Coord &cursor, std::wstring value)
 {
-    undoStack_.push(cursor, 
-                    [value, this](Coord &c) -> int
-                    { 
-                        internalInsert(c, value);
-                        return value.size();
-                    },
-                    [this](Coord &c, int size)
-                    {
-                        internalDelete(c, size);
-                    });
+    if (!value.empty())
+        undoStack_.push(cursor, 
+                        [value, this](Coord &c) -> int
+                        { 
+                            internalInsert(c, value);
+                            return value.size();
+                        },
+                        [this](Coord &c, int size)
+                        {
+                            internalDelete(c, size);
+                        });
 }
 
 void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
@@ -93,17 +94,18 @@ void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
 
 void BaseTextBuffer::del(Coord &cursor, int value)
 {
-    undoStack_.push(cursor, 
-                    [value, this](Coord &c) -> std::wstring
-                    { 
-                        return internalDelete(c, value); 
-                    },
-                    [this](Coord &c, const std::wstring &str)
-                    {
-                        Coord tmp = c;
-                        internalInsert(c, str);
-                        c = tmp;
-                    });
+    if (value > 0)
+        undoStack_.push(cursor, 
+                        [value, this](Coord &c) -> std::wstring
+                        { 
+                            return internalDelete(c, value); 
+                        },
+                        [this](Coord &c, const std::wstring &str)
+                        {
+                            Coord tmp = c;
+                            internalInsert(c, str);
+                            c = tmp;
+                        });
 }
 
 std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
@@ -135,18 +137,19 @@ std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
 
 void BaseTextBuffer::backspace(Coord &cursor, int value)
 {
-    undoStack_.push(cursor, 
-                    [value, this](Coord &c) -> std::pair<std::wstring, Coord>
-                    { 
-                        auto result = internalBackspace(c, value);
-                        return std::make_pair(result, c);
-                    },
-                    [this](Coord &c, const std::pair<std::wstring, Coord> &s)
-                    {
-                        Coord ccc = s.second;
-                        internalInsert(ccc, s.first);
-                        c = ccc;
-                    });
+    if (value > 0)
+        undoStack_.push(cursor, 
+                        [value, this](Coord &c) -> std::pair<std::wstring, Coord>
+                        { 
+                            auto result = internalBackspace(c, value);
+                            return std::make_pair(result, c);
+                        },
+                        [this](Coord &c, const std::pair<std::wstring, Coord> &s)
+                        {
+                            Coord ccc = s.second;
+                            internalInsert(ccc, s.first);
+                            c = ccc;
+                        });
 }
 
 std::wstring BaseTextBuffer::internalBackspace(Coord &cursor, int value)

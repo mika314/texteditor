@@ -128,12 +128,13 @@ void Tabs::paintEvent(PaintEvent &)
     int x = 0;
     for (auto buff: textBuffersList_)
     {
-        auto w = buff->name().size() * p.glyphWidth();
+        auto tabName = (buff->isModified() ? L"*" : L"") + buff->name();
+        auto w = tabName.size() * p.glyphWidth();
         auto bgColor = activeTextBuffer_ == buff ? Gray76 : Gray40;
         p.setColor(bgColor);
         p.drawRect(x, 0, w + p.glyphWidth() * 5 / 2, height());
         int chP = x + p.glyphWidth() / 2;
-        for (auto ch: buff->name())
+        for (auto ch: tabName)
         {
             p.renderGlyph(ch, chP, (maxHeight() - p.glyphHeight()) / 2, Black, bgColor);
             chP += p.glyphWidth();

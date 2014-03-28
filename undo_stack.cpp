@@ -58,7 +58,7 @@ void UndoStack::clean()
 
 bool UndoStack::isModified() const
 {
-    return originalState_ == undoStack_.size();
+    return originalState_ != undoStack_.size();
 }
 
 void UndoStack::clearModified()
