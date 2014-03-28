@@ -57,7 +57,14 @@ void TextFile::saveAs(std::string fileName)
     fileName_ = fileName;
     setName(toUtf16(baseName(fileName)));
     std::ofstream f(fileName_);
+    bool first = true;
     for (const auto &l: buffer_)
-        f << toUtf8(l) << std::endl;
+    {
+        if (first)
+            first = false;
+        else
+            f << std::endl;
+        f << toUtf8(l);
+    }
     clearModified();
 }
