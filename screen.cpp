@@ -82,14 +82,14 @@ bool Screen::keyPressEvent(KeyEvent &e)
         switch (e.key())
         {
         case KeyEvent::KEscape:
-            endIsearch();
+            escStatusBar();
             break;
         case KeyEvent::KDelete:
-            endIsearch();
+            escStatusBar();
             cut();
             textBuffer_->del(cursor_);
             setCursor(cursor_);
-            textBuffer_->render(this);
+            render();
             break;
         case KeyEvent::KBackspace:
             if (!statusBar_ || !statusBar_->textBuffer())
@@ -97,20 +97,20 @@ bool Screen::keyPressEvent(KeyEvent &e)
                 cut();
                 textBuffer_->backspace(cursor_);
                 setCursor(cursor_);
-                textBuffer_->render(this);
+                render();
             }
             else
             {
                 statusBar_->keyPressEvent(e);
-                textBuffer_->render(this);
+                render();
             }
             break;
         case KeyEvent::KReturn:
             cut();
-            endIsearch();
+            escStatusBar();
             textBuffer_->insert(cursor_, L"\n");
             setCursor(cursor_);
-            textBuffer_->render(this);
+            render();
             break;
         case KeyEvent::KLeft:
             moveCursor(&Screen::moveCursorLeft);
@@ -147,28 +147,28 @@ bool Screen::keyPressEvent(KeyEvent &e)
         {
         case KeyEvent::KHome:
             setCursor(0, 0);
-            textBuffer_->render(this);
+            render();
             break;
         case KeyEvent::KEnd:
             setCursor((*textBuffer_)[textBuffer_->size() - 1].size(), textBuffer_->size() - 1);
-            textBuffer_->render(this);
+            render();
             break;
         case KeyEvent::KV:
             paste();
-            textBuffer_->render(this);
+            render();
             break;
         case KeyEvent::KInsert:
         case KeyEvent::KC:
             copy();
-            textBuffer_->render(this);
+            render();
             break;
         case KeyEvent::KX:
             cut();
-            textBuffer_->render(this);
+            render();
             break;
         case KeyEvent::KA:
             selectAll();
-            textBuffer_->render(this);
+            render();
         case KeyEvent::KF:
             startIsearch();
             break;
@@ -177,7 +177,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
                 Coord c = cursor();
                 textBuffer_->undo(c);
                 setCursor(c);
-                textBuffer_->render(this);
+                render();
                 break;
             }
         case KeyEvent::KR:
@@ -185,7 +185,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
                 Coord c = cursor();
                 textBuffer_->redo(c);
                 setCursor(c);
-                textBuffer_->render(this);
+                render();
                 break;
             }
         default:
@@ -223,11 +223,11 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KInsert:
             paste();
-            textBuffer_->render(this);
+            render();
             break;
         case KeyEvent::KDelete:
             cut();
-            textBuffer_->render(this);
+            render();
             break;
         default:
             result = false;
@@ -251,12 +251,12 @@ bool Screen::textInputEvent(TextInputEvent &e)
             cut();
             textBuffer_->insert(cursor_, e.text());
             setCursor(cursor_);
-            textBuffer_->render(this);
+            render();
         }
         else
         {
             statusBar_->textInputEvent(e);
-            textBuffer_->render(this);
+            render();
         }
         return true;
     }
@@ -268,8 +268,7 @@ void Screen::resizeEvent(ResizeEvent &e)
     ch_.resize(heightCh());
     for (auto &r: ch_)
         r.resize(widthCh());
-    if (textBuffer_)
-        textBuffer_->render(this);
+    render();
 }
 
 int Screen::widthCh() const
@@ -356,8 +355,7 @@ int Screen::hScroll() const
 void Screen::setHScroll(int value)
 {
     hScroll_ = value;
-    if (textBuffer_)
-        textBuffer_->render(this);
+    render();
 }
 
 int Screen::vScroll() const
@@ -368,8 +366,7 @@ int Screen::vScroll() const
 void Screen::setVScroll(int value)
 {
     vScroll_ = value;
-    if (textBuffer_)
-        textBuffer_->render(this);
+    render();
 }
 
 Coord Screen::startSelection() const
@@ -548,16 +545,16 @@ void Screen::select(void (Screen::*moveCursor)())
         setStartSelection(cursor());
     (this->*moveCursor)();
     setEndSelection(cursor());
-    textBuffer_->render(this);
+    render();
 }
 
 void Screen::moveCursor(void (Screen::*moveCursorFunc)())
 {
-    endIsearch();
+    escStatusBar();
     (this->*moveCursorFunc)();
     setStartSelection({-1, -1});
     setEndSelection({-1, -1});
-    textBuffer_->render(this);
+    render();
 }
 
 std::wstring Screen::getSelected() const
@@ -648,12 +645,12 @@ void Screen::startIsearch()
         else
         {
             statusBar_->startIsearch();
-            textBuffer_->render(this);
+            render();
         }
     }
 }
 
-void Screen::endIsearch()
+void Screen::escStatusBar()
 {
     if (!statusBar_)
         return;
@@ -662,4 +659,10 @@ void Screen::endIsearch()
         delete statusBar_->textBuffer();
         statusBar_->setTextBuffer(nullptr);
     }
+}
+
+void Screen::render()
+{
+    if (textBuffer_)
+        textBuffer_->render(this);
 }

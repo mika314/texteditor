@@ -48,7 +48,6 @@ void Dialog::internalInsert(Coord &cursor, std::wstring value)
         result(No);
     if ((answers_ & Cancel) != 0 && value.find(L'c') != std::wstring::npos)
         result(Cancel);
-        
 }
 
 std::wstring Dialog::internalBackspace(Coord &cursor, int value)

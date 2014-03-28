@@ -3,6 +3,8 @@
 #include "open_dialog.hpp"
 #include "save_dialog.hpp"
 #include "text_file.hpp"
+#include "dialog.hpp"
+#include "application.hpp"
 
 MainWindow::MainWindow(Widget *parent):
     Widget(parent),
@@ -37,24 +39,23 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
                 break;
             }
         case KeyEvent::KS:
-            if (auto textFile = dynamic_cast<TextFile *>(screen_.textBuffer()))
-            {
-                if (textFile->fileName().empty())
-                {
-                    auto saveDialog = new SaveDialog(&screen_, textFile);
-                    tabs_.addTextBuffer(saveDialog);
-                    connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAs));
-                }
-                else
-                    textFile->save();
-                tabs_.update();
-            }
+            save();
             break;
         case KeyEvent::KN:
             tabs_.addTextBuffer(new TextFile);
             break;
         case KeyEvent::KW:
-            tabs_.closeActiveTextBuffer();
+            if (dynamic_cast<TextFile *>(tabs_.activeTextBuffer()) && tabs_.activeTextBuffer()->isModified())
+            {
+                if (!statusBar_.textBuffer())
+                {
+                    auto d = new Dialog(L"The file is modified. Do you want to save it before closing?");
+                    statusBar_.setTextBuffer(d);
+                    connect(SIGNAL(d, result), SLOT(this, closeActiveTextBuffer));
+                }
+            }
+            else
+                tabs_.closeActiveTextBuffer();
             break;
         case KeyEvent::KLeft:
             tabs_.switchToPrevTextBuffer();
@@ -101,4 +102,60 @@ void MainWindow::saveAs(SaveDialog *sender, TextFile *textFile, std::string file
     tabs_.closeTextBuffer(sender);
     tabs_.setActiveTextBuffer(textFile);
     textFile->saveAs(fileName);
+}
+
+void MainWindow::saveAndClose(SaveDialog *sender, TextFile *textFile, std::string fileName)
+{
+    tabs_.closeTextBuffer(sender);
+    tabs_.closeTextBuffer(textFile);
+    textFile->saveAs(fileName);
+}
+
+void MainWindow::closeActiveTextBuffer(Dialog::Answer value)
+{
+    auto d = statusBar_.textBuffer();
+    Application::instance()->queueDelete(d);
+    statusBar_.setTextBuffer(nullptr);
+    if (auto textFile = dynamic_cast<TextFile *>(screen_.textBuffer()))
+    {
+        switch (value)
+        {
+        case Dialog::Yes:
+            if (textFile->fileName().empty())
+            {
+                auto saveDialog = new SaveDialog(&screen_, textFile);
+                tabs_.addTextBuffer(saveDialog);
+                connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAndClose));
+            }
+            else
+            {
+                textFile->save();
+                tabs_.closeActiveTextBuffer();
+            }
+            break;
+        case Dialog::No:
+            tabs_.closeActiveTextBuffer();
+            break;
+        case Dialog::Cancel:
+            break;
+            
+        }
+        tabs_.update();
+    }
+}
+
+void MainWindow::save()
+{
+    if (auto textFile = dynamic_cast<TextFile *>(screen_.textBuffer()))
+    {
+        if (textFile->fileName().empty())
+        {
+            auto saveDialog = new SaveDialog(&screen_, textFile);
+            tabs_.addTextBuffer(saveDialog);
+            connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAs));
+        }
+        else
+            textFile->save();
+        tabs_.update();
+    }
 }

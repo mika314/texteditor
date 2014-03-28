@@ -54,7 +54,7 @@ public:
     void cut();
     void selectAll();
     void startIsearch();
-    void endIsearch();
+    void escStatusBar();
 protected:
     int glyphHeight() const;
     int glyphWidth() const;
@@ -72,6 +72,7 @@ private:
     void select(void (Screen::*moveCursor)());
     void moveCursor(void (Screen::*moveCursor)());
     std::wstring getSelected() const;
+    void render();
 protected:
     virtual void resizeEvent(ResizeEvent &);
     virtual void paintEvent(PaintEvent &);

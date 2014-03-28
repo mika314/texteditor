@@ -4,6 +4,7 @@
 #include "status_bar.hpp"
 #include "layout.hpp"
 #include "widget.hpp"
+#include "dialog.hpp"
 #include <string>
 
 class OpenDialog;
@@ -23,4 +24,7 @@ private:
     Layout layout_;
     void openFile(OpenDialog *, std::string);
     void saveAs(SaveDialog *sender, TextFile *textFile, std::string fileName);
+    void saveAndClose(SaveDialog *sender, TextFile *textFile, std::string fileName);
+    void closeActiveTextBuffer(Dialog::Answer);
+    void save();
 };
