@@ -12,11 +12,20 @@ static std::string getFullFileName(std::string fileName)
         return getCurrentDir() + '/' + fileName;
 }
 
+static std::string baseName(std::string fileName)
+{
+    auto p = fileName.rfind('/');
+    if (p != std::string::npos)
+        return std::string{ begin(fileName) + p + 1, end(fileName) };
+    else
+        return fileName;
+}
+
 TextFile::TextFile(std::string fileName):
     fileName_(getFullFileName(fileName))
 {
     if (!fileName.empty())
-        setName(toUtf16(fileName));
+        setName(toUtf16(baseName(fileName)));
     else
         setName(L"Untitled");
         
@@ -46,7 +55,7 @@ void TextFile::save()
 void TextFile::saveAs(std::string fileName)
 {
     fileName_ = fileName;
-    setName(toUtf16(fileName));
+    setName(toUtf16(baseName(fileName)));
     std::ofstream f(fileName_);
     for (const auto &l: buffer_)
         f << toUtf8(l) << std::endl;
