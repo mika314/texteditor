@@ -110,12 +110,21 @@ bool Screen::keyPressEvent(KeyEvent &e)
             }
             break;
         case KeyEvent::KReturn:
-            deleteSelected();
-            escStatusBar();
-            textBuffer_->insert(cursor_, L"\n");
-            setCursor(cursor_);
-            render();
-            break;
+            {
+                deleteSelected();
+                escStatusBar();
+                auto &line = (*textBuffer_)[cursor_.y];
+                std::wstring spaces;
+                for (auto ch: line)
+                    if (ch == L' ')
+                        spaces += L' ';
+                    else
+                        break;
+                textBuffer_->insert(cursor_, L"\n" + spaces);
+                setCursor(cursor_);
+                render();
+                break;
+            }
         case KeyEvent::KLeft:
             moveCursor(&Screen::moveCursorLeft);
             break;
