@@ -86,18 +86,22 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KDelete:
             escStatusBar();
-            cut();
-            textBuffer_->del(cursor_);
-            setCursor(cursor_);
-            render();
+            if (deleteSelected() == 0)
+            {
+                textBuffer_->del(cursor_);
+                setCursor(cursor_);
+                render();
+            }
             break;
         case KeyEvent::KBackspace:
             if (!statusBar_ || !statusBar_->textBuffer())
             {
-                cut();
-                textBuffer_->backspace(cursor_);
-                setCursor(cursor_);
-                render();
+                if (deleteSelected() == 0)
+                {
+                    textBuffer_->backspace(cursor_);
+                    setCursor(cursor_);
+                    render();
+                }
             }
             else
             {
@@ -106,7 +110,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             }
             break;
         case KeyEvent::KReturn:
-            cut();
+            deleteSelected();
             escStatusBar();
             textBuffer_->insert(cursor_, L"\n");
             setCursor(cursor_);
@@ -248,7 +252,7 @@ bool Screen::textInputEvent(TextInputEvent &e)
     {
         if (!statusBar_ || !statusBar_->textBuffer())
         {
-            cut();
+            deleteSelected();
             textBuffer_->insert(cursor_, e.text());
             setCursor(cursor_);
             render();
@@ -665,4 +669,20 @@ void Screen::render()
 {
     if (textBuffer_)
         textBuffer_->render(this);
+}
+
+int Screen::deleteSelected()
+{
+    int result = getSelected().size();
+    if (startSelection().y > endSelection().y ||
+        (startSelection().y == endSelection().y && startSelection().x > endSelection().x))
+        textBuffer_->del(cursor_, result);
+    else
+        textBuffer_->backspace(cursor_, result);
+
+    setStartSelection(Coord{-1, -1});
+    setEndSelection(Coord{-1, -1});
+    render();
+
+    return result;
 }

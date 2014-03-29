@@ -73,6 +73,7 @@ private:
     void moveCursor(void (Screen::*moveCursor)());
     std::wstring getSelected() const;
     void render();
+    int deleteSelected();
 protected:
     virtual void resizeEvent(ResizeEvent &);
     virtual void paintEvent(PaintEvent &);
