@@ -11,7 +11,6 @@
 #include <string>
 #include <algorithm>
 #include <iostream>
-#include <cassert>
 
 Application *Application::instance_ = nullptr;
 
@@ -103,8 +102,11 @@ int Application::exec()
                     auto w = focusWidget();
                     if (!w)
                         w = widgetByWindowId(e.key.windowID);
-                    else
-                        assert(w->ancestor() == widgetByWindowId(e.key.windowID));
+                    else if (w->ancestor() != widgetByWindowId(e.key.windowID))
+                    {
+                        std::cerr << "Unknown windowID " << e.key.windowID << std::endl;
+                        break;
+                    }
                     while (w)
                     {
                         if (w->keyPressEvent(ke))
@@ -119,8 +121,12 @@ int Application::exec()
                     auto w = focusWidget();
                     if (!w)
                         w = widgetByWindowId(e.key.windowID);
-                    else
-                        assert(w->ancestor() == widgetByWindowId(e.key.windowID));
+                    else if (w->ancestor() != widgetByWindowId(e.key.windowID))
+                    {
+                        std::cerr << "Unknown windowID " << e.key.windowID << std::endl;
+                        break;
+                    }
+
                     while (w)
                     {
                         if (w->keyReleaseEvent(ke))
@@ -135,8 +141,12 @@ int Application::exec()
                     auto w = focusWidget();
                     if (!w)
                         w = widgetByWindowId(e.key.windowID);
-                    else
-                        assert(w->ancestor() == widgetByWindowId(e.key.windowID));
+                    else if (w->ancestor() != widgetByWindowId(e.key.windowID))
+                    {
+                        std::cerr << "Unknown windowID " << e.key.windowID << std::endl;
+                        break;
+                    }
+
                     while (w)
                     {
                         if (w->textInputEvent(tie))
