@@ -125,6 +125,7 @@ void MainWindow::closeActiveTextBuffer(Dialog::Answer value)
             {
                 auto saveDialog = new SaveDialog(&screen_, textFile);
                 tabs_.addTextBuffer(saveDialog);
+                screen_.setCursor(0, 1);
                 connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAndClose));
             }
             else
@@ -152,6 +153,7 @@ void MainWindow::save()
         {
             auto saveDialog = new SaveDialog(&screen_, textFile);
             tabs_.addTextBuffer(saveDialog);
+            screen_.setCursor(0, 1);
             connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAs));
         }
         else
