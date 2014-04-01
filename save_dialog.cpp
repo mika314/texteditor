@@ -19,11 +19,11 @@ SaveDialog::SaveDialog(Screen *screen, TextFile *textFile):
     scanDirectory();
 }
 
-void SaveDialog::internalInsert(Coord &cursor, std::wstring value)
+std::wstring SaveDialog::preInsert(Coord &cursor, std::wstring value)
 {
     if (cursor.y == 1 && value.find(L"\n") == std::wstring::npos)
-        BaseTextBuffer::internalInsert(cursor, value);
-    if (value.find(L"\n") != std::wstring::npos && cursor.y > 0)
+        return value;
+    else if (value.find(L"\n") != std::wstring::npos && cursor.y > 0)
     {
         struct stat buf;
         auto fileName = toUtf8(buffer_[screen_->cursor().y]);
@@ -49,22 +49,23 @@ void SaveDialog::internalInsert(Coord &cursor, std::wstring value)
         else
             saveAs(this, textFile_, fileName);
     }
+    return L"";
 }
 
-std::wstring SaveDialog::internalDelete(const Coord cursor, int value)
+int SaveDialog::preDelete(const Coord cursor, int value)
 {
     if (cursor.y == 1 && cursor.x <= static_cast<int>(buffer_[screen_->cursor().y].size()) - value)
-        return BaseTextBuffer::internalDelete(cursor, value);
+        return value;
     else 
-        return L"";
+        return 0;
 }
 
-std::wstring SaveDialog::internalBackspace(Coord &cursor, int value)
+int SaveDialog::preBackspace(Coord &cursor, int value)
 {
     if (cursor.y == 1 && cursor.x >= value)
-        return BaseTextBuffer::internalBackspace(cursor, value);
+        return value;
     else
-        return L"";
+        return 0;
 }
 
 

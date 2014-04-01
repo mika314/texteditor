@@ -11,8 +11,8 @@ public:
     Dialog(std::wstring message, Answers = Yes | No | Cancel);
     Signal<void, Answer> result;
 private:
-    void internalInsert(Coord &cursor, std::wstring value);
-    std::wstring internalBackspace(Coord &cursor, int value);
     std::wstring message_;
     Answers answers_;
+    virtual std::wstring preInsert(Coord &cursor, std::wstring value);
+    virtual int preBackspace(Coord &cursor, int value);
 };

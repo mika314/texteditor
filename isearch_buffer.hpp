@@ -9,10 +9,11 @@ public:
     IsearchBuffer(Screen *);
     void findNext();
 private:
-    virtual void internalInsert(Coord &cursor, std::wstring);
-    virtual std::wstring internalBackspace(Coord &cursor, int = 1);
     Screen *screen_;
     std::wstring searchString_;
     Coord initialCursor_;
     bool search();
+    virtual void postInsert(Coord &cursor, std::wstring);
+    virtual int preBackspace(Coord &cursor, int = 1);
+    virtual void postBackspace(Coord &cursor, int = 1);
 };

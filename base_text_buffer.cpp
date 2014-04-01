@@ -54,8 +54,15 @@ void BaseTextBuffer::render(Screen *screen) const
     screen->update();
 }
 
+
+std::wstring BaseTextBuffer::preInsert(Coord &cursor, std::wstring value)
+{
+    return value;
+}
+
 void BaseTextBuffer::insert(Coord &cursor, std::wstring value)
 {
+    value = preInsert(cursor, value);
     if (!value.empty())
         undoStack_.push(cursor, 
                         [value, this](Coord &c) -> int
@@ -67,6 +74,11 @@ void BaseTextBuffer::insert(Coord &cursor, std::wstring value)
                         {
                             internalDelete(c, size);
                         });
+    postInsert(cursor, value);
+}
+
+void BaseTextBuffer::postInsert(Coord &cursor, std::wstring value)
+{
 }
 
 void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
@@ -92,8 +104,14 @@ void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
     }
 }
 
+int BaseTextBuffer::preDel(Coord &, int value)
+{
+    return value;
+}
+
 void BaseTextBuffer::del(Coord &cursor, int value)
 {
+    value = preDel(cursor, value);
     if (value > 0)
         undoStack_.push(cursor, 
                         [value, this](Coord &c) -> std::wstring
@@ -106,6 +124,11 @@ void BaseTextBuffer::del(Coord &cursor, int value)
                             internalInsert(c, str);
                             c = tmp;
                         });
+    postDel(cursor, value);
+}
+
+void BaseTextBuffer::postDel(Coord &, int)
+{
 }
 
 std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
@@ -135,8 +158,14 @@ std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
     return result;
 }
 
+int BaseTextBuffer::preBackspace(Coord &, int value)
+{
+    return value;
+}
+
 void BaseTextBuffer::backspace(Coord &cursor, int value)
 {
+    value = preBackspace(cursor, value);
     if (value > 0)
         undoStack_.push(cursor, 
                         [value, this](Coord &c) -> std::pair<std::wstring, Coord>
@@ -150,6 +179,11 @@ void BaseTextBuffer::backspace(Coord &cursor, int value)
                             internalInsert(ccc, s.first);
                             c = ccc;
                         });
+    postBackspace(cursor, value);
+}
+
+void BaseTextBuffer::postBackspace(Coord &, int)
+{
 }
 
 std::wstring BaseTextBuffer::internalBackspace(Coord &cursor, int value)

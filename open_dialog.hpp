@@ -10,7 +10,7 @@ public:
     OpenDialog(Screen *screen);
     Signal<void, OpenDialog *, std::string> openFile;
 private:
-    virtual void internalInsert(Coord &cursor, std::wstring);
-    void scanDirectory();
     Screen *screen_;
+    void scanDirectory();
+    virtual void postInsert(Coord &cursor, std::wstring);
 };

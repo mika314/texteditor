@@ -23,7 +23,7 @@ public:
     void render(Screen *) const;
     void insert(Coord &cursor, std::wstring);
     void del(Coord &cursor, int = 1);
-    virtual void backspace(Coord &cursor, int = 1);
+    void backspace(Coord &cursor, int = 1);
     bool isReadOnly() const;
     void setReadOnly(bool);
     std::wstring name() const;
@@ -31,12 +31,19 @@ public:
     Coord cursor() const;
     void setCursor(Coord);
 protected:
-    virtual void internalInsert(Coord &cursor, std::wstring);
-    virtual std::wstring internalDelete(const Coord cursor, int = 1);
-    virtual std::wstring internalBackspace(Coord &cursor, int = 1);
     std::vector<std::wstring> buffer_;
     bool isReadOnly_;
     UndoStack undoStack_;
     std::wstring name_;
     Coord cursor_;
+    virtual std::wstring preInsert(Coord &cursor, std::wstring);
+    virtual void postInsert(Coord &cursor, std::wstring);
+    virtual int preDel(Coord &cursor, int = 1);
+    virtual void postDel(Coord &cursor, int = 1);
+    virtual int preBackspace(Coord &cursor, int = 1);
+    virtual void postBackspace(Coord &cursor, int = 1);
+private:
+    void internalInsert(Coord &cursor, std::wstring);
+    std::wstring internalDelete(const Coord cursor, int = 1);
+    std::wstring internalBackspace(Coord &cursor, int = 1);
 };

@@ -11,11 +11,11 @@ public:
     SaveDialog(Screen *screen, TextFile *textFile);
     Signal<void, SaveDialog *, TextFile *, std::string> saveAs;
 private:
-    virtual void internalInsert(Coord &cursor, std::wstring);
-    virtual std::wstring internalDelete(const Coord cursor, int = 1);
-    virtual std::wstring internalBackspace(Coord &cursor, int = 1);
-    void scanDirectory();
     Screen *screen_;
     TextFile *textFile_;
     Coord cursor_;
+    void scanDirectory();
+    virtual std::wstring preInsert(Coord &cursor, std::wstring);
+    virtual int preDelete(const Coord cursor, int = 1);
+    virtual int preBackspace(Coord &cursor, int = 1);
 };

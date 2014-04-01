@@ -11,26 +11,30 @@ IsearchBuffer::IsearchBuffer(Screen *screen):
     buffer_.push_back(L"I-search:");
 }
 
-void IsearchBuffer::internalInsert(Coord &cursor, std::wstring value)
+void IsearchBuffer::postInsert(Coord &cursor, std::wstring value)
 {
-    BaseTextBuffer::internalInsert(cursor, value);
     assert(screen_->textBuffer());
     std::transform(begin(value), end(value), begin(value), ::tolower);
     searchString_ += value;
     search();
 }
 
-std::wstring IsearchBuffer::internalBackspace(Coord &cursor, int value)
+int IsearchBuffer::preBackspace(Coord &cursor, int value)
+{
+    if (searchString_.size() > 0)
+        return value;
+    else
+        return 0;
+}
+
+void IsearchBuffer::postBackspace(Coord &cursor, int value)
 {
     if (searchString_.size() > 0)
     {
-        std::wstring result = BaseTextBuffer::internalBackspace(cursor, value);
         searchString_.resize(searchString_.size() - value);
         screen_->setCursor(initialCursor_);
         search();
-        return result;
     }
-    return L"";
 }
 
 void IsearchBuffer::findNext()

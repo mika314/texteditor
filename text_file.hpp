@@ -10,4 +10,5 @@ public:
     void saveAs(std::string fileName);
 private:
     std::string fileName_;
+    std::wstring preInsert(Coord &cursor, std::wstring);
 };

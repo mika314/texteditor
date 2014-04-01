@@ -68,3 +68,21 @@ void TextFile::saveAs(std::string fileName)
     }
     clearModified();
 }
+
+
+std::wstring TextFile::preInsert(Coord &cursor, std::wstring value)
+{
+    if (value.size() != 1 || value[0] != '\n')
+        return value;
+    else
+    {
+        auto &line = (*this)[cursor.y];
+        std::wstring spaces;
+        for (auto ch: line)
+            if (ch == L' ')
+                spaces += L' ';
+            else
+                break;
+        return L'\n' + spaces;
+    }
+}

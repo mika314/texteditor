@@ -18,9 +18,8 @@ OpenDialog::OpenDialog(Screen *screen):
     setReadOnly(true);
 }
 
-void OpenDialog::internalInsert(Coord &cursor, std::wstring value)
+void OpenDialog::postInsert(Coord &cursor, std::wstring value)
 {
-    BaseTextBuffer::internalInsert(cursor, value);
     if (value.find(L"\n") != std::wstring::npos && cursor.y > 0)
     {
         struct stat buf;

@@ -113,14 +113,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             {
                 deleteSelected();
                 escStatusBar();
-                auto &line = (*textBuffer_)[cursor_.y];
-                std::wstring spaces;
-                for (auto ch: line)
-                    if (ch == L' ')
-                        spaces += L' ';
-                    else
-                        break;
-                textBuffer_->insert(cursor_, L"\n" + spaces);
+                textBuffer_->insert(cursor_, L"\n");
                 setCursor(cursor_);
                 render();
                 break;
