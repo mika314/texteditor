@@ -10,16 +10,16 @@ Painter::Painter(PaintDevice *paintDevice):
     gLeft_(paintDevice->gLeft()),
     gTop_(paintDevice->gTop())
 {
-	font_ = TTF_OpenFontRW(SDL_RWFromMem((void *)DejaVuSansMono, sizeof(DejaVuSansMono)), 1, 10);
-	if (font_ == nullptr)
-		throw std::runtime_error("TTF_OpenFont");
+    font_ = TTF_OpenFontRW(SDL_RWFromMem((void *)DejaVuSansMono, sizeof(DejaVuSansMono)), 1, 10);
+    if (font_ == nullptr)
+        throw std::runtime_error("TTF_OpenFont");
 }
 
 Painter::~Painter()
 {
     for (auto &i: glyphCache_)
         SDL_DestroyTexture(std::get<0>(i.second));
-	TTF_CloseFont(font_);
+    TTF_CloseFont(font_);
 }
 
 void Painter::drawLine(int x1, int y1, int x2, int y2)
