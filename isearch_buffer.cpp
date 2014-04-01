@@ -8,6 +8,7 @@ IsearchBuffer::IsearchBuffer(Screen *screen):
     screen_(screen),
     initialCursor_(screen_->cursor())
 {
+    std::cerr << "new isearch buf\n";
     buffer_.push_back(L"I-search:");
 }
 

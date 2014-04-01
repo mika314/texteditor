@@ -2,7 +2,7 @@
 #include "to_utf16.hpp"
 #include <unistd.h>
 #include <sys/param.h>
-#include <stdlib.h>
+#include <cstdlib>
 
 std::string getCurrentDir()
 {
