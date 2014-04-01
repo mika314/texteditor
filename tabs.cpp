@@ -128,7 +128,7 @@ void Tabs::paintEvent(PaintEvent &)
     int x = 0;
     for (auto buff: textBuffersList_)
     {
-        auto tabName = (buff->isModified() ? L"*" : L"") + buff->name();
+        auto tabName = (buff->isModified() && !buff->isReadOnly() ? L"*" : L"") + buff->name();
         auto w = tabName.size() * p.glyphWidth();
         auto bgColor = activeTextBuffer_ == buff ? Gray76 : Gray40;
         p.setColor(bgColor);
