@@ -96,7 +96,7 @@ const std::vector<BaseTextBuffer *> &Tabs::textBuffersList() const
 void Tabs::setActiveTextBuffer(BaseTextBuffer *value)
 {
     activeTextBuffer_ = value;
-    setTextBuffer(value);
+    setTextBuffer.emit(value);
     update();
 }
 

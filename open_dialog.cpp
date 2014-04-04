@@ -45,7 +45,7 @@ void OpenDialog::postInsert(Coord &cursor, std::wstring value)
         }
         else
         {
-            openFile(this, fileName);
+            openFile.emit(this, fileName);
             cursor = { 0, 0 };
         }
     }

@@ -47,7 +47,7 @@ std::wstring SaveDialog::preInsert(Coord &cursor, std::wstring value)
                 cursor = { 0, 1 };
         }
         else
-            saveAs(this, textFile_, fileName);
+            saveAs.emit(this, textFile_, fileName);
     }
     return L"";
 }

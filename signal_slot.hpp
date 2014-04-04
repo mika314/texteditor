@@ -37,7 +37,7 @@ public:
     {
         delete slot_;
     }
-    Result operator()(Arguments... arguments)
+    Result emit(Arguments... arguments)
     {
         if (slot_)
             return slot_->operator()(arguments...);

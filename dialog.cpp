@@ -43,11 +43,11 @@ Dialog::Dialog(std::wstring message, Answers answers):
 std::wstring Dialog::preInsert(Coord &cursor, std::wstring value)
 {
     if ((answers_ & Yes) != 0 && value.find(L'y') != std::wstring::npos)
-        result(Yes);
+        result.emit(Yes);
     if ((answers_ & No) != 0 && value.find(L'n') != std::wstring::npos)
-        result(No);
+        result.emit(No);
     if ((answers_ & Cancel) != 0 && value.find(L'c') != std::wstring::npos)
-        result(Cancel);
+        result.emit(Cancel);
     return L"";
 }
 
