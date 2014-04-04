@@ -151,6 +151,15 @@ bool Screen::keyPressEvent(KeyEvent &e)
     case KeyEvent::MRCtrl:
         switch (e.key())
         {
+        case KeyEvent::K1:
+            wholeScreen.emit(this);
+            break;
+        case KeyEvent::K2:
+            split.emit(this, Layout::Vertical);
+            break;
+        case KeyEvent::K3:
+            split.emit(this, Layout::Horizontal);
+            break;
         case KeyEvent::KHome:
             setCursor(0, 0);
             render();

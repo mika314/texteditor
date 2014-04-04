@@ -1,8 +1,11 @@
 #pragma once
 
+class Layout;
+
 class Layoutable
 {
 public:
+    Layoutable();
     ~Layoutable();
     virtual void setLeft(int) = 0;
     virtual void setTop(int) = 0;
@@ -11,4 +14,8 @@ public:
     virtual int minHeight() const = 0;
     virtual int maxWidth() const = 0;
     virtual int minWidth() const = 0;
+    void setParentLayout(Layout *);
+    Layout *parentLayout() const;
+private:
+    Layout *parentLayout_;
 };

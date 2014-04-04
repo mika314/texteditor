@@ -8,18 +8,23 @@
 
 MainWindow::MainWindow(Widget *parent):
     Widget(parent),
-    screen_(this),
+    activeScreen_(nullptr),
     tabs_(this),
     statusBar_(this),
     layout_(Layout::Vertical)
 {
-    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(&screen_, setTextBuffer));
-    screen_.setStatusBar(&statusBar_);
+    activeScreen_ = new Screen(this);
+    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(activeScreen_, setTextBuffer));
+    activeScreen_->setStatusBar(&statusBar_);
     setLayout(&layout_);
-    layout_.addWidget(&tabs_);
-    layout_.addWidget(&screen_);
-    layout_.addWidget(&statusBar_);
-    screen_.setFocus();
+    layout_.addLayoutable(&tabs_);
+    auto screenLayout = new Layout(Layout::Vertical);
+    screenLayout->addLayoutable(activeScreen_);
+    layout_.addLayoutable(screenLayout);
+    layout_.addLayoutable(&statusBar_);
+    activeScreen_->setFocus();
+    connect(SIGNAL(activeScreen_, wholeScreen), SLOT(this, wholeScreen));
+    connect(SIGNAL(activeScreen_, split), SLOT(this, split));
 }
 
 bool MainWindow::keyPressEvent(KeyEvent &e)
@@ -33,7 +38,7 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
         {
         case KeyEvent::KO:
             {
-                auto openDialog = new OpenDialog(&screen_);
+                auto openDialog = new OpenDialog(activeScreen_);
                 connect(SIGNAL(openDialog, openFile), SLOT(this, openFile));
                 tabs_.addTextBuffer(openDialog);
                 break;
@@ -116,16 +121,16 @@ void MainWindow::closeActiveTextBuffer(Dialog::Answer value)
     auto d = statusBar_.textBuffer();
     Application::instance()->queueDelete(d);
     statusBar_.setTextBuffer(nullptr);
-    if (auto textFile = dynamic_cast<TextFile *>(screen_.textBuffer()))
+    if (auto textFile = dynamic_cast<TextFile *>(activeScreen_->textBuffer()))
     {
         switch (value)
         {
         case Dialog::Yes:
             if (textFile->fileName().empty())
             {
-                auto saveDialog = new SaveDialog(&screen_, textFile);
+                auto saveDialog = new SaveDialog(activeScreen_, textFile);
                 tabs_.addTextBuffer(saveDialog);
-                screen_.setCursor(0, 1);
+                activeScreen_->setCursor(0, 1);
                 connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAndClose));
             }
             else
@@ -147,13 +152,13 @@ void MainWindow::closeActiveTextBuffer(Dialog::Answer value)
 
 void MainWindow::save()
 {
-    if (auto textFile = dynamic_cast<TextFile *>(screen_.textBuffer()))
+    if (auto textFile = dynamic_cast<TextFile *>(activeScreen_->textBuffer()))
     {
         if (textFile->fileName().empty())
         {
-            auto saveDialog = new SaveDialog(&screen_, textFile);
+            auto saveDialog = new SaveDialog(activeScreen_, textFile);
             tabs_.addTextBuffer(saveDialog);
-            screen_.setCursor(0, 1);
+            activeScreen_->setCursor(0, 1);
             connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAs));
         }
         else
@@ -161,3 +166,28 @@ void MainWindow::save()
         tabs_.update();
     }
 }
+
+void MainWindow::wholeScreen(Screen *screen)
+{
+    
+}
+
+void MainWindow::split(Screen *screen, Layout::Style style)
+{
+    auto layout = screen->parentLayout();
+    layout->setStyle(style);
+    auto l1 = new Layout(Layout::Vertical);
+    auto l2 = new Layout(Layout::Vertical);
+    layout->removeLayoutable(screen);
+    layout->addLayoutable(l1);
+    layout->addLayoutable(l2);
+    l1->addLayoutable(screen);
+    auto s2 = new Screen(this);
+    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(s2, setTextBuffer));
+    s2->setStatusBar(&statusBar_);
+    s2->setTextBuffer(screen->textBuffer());
+    connect(SIGNAL(s2, wholeScreen), SLOT(this, wholeScreen));
+    connect(SIGNAL(s2, split), SLOT(this, split));
+    l2->addLayoutable(s2);
+}
+

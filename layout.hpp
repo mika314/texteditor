@@ -9,8 +9,8 @@ class Layout: public Layoutable
 public:
     enum Style { Vertical, Horizontal };
     Layout(Style);
-    void addWidget(Widget *);
-    void addLayout(Layout *);
+    void addLayoutable(Layoutable *);
+    void removeLayoutable(Layoutable *);
     virtual void setLeft(int);
     virtual void setTop(int);
     virtual void resize(int width, int height);
@@ -18,6 +18,7 @@ public:
     virtual int minHeight() const;
     virtual int maxWidth() const;
     virtual int minWidth() const;
+    void setStyle(Style);
 private:
     std::vector<Layoutable *> layoutablesList_;
     Style style_;

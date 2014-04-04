@@ -1,6 +1,7 @@
 #include "layout.hpp"
 #include "widget.hpp"
 #include <limits>
+#include <algorithm>
 
 Layout::Layout(Style style):
     style_(style),
@@ -11,16 +12,18 @@ Layout::Layout(Style style):
 {
 }
 
-void Layout::addWidget(Widget *widget)
+void Layout::addLayoutable(Layoutable *value)
 {
-    layoutablesList_.push_back(widget);
+    layoutablesList_.push_back(value);
+    value->setParentLayout(this);
     resize(width_, height_);
 }
 
-void Layout::addLayout(Layout *layout)
+void Layout::removeLayoutable(Layoutable *value)
 {
-    layoutablesList_.push_back(layout);
-    resize(width_, height_);
+    auto iter = std::find(begin(layoutablesList_), end(layoutablesList_), value);
+    if (iter != end(layoutablesList_))
+        layoutablesList_.erase(iter);
 }
 
 void Layout::setLeft(int value)
@@ -136,3 +139,13 @@ int Layout::minWidth() const
 {
     return 0;
 }
+
+void Layout::setStyle(Style value)
+{
+    if (style_ != value)
+    {
+        style_ = value;
+        resize(width_, height_);
+    }
+}
+

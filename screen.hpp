@@ -2,6 +2,7 @@
 #include "widget.hpp"
 #include "color.hpp"
 #include "coord.hpp"
+#include "layout.hpp"
 #include "signal_slot.hpp"
 #include <string>
 
@@ -55,6 +56,8 @@ public:
     void selectAll();
     void startIsearch();
     void escStatusBar();
+    Signal<void, Screen *> wholeScreen;
+    Signal<void, Screen *, Layout::Style> split;
 protected:
     int glyphHeight() const;
     int glyphWidth() const;

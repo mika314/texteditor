@@ -18,7 +18,7 @@ public:
 protected:
     virtual bool keyPressEvent(KeyEvent &);
 private:
-    Screen screen_;
+    Screen *activeScreen_;
     Tabs tabs_;
     StatusBar statusBar_;
     Layout layout_;
@@ -27,4 +27,6 @@ private:
     void saveAndClose(SaveDialog *sender, TextFile *textFile, std::string fileName);
     void closeActiveTextBuffer(Dialog::Answer);
     void save();
+    void wholeScreen(Screen *);
+    void split(Screen *, Layout::Style);
 };
