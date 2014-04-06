@@ -56,8 +56,6 @@ public:
     void selectAll();
     void startIsearch();
     void escStatusBar();
-    Signal<void, Screen *> wholeScreen;
-    Signal<void, Screen *, Layout::Style> split;
 protected:
     int glyphHeight() const;
     int glyphWidth() const;

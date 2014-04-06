@@ -19,14 +19,15 @@ protected:
     virtual bool keyPressEvent(KeyEvent &);
 private:
     Screen *activeScreen_;
+    Layout layout_;
     Tabs tabs_;
     StatusBar statusBar_;
-    Layout layout_;
+    Layout screenLayout_;
     void openFile(OpenDialog *, std::string);
     void saveAs(SaveDialog *sender, TextFile *textFile, std::string fileName);
     void saveAndClose(SaveDialog *sender, TextFile *textFile, std::string fileName);
     void closeActiveTextBuffer(Dialog::Answer);
     void save();
-    void wholeScreen(Screen *);
-    void split(Screen *, Layout::Style);
+    void wholeScreen();
+    void split(Layout::Style);
 };

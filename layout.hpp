@@ -19,6 +19,7 @@ public:
     virtual int maxWidth() const;
     virtual int minWidth() const;
     void setStyle(Style);
+    std::vector<Layoutable *> children() const;
 private:
     std::vector<Layoutable *> layoutablesList_;
     Style style_;

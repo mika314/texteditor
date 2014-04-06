@@ -23,7 +23,10 @@ void Layout::removeLayoutable(Layoutable *value)
 {
     auto iter = std::find(begin(layoutablesList_), end(layoutablesList_), value);
     if (iter != end(layoutablesList_))
+    {
         layoutablesList_.erase(iter);
+        resize(width_, height_);
+    }
 }
 
 void Layout::setLeft(int value)
@@ -149,3 +152,7 @@ void Layout::setStyle(Style value)
     }
 }
 
+std::vector<Layoutable *> Layout::children() const
+{
+    return layoutablesList_;
+}

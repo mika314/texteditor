@@ -9,22 +9,20 @@
 MainWindow::MainWindow(Widget *parent):
     Widget(parent),
     activeScreen_(nullptr),
+    layout_(Layout::Vertical),
     tabs_(this),
     statusBar_(this),
-    layout_(Layout::Vertical)
+    screenLayout_(Layout::Vertical)
 {
     activeScreen_ = new Screen(this);
     connect(SIGNAL(&tabs_, setTextBuffer), SLOT(activeScreen_, setTextBuffer));
     activeScreen_->setStatusBar(&statusBar_);
     setLayout(&layout_);
     layout_.addLayoutable(&tabs_);
-    auto screenLayout = new Layout(Layout::Vertical);
-    screenLayout->addLayoutable(activeScreen_);
-    layout_.addLayoutable(screenLayout);
+    screenLayout_.addLayoutable(activeScreen_);
+    layout_.addLayoutable(&screenLayout_);
     layout_.addLayoutable(&statusBar_);
     activeScreen_->setFocus();
-    connect(SIGNAL(activeScreen_, wholeScreen), SLOT(this, wholeScreen));
-    connect(SIGNAL(activeScreen_, split), SLOT(this, split));
 }
 
 bool MainWindow::keyPressEvent(KeyEvent &e)
@@ -36,6 +34,15 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
     case KeyEvent::MRCtrl:
         switch (e.key())
         {
+        case KeyEvent::K2:
+            wholeScreen();
+            break;
+        case KeyEvent::K3:
+            split(Layout::Vertical);
+            break;
+        case KeyEvent::K4:
+            split(Layout::Horizontal);
+            break;
         case KeyEvent::KO:
             {
                 auto openDialog = new OpenDialog(activeScreen_);
@@ -71,6 +78,21 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
         default:
             result1 = false;
         }
+        break;
+    case KeyEvent::MLAlt:
+    case KeyEvent::MRAlt:
+        switch (e.key())
+        {
+        case KeyEvent::KLeft:
+            // TODO switchToPrevScreen();
+            break;
+        case KeyEvent::KRight:
+            // TODO switchToNextScreen();
+            break;
+        default:
+            result1 = false;
+        }
+        break;
     default:
         result1 = false;
     }
@@ -167,27 +189,45 @@ void MainWindow::save()
     }
 }
 
-void MainWindow::wholeScreen(Screen *screen)
+static void markForDeleteRecursively(Layoutable *value)
 {
-    
+    if (auto layout = dynamic_cast<Layout *>(value))
+    {
+        auto children = layout->children();
+        for (auto child: children)
+        {
+            markForDeleteRecursively(child);
+            Application::instance()->queueDelete(child);
+        }
+    }
 }
 
-void MainWindow::split(Screen *screen, Layout::Style style)
+void MainWindow::wholeScreen()
 {
-    auto layout = screen->parentLayout();
+    markForDeleteRecursively(&screenLayout_);
+    auto screen = activeScreen_;
+    activeScreen_ = new Screen(this);
+    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(activeScreen_, setTextBuffer));
+    activeScreen_->setStatusBar(&statusBar_);
+    screenLayout_.addLayoutable(activeScreen_);
+    activeScreen_->setTextBuffer(screen->textBuffer());
+    activeScreen_->setFocus();
+}
+
+void MainWindow::split(Layout::Style style)
+{
+    auto layout = activeScreen_->parentLayout();
     layout->setStyle(style);
     auto l1 = new Layout(Layout::Vertical);
     auto l2 = new Layout(Layout::Vertical);
-    layout->removeLayoutable(screen);
+    layout->removeLayoutable(activeScreen_);
     layout->addLayoutable(l1);
     layout->addLayoutable(l2);
-    l1->addLayoutable(screen);
+    l1->addLayoutable(activeScreen_);
     auto s2 = new Screen(this);
     connect(SIGNAL(&tabs_, setTextBuffer), SLOT(s2, setTextBuffer));
     s2->setStatusBar(&statusBar_);
-    s2->setTextBuffer(screen->textBuffer());
-    connect(SIGNAL(s2, wholeScreen), SLOT(this, wholeScreen));
-    connect(SIGNAL(s2, split), SLOT(this, split));
+    s2->setTextBuffer(activeScreen_->textBuffer());
     l2->addLayoutable(s2);
 }
 
