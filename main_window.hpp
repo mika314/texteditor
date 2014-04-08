@@ -30,4 +30,7 @@ private:
     void save();
     void wholeScreen();
     void split(Layout::Style);
+    void switchToPrevScreen();
+    void switchToNextScreen();
+    void setTextBuffer(BaseTextBuffer *);
 };

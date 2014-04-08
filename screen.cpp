@@ -57,6 +57,9 @@ void Screen::paintEvent(PaintEvent &)
     auto yy = cursor_.y - vScroll_;
     p.drawLine(xx * glyphWidth_, yy * glyphHeight_,
                xx * glyphWidth_, (yy + 1) * glyphHeight_);
+    p.setColor(Gray90);
+    p.drawLine(0, height() - 1, width() - 1, height() - 1);
+    p.drawLine(width() - 1, 0, width() - 1, height() - 1);
     if (textBuffer_)
     {
         int sbHeight = std::max(3, 

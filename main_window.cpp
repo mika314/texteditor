@@ -5,6 +5,8 @@
 #include "text_file.hpp"
 #include "dialog.hpp"
 #include "application.hpp"
+#include <algorithm>
+#include <cassert>
 
 MainWindow::MainWindow(Widget *parent):
     Widget(parent),
@@ -15,7 +17,7 @@ MainWindow::MainWindow(Widget *parent):
     screenLayout_(Layout::Vertical)
 {
     activeScreen_ = new Screen(this);
-    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(activeScreen_, setTextBuffer));
+    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(this, setTextBuffer));
     activeScreen_->setStatusBar(&statusBar_);
     setLayout(&layout_);
     layout_.addLayoutable(&tabs_);
@@ -75,6 +77,9 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
         case KeyEvent::KRight:
             tabs_.switchToNextTextBuffer();
             break;
+        case KeyEvent::KTab:
+            switchToNextScreen();
+            break;
         default:
             result1 = false;
         }
@@ -84,10 +89,10 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
         switch (e.key())
         {
         case KeyEvent::KLeft:
-            // TODO switchToPrevScreen();
+            switchToPrevScreen();
             break;
         case KeyEvent::KRight:
-            // TODO switchToNextScreen();
+            switchToNextScreen();
             break;
         default:
             result1 = false;
@@ -207,7 +212,6 @@ void MainWindow::wholeScreen()
     markForDeleteRecursively(&screenLayout_);
     auto screen = activeScreen_;
     activeScreen_ = new Screen(this);
-    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(activeScreen_, setTextBuffer));
     activeScreen_->setStatusBar(&statusBar_);
     screenLayout_.addLayoutable(activeScreen_);
     activeScreen_->setTextBuffer(screen->textBuffer());
@@ -225,9 +229,57 @@ void MainWindow::split(Layout::Style style)
     layout->addLayoutable(l2);
     l1->addLayoutable(activeScreen_);
     auto s2 = new Screen(this);
-    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(s2, setTextBuffer));
     s2->setStatusBar(&statusBar_);
     s2->setTextBuffer(activeScreen_->textBuffer());
     l2->addLayoutable(s2);
 }
 
+static std::vector<Screen *> getListOfScreens(Layoutable *l)
+{
+    std::vector<Screen *> res;
+    if (auto screen = dynamic_cast<Screen *>(l))
+        res.push_back(screen);
+    else if (auto layout = dynamic_cast<Layout *>(l))
+    {
+        auto children = layout->children();
+        for (Layoutable *child: children)
+        {
+            std::vector<Screen *> tmp = getListOfScreens(child);
+            res.insert(end(res), begin(tmp), end(tmp));
+        }
+    }
+    return res;
+}
+
+void MainWindow::switchToPrevScreen()
+{
+    std::vector<Screen *> list = getListOfScreens(&screenLayout_);
+    auto iter = std::find(begin(list), end(list), activeScreen_);
+    assert(iter != end(list));
+    if (iter != begin(list))
+        --iter;
+    else
+        iter = end(list) - 1;
+    activeScreen_ = *iter;
+    tabs_.setActiveTextBuffer(activeScreen_->textBuffer());
+    activeScreen_->setFocus();
+}
+
+void MainWindow::switchToNextScreen()
+{
+    std::vector<Screen *> list = getListOfScreens(&screenLayout_);
+    auto iter = std::find(begin(list), end(list), activeScreen_);
+    assert(iter != end(list));
+    if (iter + 1 != end(list))
+        ++iter;
+    else
+        iter = begin(list);
+    activeScreen_ = *iter;
+    tabs_.setActiveTextBuffer(activeScreen_->textBuffer());
+    activeScreen_->setFocus();
+}
+
+void MainWindow::setTextBuffer(BaseTextBuffer *textBuffer)
+{
+    activeScreen_->setTextBuffer(textBuffer);
+}
