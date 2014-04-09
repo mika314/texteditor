@@ -8,11 +8,19 @@
 Painter::Painter(PaintDevice *paintDevice):
     renderer_(paintDevice->renderer()),
     gLeft_(paintDevice->gLeft()),
-    gTop_(paintDevice->gTop())
+    gTop_(paintDevice->gTop()),
+    width_(paintDevice->width()),
+    height_(paintDevice->height())
 {
     font_ = TTF_OpenFontRW(SDL_RWFromMem((void *)DejaVuSansMono, sizeof(DejaVuSansMono)), 1, 10);
     if (font_ == nullptr)
         throw std::runtime_error("TTF_OpenFont");
+    SDL_Rect rect;
+    rect.x = gLeft_;
+    rect.y = gTop_;
+    rect.w = width_;
+    rect.h = height_;
+    SDL_RenderSetClipRect(renderer_, &rect);
 }
 
 Painter::~Painter()

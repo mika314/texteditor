@@ -25,6 +25,8 @@ private:
     SDL_Renderer *renderer_;
     int gLeft_;
     int gTop_;
+    int width_;
+    int height_;
     TTF_Font *font_;
     typedef std::tuple<wchar_t, Color, Color> GlyphCacheKey;
     typedef std::map<GlyphCacheKey, std::tuple<SDL_Texture *, int, int, std::list<GlyphCacheKey>::iterator> > GlyphCache;
