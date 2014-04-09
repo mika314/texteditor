@@ -202,6 +202,7 @@ static void markForDeleteRecursively(Layoutable *value)
         for (auto child: children)
         {
             markForDeleteRecursively(child);
+            child->parentLayout()->removeLayoutable(child);
             Application::instance()->queueDelete(child);
         }
     }
