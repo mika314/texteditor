@@ -33,4 +33,5 @@ private:
     void switchToPrevScreen();
     void switchToNextScreen();
     void setTextBuffer(BaseTextBuffer *);
+    void deleteTextBuffer(BaseTextBuffer *);
 };

@@ -25,6 +25,7 @@ public:
     virtual int maxHeight() const;
     virtual int minHeight() const;
     Signal<void, BaseTextBuffer *> setTextBuffer;
+    Signal<void, BaseTextBuffer *> deleteTextBuffer;
 private:
     virtual void paintEvent(PaintEvent &);
     std::vector<BaseTextBuffer *> textBuffersList_;

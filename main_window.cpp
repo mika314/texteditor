@@ -18,6 +18,7 @@ MainWindow::MainWindow(Widget *parent):
 {
     activeScreen_ = new Screen(this);
     connect(SIGNAL(&tabs_, setTextBuffer), SLOT(this, setTextBuffer));
+    connect(SIGNAL(&tabs_, deleteTextBuffer), SLOT(this, deleteTextBuffer));
     activeScreen_->setStatusBar(&statusBar_);
     setLayout(&layout_);
     layout_.addLayoutable(&tabs_);
@@ -163,7 +164,7 @@ void MainWindow::closeActiveTextBuffer(Dialog::Answer value)
             else
             {
                 textFile->save();
-                tabs_.closeActiveTextBuffer();
+                tabs_.closeActiveTextBuffer();                
             }
             break;
         case Dialog::No:
@@ -283,4 +284,25 @@ void MainWindow::switchToNextScreen()
 void MainWindow::setTextBuffer(BaseTextBuffer *textBuffer)
 {
     activeScreen_->setTextBuffer(textBuffer);
+}
+
+static void internalDeleteTextBuffer(Layoutable *l, BaseTextBuffer *textBuffer)
+{
+    if (auto screen = dynamic_cast<Screen *>(l))
+    {
+        if (screen->textBuffer() == textBuffer)
+            screen->setTextBuffer(nullptr);
+    }
+    else if (auto layout = dynamic_cast<Layout *>(l))
+    {
+        auto children = layout->children();
+        for (Layoutable *child: children)
+            internalDeleteTextBuffer(child, textBuffer);
+    }
+}
+
+
+void MainWindow::deleteTextBuffer(BaseTextBuffer *textBuffer)
+{
+    internalDeleteTextBuffer(&screenLayout_, textBuffer);
 }
