@@ -2,12 +2,14 @@
 #include "screen.hpp"
 
 BaseTextBuffer::BaseTextBuffer():
-    isReadOnly_(false),
-    cursor_{0, 0}
+    isReadOnly_{false},
+    cursor_{0, 0},
+    highlighter_{nullptr}
 {}
 
 BaseTextBuffer::~BaseTextBuffer()
 {
+    delete highlighter_;
 }
 
 const std::wstring &BaseTextBuffer::operator[](int line) const
@@ -45,8 +47,15 @@ void BaseTextBuffer::render(Screen *screen) const
         for (int x = 0; x < screen->widthCh(); ++x)
         {
             const auto xx = x + screen->hScroll();
+            Color fgColor = Black;
+            Color bgColor = White;
+            if (highlighter_)
+            {
+                fgColor = highlighter_->fgColor(xx, yy);
+                bgColor = highlighter_->bgColor(xx, yy);
+            }
             if (!screen->isSelected({ xx, yy }))
-                screen->ch(x, y) = xx < static_cast<int>(line.size()) ? line[xx] : L'\0';
+                screen->ch(x, y) = { xx < static_cast<int>(line.size()) ? line[xx] : L'\0', fgColor, bgColor };
             else
                 screen->ch(x, y) = { xx < static_cast<int>(line.size()) ? line[xx] : L'\0', Black, Gray90 };
         }
@@ -101,6 +110,8 @@ void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
             ++cursor.y;
             cursor.x = 0;
         }
+        if (highlighter_)
+            highlighter_->update(cursor.x, cursor.y);
     }
 }
 
@@ -154,6 +165,8 @@ std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
                 buffer_[cursor.y] += tmp;
             }
         }
+        if (highlighter_)
+            highlighter_->update(cursor.x, cursor.y);
     }
     return result;
 }

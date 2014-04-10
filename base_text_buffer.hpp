@@ -1,5 +1,6 @@
 #pragma once
 #include "coord.hpp"
+#include "cpp_highlighter.hpp"
 #include "undo_stack.hpp"
 #include <string>
 #include <vector>
@@ -36,6 +37,7 @@ protected:
     UndoStack undoStack_;
     std::wstring name_;
     Coord cursor_;
+    CppHighlighter *highlighter_;
     virtual std::wstring preInsert(Coord &cursor, std::wstring);
     virtual void postInsert(Coord &cursor, std::wstring);
     virtual int preDel(Coord &cursor, int = 1);

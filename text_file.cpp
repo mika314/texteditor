@@ -1,6 +1,7 @@
 #include "text_file.hpp"
 #include "to_utf16.hpp"
 #include "to_utf8.hpp"
+#include "cpp_highlighter.hpp"
 #include "current_dir.hpp"
 #include <fstream>
 
@@ -39,6 +40,7 @@ TextFile::TextFile(std::string fileName):
         }
     else
         buffer_.push_back(L"");
+    highlighter_ = new CppHighlighter(this);
 }
 
 std::string TextFile::fileName() const
