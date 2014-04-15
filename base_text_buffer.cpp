@@ -94,6 +94,7 @@ void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
 {
     if (isReadOnly())
         return;
+    Coord start = cursor;
     for (wchar_t c: value)
     {
         auto &line = buffer_[cursor.y];
@@ -110,9 +111,9 @@ void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
             ++cursor.y;
             cursor.x = 0;
         }
-        if (highlighter_)
-            highlighter_->update(cursor.x, cursor.y);
     }
+    if (highlighter_)
+        highlighter_->update(start, cursor);
 }
 
 int BaseTextBuffer::preDel(Coord &, int value)
@@ -147,6 +148,7 @@ std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
     if (isReadOnly())
         return L"";
     std::wstring result;
+    Coord start;
     for (int i = 0; i < value; ++i)
     {
         auto &line = buffer_[cursor.y];
@@ -165,9 +167,9 @@ std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
                 buffer_[cursor.y] += tmp;
             }
         }
-        if (highlighter_)
-            highlighter_->update(cursor.x, cursor.y);
     }
+    if (highlighter_)
+        highlighter_->update(start, cursor);
     return result;
 }
 

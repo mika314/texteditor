@@ -4,6 +4,7 @@
 #include "cpp_highlighter.hpp"
 #include "current_dir.hpp"
 #include <fstream>
+#include <algorithm>
 
 static std::string getFullFileName(std::string fileName)
 {
@@ -20,6 +21,26 @@ static std::string baseName(std::string fileName)
         return std::string{ begin(fileName) + p + 1, end(fileName) };
     else
         return fileName;
+}
+
+static bool isCpp(std::string fileName)
+{
+    auto p = fileName.rfind(".");
+    std::string ext;
+    if (p != std::string::npos)
+        ext = fileName.substr(p);
+    static std::string exts[] = {
+        ".c",
+        ".cpp",
+        ".C",
+        ".cc",
+        ".c++",
+        ".h",
+        ".H",
+        ".hpp",
+        ".h++"
+    };
+    return std::find(std::begin(exts), std::end(exts), ext) != std::end(exts);
 }
 
 TextFile::TextFile(std::string fileName):
@@ -40,7 +61,8 @@ TextFile::TextFile(std::string fileName):
         }
     else
         buffer_.push_back(L"");
-    highlighter_ = new CppHighlighter(this);
+    if (isCpp(fileName))
+        highlighter_ = new CppHighlighter(this);
 }
 
 std::string TextFile::fileName() const

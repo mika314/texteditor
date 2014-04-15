@@ -20,22 +20,42 @@ CppHighlighter::CppHighlighter(BaseTextBuffer *textBuffer):
     textBuffer_(textBuffer),
     keywords_{ std::begin(keywords), std::end(keywords) }
 {
-    update(0, 0);
+    update({0, 0}, {0, textBuffer->size()});
+    toFg_[Keyword] = Green;
+    toBg_[Keyword] = White;
+
+    toFg_[Ident] = Black;
+    toBg_[Ident] = White;
+
+    toFg_[Comment] = Brown;
+    toBg_[Comment] = White;
+
+    toFg_[Macro] = Violetred;
+    toBg_[Macro] = White;
+
+    toFg_[StringLiteral] = Steelblue;
+    toBg_[StringLiteral] = White;
+
+    toFg_[Number] = Blue;
+    toBg_[Number] = White;
+
+    toFg_[Other] = Black;
+    toBg_[Other] = White;
 }
 
 Color CppHighlighter::fgColor(int x, int y) const
 {
-    if (y < static_cast<int>(colors_.size()))
-        if (x < static_cast<int>(colors_[y].size()))
-            return colors_[y][x].first;
+    if (y < static_cast<int>(types_.size()))
+        if (x < static_cast<int>(types_[y].size()))
+            return toFg_[types_[y][x]];
     return Black;
 }
 
 Color CppHighlighter::bgColor(int x, int y) const
 {
-    if (y < static_cast<int>(colors_.size()))
-        if (x < static_cast<int>(colors_[y].size()))
-            return colors_[y][x].second;
+    if (y < static_cast<int>(types_.size()))
+        if (x < static_cast<int>(types_[y].size()))
+            return toBg_[types_[y][x]];
     return White;
 }
 
@@ -98,8 +118,9 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
             }
             type = Macro;
         }
-        else  if (c == '"')
+        else  if (c == L'"' || c == L'\'')
         {
+            wchar_t openChar = c;
             ++count;
             moveForward(x, y);
             while (!outOfRange(x, y))
@@ -117,14 +138,14 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
                         ++count;
                         moveForward(x, y);
                     }
-                    else if (c == 'x')
+                    else if (c == L'x')
                     {
                         ++count;
                         moveForward(x, y);
                         ++count;
                         moveForward(x, y);
                     }
-                    else if (c == 'u')
+                    else if (c == L'u')
                     {
                         ++count;
                         moveForward(x, y);
@@ -135,7 +156,7 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
                         ++count;
                         moveForward(x, y);
                     }
-                    else if (c == 'U')
+                    else if (c == L'U')
                     {
                         ++count;
                         moveForward(x, y);
@@ -155,7 +176,7 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
                         moveForward(x, y);
                     }
                 }
-                else if (c == '"')
+                else if (c == openChar)
                 {
                     ++count;
                     moveForward(x, y);
@@ -172,7 +193,7 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
             int tmpY = y;
             moveForward(tmpX, tmpY);
             auto c2 = ch(tmpX, tmpY);
-            if (c == '/' && c2 == '/')
+            if (c == L'/' && c2 == L'/')
             {
                 x = tmpX;
                 y = tmpY;
@@ -181,7 +202,7 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
                 moveForward(x, y);
                 type = Comment;
             }
-            else if (c == '/' && c2 == '*')
+            else if (c == L'/' && c2 == L'*')
             {
                 x = tmpX;
                 y = tmpY;
@@ -189,7 +210,7 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
                 {
                     c = c2;
                     c2 = ch(x, y);
-                    if (c == '*' && c2 == '/')
+                    if (c == L'*' && c2 == L'/')
                     {
                         ++count;
                         moveForward(x, y);
@@ -211,13 +232,13 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
     return std::make_pair(type, count);
 }
 
-void CppHighlighter::update(int, int)
+void CppHighlighter::update(const Coord &start, const Coord &end)
 {
-    colors_.resize(textBuffer_->size());
+    types_.resize(textBuffer_->size());
     for (int y = 0; y < textBuffer_->size(); ++y)
     {
         auto &line = (*textBuffer_)[y];
-        colors_[y].resize(line.size() + 1);
+        types_[y].resize(line.size() + 1);
     }
     
     int x = 0; 
@@ -225,31 +246,6 @@ void CppHighlighter::update(int, int)
     while (!outOfRange(x, y))
     {
         std::pair<Type, int> token = getToken(x, y);
-        std::pair<Color, Color> color;
-        switch (token.first)
-        {
-        case Keyword:
-            color = std::make_pair(Green, White);
-            break;
-        case Ident:
-            color = std::make_pair(Black, White);
-            break;
-        case Comment:
-            color = std::make_pair(Brown, White); 
-            break;
-        case Macro:
-            color = std::make_pair(Violetred, White);
-            break;
-        case StringLiteral:
-            color = std::make_pair(Steelblue, White);
-            break;
-        case Number:
-            color = std::make_pair(Blue, White);
-            break;
-        case Other:
-            color = std::make_pair(Black, White);
-            break;
-        }
         int count = token.second;
         int tmpX = x;
         int tmpY = y;
@@ -257,7 +253,7 @@ void CppHighlighter::update(int, int)
         {
             moveBackward(tmpX, tmpY);
             if (!outOfRange(tmpX, tmpY))
-                colors_[tmpY][tmpX] = color;
+                types_[tmpY][tmpX] = token.first;
         }
     }
 }
