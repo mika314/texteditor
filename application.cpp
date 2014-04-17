@@ -55,7 +55,7 @@ int Application::exec()
                         break;
                     case SDL_WINDOWEVENT_EXPOSED:
                         {
-                            w->update();
+                            w->updateWithoutRedraw();
                             break;
                         }
                     case SDL_WINDOWEVENT_MOVED:
@@ -63,7 +63,6 @@ int Application::exec()
                     case SDL_WINDOWEVENT_RESIZED:
                         {
                             w->resize(e.window.data1, e.window.data2);
-                            SDL_RenderPresent(w->renderer_); // hack for MacOS X
                             break;
                         }
                     case SDL_WINDOWEVENT_MINIMIZED:
@@ -160,15 +159,14 @@ int Application::exec()
                 break;
             }
         }
-        const auto isEmpty = (SDL_PeepEvents(&e, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 0);
-        if (isEmpty)
-            for (auto w: widgetList_)
-                if (w->needRepaint())
-                {
-                    PaintEvent e;
-                    w->internalPaint(e);
-                    SDL_RenderPresent(w->renderer_);
-                }
+        for (auto w: widgetList_)
+            if (w->needRepaint())
+            {
+                auto t1 = SDL_GetTicks();
+                PaintEvent e;
+                w->internalPaint(e);
+                std::cout << SDL_GetTicks() - t1 << std::endl;
+            }
         for (auto obj: deletingObjects_)
             delete obj;
         deletingObjects_.clear();

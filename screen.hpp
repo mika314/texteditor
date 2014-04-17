@@ -17,6 +17,7 @@ public:
     struct Char
     {
         Char(wchar_t = L'\0', Color fg = Black, Color bg = White);
+        bool operator!=(const Char &) const;
         wchar_t ch;
         Color fg;
         Color bg;
@@ -69,7 +70,10 @@ private:
     int vScroll_;
     BaseTextBuffer *textBuffer_;
     StatusBar *statusBar_;
+    int prevX_;
+    int prevY_;
     std::vector<std::vector<Char> > ch_;
+    std::vector<std::vector<Char> > prevCh_;
     void select(void (Screen::*moveCursor)());
     void moveCursor(void (Screen::*moveCursor)());
     std::wstring getSelected() const;

@@ -206,6 +206,7 @@ std::wstring BaseTextBuffer::internalBackspace(Coord &cursor, int value)
     if (isReadOnly())
         return L"";
     std::wstring result;
+    int count = 0;
     for (int i = 0; i < value; ++i)
     {
         if (cursor.x > 0)
@@ -218,12 +219,11 @@ std::wstring BaseTextBuffer::internalBackspace(Coord &cursor, int value)
                 cursor.x = buffer_[cursor.y].size();
             }
             else
-                return L"";
+                break;
         }
-        result += internalDelete(cursor);
+        ++count;
     }
-    
-    return { result.rbegin(), result.rend() };
+    return internalDelete(cursor, count);
 }
 
 bool BaseTextBuffer::isReadOnly() const

@@ -17,6 +17,12 @@ Screen::Char::Char(wchar_t ach, Color afg, Color abg):
     bg(abg)
 {}
 
+bool Screen::Char::operator!=(const Char &value) const
+{
+    return ch != value.ch || fg != value.fg || bg != value.bg;
+}
+
+
 Screen::Screen(Widget *parent):
     Widget(parent),
     cursor_{0, 0},
@@ -25,7 +31,9 @@ Screen::Screen(Widget *parent):
     hScroll_{0},
     vScroll_{0},
     textBuffer_{nullptr},
-    statusBar_{nullptr}
+    statusBar_{nullptr},
+    prevX_{-1},
+    prevY_{-1}
 {
     Painter p(this);
     glyphWidth_ = p.glyphWidth();
@@ -46,17 +54,21 @@ void Screen::paintEvent(PaintEvent &)
     for (size_t y = 0; y < ch_.size(); ++y)
         for (size_t x = 0; x < ch_[y].size(); ++x)
         {
+            const auto &prevC = prevCh_[y][x];
             const auto &c = ch_[y][x];
-            p.renderGlyph(c.ch, x * glyphWidth_, y * glyphHeight_, c.fg, c.bg);
+            if (prevC != c || (prevX_ == static_cast<int>(x) && prevY_ == static_cast<int>(y)))
+                p.renderGlyph(c.ch, x * glyphWidth_, y * glyphHeight_, c.fg, c.bg);
         }
+    auto xx = cursor_.x - hScroll_;
+    auto yy = cursor_.y - vScroll_;
     if (hasFocus())
         p.setColor(Red);
     else
         p.setColor(Gray);
-    auto xx = cursor_.x - hScroll_;
-    auto yy = cursor_.y - vScroll_;
     p.drawLine(xx * glyphWidth_, yy * glyphHeight_,
-               xx * glyphWidth_, (yy + 1) * glyphHeight_);
+               xx * glyphWidth_, (yy + 1) * glyphHeight_ - 1);
+    p.drawLine(xx * glyphWidth_ + 1, yy * glyphHeight_,
+               xx * glyphWidth_ + 1, (yy + 1) * glyphHeight_ - 1);
     p.setColor(Gray90);
     p.drawLine(0, height() - 1, width() - 1, height() - 1);
     p.drawLine(width() - 1, 0, width() - 1, height() - 1);
@@ -72,6 +84,9 @@ void Screen::paintEvent(PaintEvent &)
         p.setColor(Blue);
         p.drawLine(width() - 1, sbTop, width() - 1, sbTop + sbHeight);
     }
+    prevX_ = xx;
+    prevY_ = yy;
+    prevCh_ = ch_;
 }
 
 bool Screen::keyPressEvent(KeyEvent &e)
@@ -276,7 +291,16 @@ void Screen::resizeEvent(ResizeEvent &e)
 {
     ch_.resize(heightCh());
     for (auto &r: ch_)
+    {
         r.resize(widthCh());
+    }
+    prevCh_.resize(heightCh());
+    for (auto &r: prevCh_)
+    {
+        r.resize(widthCh());
+        for (auto &i: r)
+            i.ch = 0xffff;
+    }
     render();
 }
 

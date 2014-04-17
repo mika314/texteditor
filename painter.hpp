@@ -23,8 +23,6 @@ public:
     int glyphHeight() const;
 private:
     SDL_Renderer *renderer_;
-    int gLeft_;
-    int gTop_;
     int width_;
     int height_;
     TTF_Font *font_;

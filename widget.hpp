@@ -62,6 +62,7 @@ private:
     Widget *parent_;
     std::vector<Widget *> children_;
     SDL_Renderer *renderer_;
+    SDL_Texture *texture_;
     int width_;
     int height_;
     int left_;
@@ -71,6 +72,7 @@ private:
     void addChild(Widget *);
     void removeChild(Widget *);
     void internalPaint(PaintEvent &);
+    void updateWithoutRedraw(); 
     Widget(const Widget &);
     Widget &operator=(const Widget &);
     bool needRepaint() const;
