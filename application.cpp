@@ -172,7 +172,6 @@ int Application::exec()
                 {
                     PaintEvent e;
                     w->internalPaint(e);
-                    SDL_RenderPresent(w->renderer_);
                 }
             if (needUpdateWithoutRedraw_)
             {
