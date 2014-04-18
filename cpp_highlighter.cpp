@@ -20,7 +20,6 @@ CppHighlighter::CppHighlighter(BaseTextBuffer *textBuffer):
     textBuffer_(textBuffer),
     keywords_{ std::begin(keywords), std::end(keywords) }
 {
-    update({0, 0}, {0, textBuffer->size()});
     toFg_[Keyword] = Green;
     toBg_[Keyword] = White;
 
@@ -241,8 +240,27 @@ void CppHighlighter::update(const Coord &start, const Coord &end)
         types_[y].resize(line.size() + 1);
     }
     
-    int x = 0; 
-    int y = 0;
+    int x = start.x; 
+    int y = start.y;
+    auto t = types_[y][x];
+    auto c = 0;
+    while (!outOfRange(x, y))
+    {
+        int tmpX = x;
+        int tmpY = y;
+        moveBackward(tmpX, tmpY);
+        if (outOfRange(tmpX, tmpY))
+            break;
+        if (t != types_[tmpY][tmpX])
+        {
+            t = types_[tmpY][tmpX];
+            ++c;
+            if (c > 2)
+                break;
+        }
+        x = tmpX;
+        y = tmpY;
+    }
     while (!outOfRange(x, y))
     {
         std::pair<Type, int> token = getToken(x, y);
@@ -253,8 +271,12 @@ void CppHighlighter::update(const Coord &start, const Coord &end)
         {
             moveBackward(tmpX, tmpY);
             if (!outOfRange(tmpX, tmpY))
+            {
                 types_[tmpY][tmpX] = token.first;
+            }
         }
+        if (y > end.y || (y == end.y && x > end.x))
+            break;
     }
 }
 

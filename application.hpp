@@ -22,7 +22,9 @@ private:
     static Application *instance_;
     std::vector<Widget *> widgetList_;
     Widget *focusWidget_;
+    Widget *needUpdateWithoutRedraw_;
     std::vector<BaseDeletingObject *> deletingObjects_;
+    Uint32 lastUpdate_;
     void addWidget(Widget *);
     void removeWidget(Widget *);
     Widget *widgetByWindowId(Uint32);

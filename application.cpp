@@ -15,7 +15,9 @@
 Application *Application::instance_ = nullptr;
 
 Application::Application(int &argc, char **argv):
-    focusWidget_(nullptr)
+    focusWidget_(nullptr),
+    needUpdateWithoutRedraw_(nullptr),
+    lastUpdate_(0)
 {
     if (instance_ != nullptr)
         throw std::runtime_error("The program can have only one instance of Application");
@@ -55,7 +57,7 @@ int Application::exec()
                         break;
                     case SDL_WINDOWEVENT_EXPOSED:
                         {
-                            w->updateWithoutRedraw();
+                            needUpdateWithoutRedraw_ = w;
                             break;
                         }
                     case SDL_WINDOWEVENT_MOVED:
@@ -63,6 +65,9 @@ int Application::exec()
                     case SDL_WINDOWEVENT_RESIZED:
                         {
                             w->resize(e.window.data1, e.window.data2);
+#if __APPLE__==1
+                            SDL_RenderPresent(w->renderer_); // hack for MacOS X
+#endif
                             break;
                         }
                     case SDL_WINDOWEVENT_MINIMIZED:
@@ -159,14 +164,23 @@ int Application::exec()
                 break;
             }
         }
-        for (auto w: widgetList_)
-            if (w->needRepaint())
+        const auto isEmpty = (SDL_PeepEvents(&e, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 0);
+        if (isEmpty || SDL_GetTicks() > lastUpdate_ + 50)
+        {
+            for (auto w: widgetList_)
+                if (w->needRepaint())
+                {
+                    PaintEvent e;
+                    w->internalPaint(e);
+                    SDL_RenderPresent(w->renderer_);
+                }
+            if (needUpdateWithoutRedraw_)
             {
-                auto t1 = SDL_GetTicks();
-                PaintEvent e;
-                w->internalPaint(e);
-                std::cout << SDL_GetTicks() - t1 << std::endl;
+                needUpdateWithoutRedraw_->updateWithoutRedraw();
+                needUpdateWithoutRedraw_ = nullptr;
             }
+            lastUpdate_ = SDL_GetTicks();
+        }
         for (auto obj: deletingObjects_)
             delete obj;
         deletingObjects_.clear();

@@ -40,6 +40,8 @@ void BaseTextBuffer::redo(Coord &cursor)
 
 void BaseTextBuffer::render(Screen *screen) const
 {
+    if (highlighter_)
+        highlighter_->update({0, screen->vScroll()}, {0, screen->vScroll() + screen->heightCh()});
     for (int y = 0; y < screen->heightCh(); ++y)
     {
         const auto yy = y + screen->vScroll();
@@ -94,7 +96,6 @@ void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
 {
     if (isReadOnly())
         return;
-    Coord start = cursor;
     for (wchar_t c: value)
     {
         auto &line = buffer_[cursor.y];
@@ -112,8 +113,6 @@ void BaseTextBuffer::internalInsert(Coord &cursor, std::wstring value)
             cursor.x = 0;
         }
     }
-    if (highlighter_)
-        highlighter_->update(start, cursor);
 }
 
 int BaseTextBuffer::preDel(Coord &, int value)
@@ -148,7 +147,6 @@ std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
     if (isReadOnly())
         return L"";
     std::wstring result;
-    Coord start;
     for (int i = 0; i < value; ++i)
     {
         auto &line = buffer_[cursor.y];
@@ -168,8 +166,6 @@ std::wstring BaseTextBuffer::internalDelete(const Coord cursor, int value)
             }
         }
     }
-    if (highlighter_)
-        highlighter_->update(start, cursor);
     return result;
 }
 
