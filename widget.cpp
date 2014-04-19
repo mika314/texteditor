@@ -12,6 +12,7 @@
 
 Widget::Widget(Widget *parent):
     parent_(parent),
+    texture_(nullptr),
     width_(640),
     height_(480),
     left_(0),
@@ -22,7 +23,7 @@ Widget::Widget(Widget *parent):
     if (!parent_)
     {
         window_ = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width(), height(), SDL_WINDOW_RESIZABLE);
-        renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+        renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
         if (renderer_ == nullptr)
             throw std::runtime_error(std::string("SDL_CreateRenderer Error: ") + SDL_GetError());
         Application::instance()->addWidget(this);
@@ -33,6 +34,8 @@ Widget::Widget(Widget *parent):
 
 Widget::~Widget()
 {
+    if (texture_)
+        SDL_DestroyTexture(texture_);
     if (!parent_)
     {
         SDL_DestroyRenderer(renderer_);
@@ -47,6 +50,10 @@ void Widget::resize(int width, int height)
 {
     width_ = width;
     height_ = height;
+    if (texture_)
+        SDL_DestroyTexture(texture_);
+    texture_ = SDL_CreateTexture(renderer(), SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, width_, height_);
+
     ResizeEvent e;
     e.width = width;
     e.height = height;
@@ -264,13 +271,37 @@ void Widget::removeChild(Widget *w)
     children_.erase(std::remove(begin(children_), end(children_), w), end(children_));
 }
 
+void Widget::updateWithoutRedraw()
+{
+    SDL_Rect r;
+    r.x = gLeft();
+    r.y = gTop();
+    r.w = width();
+    r.h = height();
+    SDL_SetRenderTarget(renderer(), nullptr);
+    SDL_RenderCopy(renderer(), texture_, nullptr, &r);
+    for (auto child: children())
+        child->updateWithoutRedraw();
+    if (!parent_)
+        SDL_RenderPresent(renderer_);
+}
 
 void Widget::internalPaint(PaintEvent &event)
 {
+    SDL_SetRenderTarget(renderer(), texture_);
     paintEvent(event);
+    SDL_Rect r;
+    r.x = gLeft();
+    r.y = gTop();
+    r.w = width();
+    r.h = height();
+    SDL_SetRenderTarget(renderer(), nullptr);
+    SDL_RenderCopy(renderer(), texture_, nullptr, &r);
     for (auto child: children())
         child->internalPaint(event);
     needRepaint_ = false;
+    if (!parent_)
+        SDL_RenderPresent(renderer_);
 }
 
 bool Widget::needRepaint() const

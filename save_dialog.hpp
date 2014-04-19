@@ -13,7 +13,6 @@ public:
 private:
     Screen *screen_;
     TextFile *textFile_;
-    Coord cursor_;
     void scanDirectory();
     virtual std::wstring preInsert(Coord &cursor, std::wstring);
     virtual int preDelete(const Coord cursor, int = 1);

@@ -7,20 +7,12 @@
 
 Painter::Painter(PaintDevice *paintDevice):
     renderer_(paintDevice->renderer()),
-    gLeft_(paintDevice->gLeft()),
-    gTop_(paintDevice->gTop()),
     width_(paintDevice->width()),
     height_(paintDevice->height())
 {
     font_ = TTF_OpenFontRW(SDL_RWFromMem((void *)DejaVuSansMono, sizeof(DejaVuSansMono)), 1, 10);
     if (font_ == nullptr)
         throw std::runtime_error("TTF_OpenFont");
-    SDL_Rect rect;
-    rect.x = gLeft_;
-    rect.y = gTop_;
-    rect.w = width_;
-    rect.h = height_;
-    SDL_RenderSetClipRect(renderer_, &rect);
 }
 
 Painter::~Painter()
@@ -32,17 +24,17 @@ Painter::~Painter()
 
 void Painter::drawLine(int x1, int y1, int x2, int y2)
 {
-    SDL_RenderDrawLine(renderer_, gLeft_ + x1, gTop_ + y1, gLeft_ + x2, gTop_ + y2);
+    SDL_RenderDrawLine(renderer_, x1, y1, x2, y2);
 }
 
 void Painter::drawPoint(int x, int y)
 {
-    SDL_RenderDrawPoint(renderer_, gLeft_ + x, gTop_ + y);
+    SDL_RenderDrawPoint(renderer_, x, y);
 }
 
 void Painter::drawRect(int x, int y, int width, int height)
 {
-    SDL_Rect rect = { x + gLeft_, y + gTop_, width, height };
+    SDL_Rect rect = { x, y, width, height };
     SDL_RenderFillRect(renderer_, &rect);
 }
 
@@ -97,7 +89,7 @@ void Painter::renderGlyph(wchar_t ch, int x, int y, Color fg, Color bg)
         GlyphCacheKey key = std::make_tuple(ch, fg, bg);
         glyphCache_.insert(std::make_pair(key, std::make_tuple(texture, width, height, glyphCacheAge_.insert(end(glyphCacheAge_), key))));
     }
-    SDL_Rect rect { x + gLeft_, y + gTop_, width, height };
+    SDL_Rect rect { x, y, width, height };
     SDL_RenderCopy(renderer_, texture, nullptr, &rect);
 }
 
@@ -110,6 +102,6 @@ int Painter::glyphWidth() const
 
 int Painter::glyphHeight() const
 {
-    return TTF_FontLineSkip(font_);
+    return TTF_FontLineSkip(font_) + 1;
 }
 
