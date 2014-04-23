@@ -72,9 +72,11 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
             else
                 tabs_.closeActiveTextBuffer();
             break;
+        case KeyEvent::KPageUp:
         case KeyEvent::KLeft:
             tabs_.switchToPrevTextBuffer();
             break;
+        case KeyEvent::KPageDown:
         case KeyEvent::KRight:
             tabs_.switchToNextTextBuffer();
             break;
