@@ -48,9 +48,20 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KO:
             {
-                auto openDialog = new OpenDialog(activeScreen_);
-                connect(SIGNAL(openDialog, openFile), SLOT(this, openFile));
-                tabs_.addTextBuffer(openDialog);
+                auto tmp = std::find_if(std::begin(tabs_.textBuffersList()), 
+                                        std::end(tabs_.textBuffersList()), 
+                                        [](BaseTextBuffer *x) 
+                                        { 
+                                            return dynamic_cast<OpenDialog *>(x); 
+                                        });
+                if (tmp == std::end(tabs_.textBuffersList()))
+                {
+                    auto openDialog = new OpenDialog(activeScreen_);
+                    connect(SIGNAL(openDialog, openFile), SLOT(this, openFile));
+                    tabs_.addTextBuffer(openDialog);
+                }
+                else
+                    tabs_.setActiveTextBuffer(*tmp);
                 break;
             }
         case KeyEvent::KS:
@@ -128,7 +139,6 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
 
 void MainWindow::openFile(OpenDialog *sender, std::string fileName)
 {
-    tabs_.closeTextBuffer(sender);
     tabs_.addTextBuffer(new TextFile(fileName));
 }
 
