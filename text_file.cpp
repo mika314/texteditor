@@ -102,11 +102,15 @@ std::wstring TextFile::preInsert(Coord &cursor, std::wstring value)
     {
         auto &line = (*this)[cursor.y];
         std::wstring spaces;
+        int c = 0;
         for (auto ch: line)
             if (ch == L' ')
-                spaces += L' ';
+                ++c;
             else
                 break;
+        for (size_t x = cursor.x; x < line.size() && line[x] == ' '; ++x, --c);
+        for (int i = 0; i < c; ++i)
+            spaces += L' ';
         return L'\n' + spaces;
     }
 }
