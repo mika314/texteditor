@@ -125,12 +125,12 @@ std::pair<CppHighlighter::Type, int> CppHighlighter::getToken(int &x, int &y)
             while (!outOfRange(x, y))
             {
                 auto c = ch(x, y);
-                if (c == '\\')
+                if (c == L'\\')
                 {
                     ++count;
                     moveForward(x, y);
                     c = ch(x, y);
-                    if (iswdigit(c))
+                    if (iswdigit(c) && c != L'0')
                     {
                         ++count;
                         moveForward(x, y);
