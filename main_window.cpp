@@ -5,6 +5,7 @@
 #include "text_file.hpp"
 #include "dialog.hpp"
 #include "application.hpp"
+#include "full_file_name.hpp"
 #include <algorithm>
 #include <cassert>
 
@@ -48,13 +49,13 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KO:
             {
-                auto tmp = std::find_if(std::begin(tabs_.textBuffersList()), 
-                                        std::end(tabs_.textBuffersList()), 
+                auto &buffersList = tabs_.textBuffersList();
+                auto tmp = std::find_if(std::begin(buffersList), std::end(buffersList),
                                         [](BaseTextBuffer *x) 
                                         { 
                                             return dynamic_cast<OpenDialog *>(x); 
                                         });
-                if (tmp == std::end(tabs_.textBuffersList()))
+                if (tmp == std::end(buffersList))
                 {
                     auto openDialog = new OpenDialog(activeScreen_);
                     connect(SIGNAL(openDialog, openFile), SLOT(this, openFile));
@@ -139,7 +140,20 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
 
 void MainWindow::openFile(OpenDialog *sender, std::string fileName)
 {
-    tabs_.addTextBuffer(new TextFile(fileName));
+    auto &buffersList = tabs_.textBuffersList();
+    auto fullFileName = getFullFileName(fileName);
+    auto tmp = std::find_if(std::begin(buffersList), std::end(buffersList),
+                            [&fullFileName](BaseTextBuffer *x) 
+                            {
+                                if (auto textFile = dynamic_cast<TextFile *>(x))
+                                    return textFile->fileName() == fullFileName;
+                                else
+                                    return false;
+                            });
+    if (tmp == std::end(buffersList))
+        tabs_.addTextBuffer(new TextFile(fileName));
+    else
+        tabs_.setActiveTextBuffer(*tmp);
 }
 
 void MainWindow::saveAs(SaveDialog *sender, TextFile *textFile, std::string fileName)

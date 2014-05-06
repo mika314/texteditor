@@ -2,17 +2,9 @@
 #include "to_utf16.hpp"
 #include "to_utf8.hpp"
 #include "cpp_highlighter.hpp"
-#include "current_dir.hpp"
+#include "full_file_name.hpp"
 #include <fstream>
 #include <algorithm>
-
-static std::string getFullFileName(std::string fileName)
-{
-    if (fileName.empty() || fileName[0] == L'/') 
-        return fileName;
-    else 
-        return getCurrentDir() + '/' + fileName;
-}
 
 static std::string baseName(std::string fileName)
 {
