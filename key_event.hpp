@@ -244,14 +244,6 @@ public:
     };
     enum Modifier { 
         MNone = KMOD_NONE, // 0 (no modifier is applicable)
-        MLShift = KMOD_LSHIFT, // the left Shift key is down
-        MRShift = KMOD_RSHIFT, // the right Shift key is down
-        MLCtrl = KMOD_LCTRL, // the left Ctrl (Control) key is down
-        MRCtrl = KMOD_RCTRL, // the right Ctrl (Control) key is down
-        MLAlt = KMOD_LALT, // the left Alt key is down
-        MRAlt = KMOD_RALT, // the right Alt key is down
-        MLGui = KMOD_LGUI, // the left GUI key (often the Windows key) is down
-        MRGui = KMOD_RGUI, // the right GUI key (often the Windows key) is down
         MNum = KMOD_NUM, // the Num Lock key (may be located on an extended keypad) is down
         MCaps = KMOD_CAPS, // the Caps Lock key is down
         MMode = KMOD_MODE, // the AltGr key is down

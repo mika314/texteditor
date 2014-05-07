@@ -31,11 +31,10 @@ MainWindow::MainWindow(Widget *parent):
 
 bool MainWindow::keyPressEvent(KeyEvent &e)
 {
-    bool result1 = true;
+    bool result = true;
     switch (e.modifiers()) 
     {
-    case KeyEvent::MLCtrl:
-    case KeyEvent::MRCtrl:
+    case KeyEvent::MCtrl:
         switch (e.key())
         {
         case KeyEvent::K2:
@@ -96,11 +95,10 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
             switchToNextScreen();
             break;
         default:
-            result1 = false;
+            result = false;
         }
         break;
-    case KeyEvent::MLAlt:
-    case KeyEvent::MRAlt:
+    case KeyEvent::MAlt:
         switch (e.key())
         {
         case KeyEvent::KLeft:
@@ -110,32 +108,28 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
             switchToNextScreen();
             break;
         default:
-            result1 = false;
+            result = false;
         }
         break;
-    default:
-        result1 = false;
-    }
-
-    bool result2 = true;
-    if ((e.modifiers() & KeyEvent::MCtrl) != 0 && (e.modifiers() & KeyEvent::MShift) != 0)
-    {
-        switch (e.key())
+    case KeyEvent::MCtrl | KeyEvent::MShift:
         {
-        case KeyEvent::KLeft:
-            tabs_.moveTextBufferLeft();
-            break;
-        case KeyEvent::KRight:
-            tabs_.moveTextBufferRight();
-            break;
-        default:
-            result2 = false;
+            switch (e.key())
+            {
+            case KeyEvent::KLeft:
+                tabs_.moveTextBufferLeft();
+                break;
+            case KeyEvent::KRight:
+                tabs_.moveTextBufferRight();
+                break;
+            default:
+                result = false;
+            }
         }
+    default:
+        result = false;
     }
-    else
-        result2 = false;
 
-    return result1 || result2;
+    return result;
 }
 
 void MainWindow::openFile(OpenDialog *sender, std::string fileName)

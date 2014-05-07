@@ -102,7 +102,17 @@ int Application::exec()
                 }
             case SDL_KEYDOWN:
                 {
-                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), SDL_GetModState(), static_cast<bool>(e.key.repeat) };
+                    unsigned m = SDL_GetModState();
+                    unsigned modifiers = KeyEvent::MNone;
+                    if ((m & KMOD_LCTRL) != 0 || (m & KMOD_RCTRL) != 0)
+                        modifiers |= KeyEvent::MCtrl;
+                    if ((m & KMOD_LALT) != 0 || (m & KMOD_RALT) != 0)
+                        modifiers |= KeyEvent::MAlt;
+                    if ((m & KMOD_LSHIFT) != 0 || (m & KMOD_RSHIFT) != 0)
+                        modifiers |= KeyEvent::MShift;
+                    if ((m & KMOD_LGUI) != 0 || (m & KMOD_RGUI) != 0)
+                        modifiers |= KeyEvent::MGui;
+                    KeyEvent ke { static_cast<KeyEvent::Key>(e.key.keysym.sym), modifiers, static_cast<bool>(e.key.repeat) };
                     auto w = focusWidget();
                     if (!w)
                         w = widgetByWindowId(e.key.windowID);

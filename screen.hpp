@@ -55,6 +55,7 @@ public:
     void paste();
     void cut();
     void selectAll();
+    void startRIsearch();
     void startIsearch();
     void escStatusBar();
 protected:

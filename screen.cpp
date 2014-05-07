@@ -165,8 +165,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         };
         break;
-    case KeyEvent::MLCtrl:
-    case KeyEvent::MRCtrl:
+    case KeyEvent::MCtrl:
         switch (e.key())
         {
         case KeyEvent::KHome:
@@ -179,7 +178,6 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KV:
             paste();
-            render();
             break;
         case KeyEvent::KInsert:
         case KeyEvent::KC:
@@ -217,8 +215,7 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         }
         break;
-    case KeyEvent::MLShift:
-    case KeyEvent::MRShift:
+    case KeyEvent::MShift:
         switch (e.key())
         {
         case KeyEvent::KLeft:
@@ -247,7 +244,6 @@ bool Screen::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KInsert:
             paste();
-            render();
             break;
         case KeyEvent::KDelete:
             cut();
@@ -257,6 +253,16 @@ bool Screen::keyPressEvent(KeyEvent &e)
             result = false;
             break;
         };
+        break;
+    case KeyEvent::MCtrl | KeyEvent::MShift:
+        switch (e.key())
+        {
+        case KeyEvent::KF:
+            startRIsearch();
+            break;
+        default:
+            result = false;
+        }
         break;
     default:
         result = false;
@@ -636,10 +642,19 @@ int Screen::copy()
 
 void Screen::paste()
 {
-    setStartSelection(cursor());
-    textBuffer_->insert(cursor_, toUtf16(SDL_GetClipboardText()));
-    setStartSelection({-1, -1});
-    setEndSelection({-1, -1});
+    if (!statusBar_ || !statusBar_->textBuffer())
+    {
+        setStartSelection(cursor());
+        textBuffer_->insert(cursor_, toUtf16(SDL_GetClipboardText()));
+        setStartSelection({-1, -1});
+        setEndSelection({-1, -1});
+        render();
+    }
+    else
+    {
+        statusBar_->paste();
+        render();
+    }
 }
 
 void Screen::cut()
@@ -672,12 +687,34 @@ void Screen::startIsearch()
     {
         if (!statusBar_->textBuffer())
         {
-            statusBar_->setTextBuffer(new IsearchBuffer(this));
+            statusBar_->setTextBuffer(new IsearchBuffer(this, true));
             statusBar_->moveCursorEnd();
         }
         else
         {
             statusBar_->startIsearch();
+            render();
+        }
+    }
+}
+
+void Screen::startRIsearch()
+{
+    if (!statusBar_)
+    {
+        if (auto *buffer = dynamic_cast<IsearchBuffer *>(textBuffer_))
+            buffer->findPrev();
+    }
+    else
+    {
+        if (!statusBar_->textBuffer())
+        {
+            statusBar_->setTextBuffer(new IsearchBuffer(this, false));
+            statusBar_->moveCursorEnd();
+        }
+        else
+        {
+            statusBar_->startRIsearch();
             render();
         }
     }
