@@ -705,8 +705,6 @@ int Screen::deleteSelected()
     if (startSelection() == Coord{-1, -1} ||
         endSelection() == Coord{-1, -1})
         return 0;
-    setStartSelection(Coord{-1, -1});
-    setEndSelection(Coord{-1, -1});
     int result = getSelected().size();
     if (startSelection().y > endSelection().y ||
         (startSelection().y == endSelection().y && startSelection().x > endSelection().x))
