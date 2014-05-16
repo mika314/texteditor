@@ -9,11 +9,11 @@
 class BaseTextBuffer;
 class StatusBar;
 
-class Screen: public Widget
+class TextScreen: public Widget
 {
 public:
-    Screen(Widget * = nullptr);
-    ~Screen();
+    TextScreen(Widget * = nullptr);
+    ~TextScreen();
     struct Char
     {
         Char(wchar_t = L'\0', Color fg = Black, Color bg = White);
@@ -74,8 +74,8 @@ private:
     int prevY_;
     std::vector<std::vector<Char> > ch_;
     std::vector<std::vector<Char> > prevCh_;
-    void select(void (Screen::*moveCursor)());
-    void moveCursor(void (Screen::*moveCursor)());
+    void select(void (TextScreen::*moveCursor)());
+    void moveCursor(void (TextScreen::*moveCursor)());
     std::wstring getSelected() const;
     void render();
     int deleteSelected();

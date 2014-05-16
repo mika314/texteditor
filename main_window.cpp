@@ -17,7 +17,7 @@ MainWindow::MainWindow(Widget *parent):
     statusBar_(this),
     screenLayout_(Layout::Vertical)
 {
-    activeScreen_ = new Screen(this);
+    activeScreen_ = new TextScreen(this);
     connect(SIGNAL(&tabs_, setTextBuffer), SLOT(this, setTextBuffer));
     connect(SIGNAL(&tabs_, deleteTextBuffer), SLOT(this, deleteTextBuffer));
     activeScreen_->setStatusBar(&statusBar_);
@@ -239,7 +239,7 @@ void MainWindow::wholeScreen()
 {
     markForDeleteRecursively(&screenLayout_);
     auto screen = activeScreen_;
-    activeScreen_ = new Screen(this);
+    activeScreen_ = new TextScreen(this);
     activeScreen_->setStatusBar(&statusBar_);
     screenLayout_.addLayoutable(activeScreen_);
     activeScreen_->setTextBuffer(screen->textBuffer());
@@ -256,23 +256,23 @@ void MainWindow::split(Layout::Style style)
     layout->addLayoutable(l1);
     layout->addLayoutable(l2);
     l1->addLayoutable(activeScreen_);
-    auto s2 = new Screen(this);
+    auto s2 = new TextScreen(this);
     s2->setStatusBar(&statusBar_);
     s2->setTextBuffer(activeScreen_->textBuffer());
     l2->addLayoutable(s2);
 }
 
-static std::vector<Screen *> getListOfScreens(Layoutable *l)
+static std::vector<TextScreen *> getListOfScreens(Layoutable *l)
 {
-    std::vector<Screen *> res;
-    if (auto screen = dynamic_cast<Screen *>(l))
+    std::vector<TextScreen *> res;
+    if (auto screen = dynamic_cast<TextScreen *>(l))
         res.push_back(screen);
     else if (auto layout = dynamic_cast<Layout *>(l))
     {
         auto children = layout->children();
         for (Layoutable *child: children)
         {
-            std::vector<Screen *> tmp = getListOfScreens(child);
+            std::vector<TextScreen *> tmp = getListOfScreens(child);
             res.insert(end(res), begin(tmp), end(tmp));
         }
     }
@@ -281,7 +281,7 @@ static std::vector<Screen *> getListOfScreens(Layoutable *l)
 
 void MainWindow::switchToPrevScreen()
 {
-    std::vector<Screen *> list = getListOfScreens(&screenLayout_);
+    std::vector<TextScreen *> list = getListOfScreens(&screenLayout_);
     auto iter = std::find(begin(list), end(list), activeScreen_);
     assert(iter != end(list));
     if (iter != begin(list))
@@ -295,7 +295,7 @@ void MainWindow::switchToPrevScreen()
 
 void MainWindow::switchToNextScreen()
 {
-    std::vector<Screen *> list = getListOfScreens(&screenLayout_);
+    std::vector<TextScreen *> list = getListOfScreens(&screenLayout_);
     auto iter = std::find(begin(list), end(list), activeScreen_);
     assert(iter != end(list));
     if (iter + 1 != end(list))
@@ -314,7 +314,7 @@ void MainWindow::setTextBuffer(BaseTextBuffer *textBuffer)
 
 static void internalDeleteTextBuffer(Layoutable *l, BaseTextBuffer *textBuffer)
 {
-    if (auto screen = dynamic_cast<Screen *>(l))
+    if (auto screen = dynamic_cast<TextScreen *>(l))
     {
         if (screen->textBuffer() == textBuffer)
             screen->setTextBuffer(nullptr);

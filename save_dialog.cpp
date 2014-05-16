@@ -2,7 +2,7 @@
 #include "to_utf16.hpp"
 #include "to_utf8.hpp"
 #include "text_file.hpp"
-#include "screen.hpp"
+#include "text_screen.hpp"
 #include <sys/types.h>
 #include <dirent.h>
 #include <iostream>
@@ -12,7 +12,7 @@
 #include <unistd.h>
 #include <sys/param.h>
 
-SaveDialog::SaveDialog(Screen *screen, TextFile *textFile):
+SaveDialog::SaveDialog(TextScreen *screen, TextFile *textFile):
     screen_(screen),
     textFile_(textFile)
 {

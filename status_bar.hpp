@@ -1,7 +1,7 @@
 #pragma once
-#include "screen.hpp"
+#include "text_screen.hpp"
 
-class StatusBar: public Screen
+class StatusBar: public TextScreen
 {
 public:
     StatusBar(Widget *parent);

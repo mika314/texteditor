@@ -4,7 +4,7 @@
 #include <vector>
 
 class BaseTextBuffer;
-class Screen;
+class TextScreen;
 
 class Tabs: public Widget
 {

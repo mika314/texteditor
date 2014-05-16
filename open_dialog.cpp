@@ -2,7 +2,7 @@
 #include "to_utf16.hpp"
 #include "to_utf8.hpp"
 #include "text_file.hpp"
-#include "screen.hpp"
+#include "text_screen.hpp"
 #include "current_dir.hpp"
 #include <sys/types.h>
 #include <dirent.h>
@@ -11,7 +11,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
-OpenDialog::OpenDialog(Screen *screen):
+OpenDialog::OpenDialog(TextScreen *screen):
     screen_(screen)
 {
     scanDirectory();

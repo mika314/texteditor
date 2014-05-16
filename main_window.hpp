@@ -1,6 +1,6 @@
 #pragma once
 #include "tabs.hpp"
-#include "screen.hpp"
+#include "text_screen.hpp"
 #include "status_bar.hpp"
 #include "layout.hpp"
 #include "widget.hpp"
@@ -18,7 +18,7 @@ public:
 protected:
     virtual bool keyPressEvent(KeyEvent &);
 private:
-    Screen *activeScreen_;
+    TextScreen *activeScreen_;
     Layout layout_;
     Tabs tabs_;
     StatusBar statusBar_;

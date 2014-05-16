@@ -5,8 +5,9 @@
 #include "text_input_event.hpp"
 #include "application.hpp"
 #include "widget.hpp"
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL.h>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
 #include <stdexcept>
 #include <string>
 #include <algorithm>
@@ -16,16 +17,14 @@ Application *Application::instance_ = nullptr;
 
 Application::Application(int &argc, char **argv):
     focusWidget_(nullptr),
-    needUpdateWithoutRedraw_(nullptr),
-    lastUpdate_(0)
+    needUpdateWithoutRedraw_(nullptr)
 {
     if (instance_ != nullptr)
         throw std::runtime_error("The program can have only one instance of Application");
     instance_ = this;
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-        throw std::runtime_error("SDL_Init Error: " + std::string(SDL_GetError()));
-    if (TTF_Init() != 0)
-        throw std::runtime_error("TTF_Init error: " + std::string(SDL_GetError()));
+
+	display_ = XOpenDisplay((char *)0);
+    screen_ = DefaultScreen(display_);
 }
 
 Application::~Application()
@@ -39,7 +38,21 @@ int Application::exec()
     bool done = false;
     while (!done)
     {
-        SDL_Event e;
+        XEvent event;
+		XNextEvent(display_, &event);
+
+        if (event.type==Expose && event.xexpose.count==0) 
+        {
+            for (auto w: widgetList_)
+                if (w->needRepaint())
+                {
+                    PaintEvent e;
+                    w->internalPaint(e);
+                }
+		}
+
+
+        /*
         if (SDL_WaitEvent(&e))
         {
             switch (e.type)
@@ -180,12 +193,23 @@ int Application::exec()
             }
             lastUpdate_ = SDL_GetTicks();
         }
+        */
         for (auto obj: deletingObjects_)
             delete obj;
         deletingObjects_.clear();
     }
     return 0;
 }
+
+Display *Application::display() const
+{
+    return display_;
+}
+int Application::screen() const
+{
+    return screen_;
+}
+
 
 Application *Application::instance()
 {
@@ -200,14 +224,6 @@ void Application::addWidget(Widget *w)
 void Application::removeWidget(Widget *w)
 {
     widgetList_.erase(std::remove(begin(widgetList_), end(widgetList_), w), end(widgetList_));
-}
-
-Widget *Application::widgetByWindowId(Uint32 id)
-{
-    for (const auto w: widgetList_)
-        if (id == w->windowId())
-            return w;
-    return nullptr;
 }
 
 void Application::setFocusWidget(Widget *value)

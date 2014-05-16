@@ -1,7 +1,7 @@
 #pragma once
 #include "deliting_object.hpp"
-#include <SDL2/SDL.h>
 #include <vector>
+#include <X11/Xlib.h>
 
 class Widget;
 
@@ -17,6 +17,8 @@ public:
         deletingObjects_.push_back(new DeletingObject<T>(obj));
     }
     int exec();
+    Display *display() const;
+    int screen() const;
     static Application *instance();
 private:
     static Application *instance_;
@@ -24,10 +26,10 @@ private:
     Widget *focusWidget_;
     Widget *needUpdateWithoutRedraw_;
     std::vector<BaseDeletingObject *> deletingObjects_;
-    Uint32 lastUpdate_;
+    Display *display_;
+    int screen_;
     void addWidget(Widget *);
     void removeWidget(Widget *);
-    Widget *widgetByWindowId(Uint32);
     void setFocusWidget(Widget *);
     Widget *focusWidget() const;
     void clearFocus();

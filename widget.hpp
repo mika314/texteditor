@@ -1,7 +1,7 @@
 #pragma once
 #include "paint_device.hpp"
 #include "layoutable.hpp"
-#include <SDL2/SDL.h>
+#include <X11/Xlib.h>
 #include <vector>
 
 class KeyEvent;
@@ -10,8 +10,6 @@ class MouseEvent;
 struct ResizeEvent;
 class PaintEvent;
 class Layout;
-struct SDL_Window;
-struct SDL_Renderer;
 
 class Widget: public PaintDevice, public Layoutable
 {
@@ -34,8 +32,6 @@ public:
     void clearFocus();
     bool hasFocus();
     const std::vector<Widget *> &children() const;
-    Uint32 windowId() const;
-    virtual SDL_Renderer *renderer();
     virtual int gLeft() const;
     virtual int gTop() const;
     void update();
@@ -58,11 +54,10 @@ protected:
     virtual void paintEvent(PaintEvent &);
     virtual void resizeEvent(ResizeEvent &);
 private:
-    SDL_Window *window_;
+    Window window_;
+    GC gc_;
     Widget *parent_;
     std::vector<Widget *> children_;
-    SDL_Renderer *renderer_;
-    SDL_Texture *texture_;
     int width_;
     int height_;
     int left_;

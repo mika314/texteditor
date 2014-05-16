@@ -1,7 +1,7 @@
 #include "status_bar.hpp"
 
 StatusBar::StatusBar(Widget *parent):
-    Screen(parent)
+    TextScreen(parent)
 {}
 
 int StatusBar::maxHeight() const

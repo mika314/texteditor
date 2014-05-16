@@ -1,10 +1,10 @@
 #include "isearch_buffer.hpp"
-#include "screen.hpp"
+#include "text_screen.hpp"
 #include <cassert>
 #include <iostream>
 #include <algorithm>
 
-IsearchBuffer::IsearchBuffer(Screen *screen):
+IsearchBuffer::IsearchBuffer(TextScreen *screen):
     screen_(screen),
     initialCursor_(screen_->cursor())
 {

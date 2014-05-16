@@ -4,15 +4,15 @@
 #include "resize_event.hpp"
 #include "layout.hpp"
 #include "application.hpp"
-#include <SDL2/SDL.h>
+#include <X11/Xutil.h>
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
 #include <limits>
 
 Widget::Widget(Widget *parent):
+    window_(-1),
     parent_(parent),
-    texture_(nullptr),
     width_(640),
     height_(480),
     left_(0),
@@ -22,10 +22,22 @@ Widget::Widget(Widget *parent):
 {
     if (!parent_)
     {
-        window_ = SDL_CreateWindow("", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width(), height(), SDL_WINDOW_RESIZABLE);
-        renderer_ = SDL_CreateRenderer(window_, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE);
-        if (renderer_ == nullptr)
-            throw std::runtime_error(std::string("SDL_CreateRenderer Error: ") + SDL_GetError());
+        unsigned long black, white;
+        auto display = Application::instance()->display();
+        auto screen = Application::instance()->screen();
+        black = BlackPixel(display, screen);
+        white = WhitePixel(display, screen);
+    
+        window_ = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0,	
+                                      300, 300, 5, black, white);
+        XSetStandardProperties(display, window_, "Howdy", "Hi", None, NULL, 0, NULL);
+        XSelectInput(display, window_, ExposureMask | ButtonPressMask | KeyPressMask);
+        gc_ = XCreateGC(display, window_, 0, 0);        
+        XSetBackground(display, gc_, white);
+        XSetForeground(display, gc_, black);
+        XClearWindow(display, window_);
+        XMapRaised(display, window_);
+        
         Application::instance()->addWidget(this);
     }
     else
@@ -34,12 +46,8 @@ Widget::Widget(Widget *parent):
 
 Widget::~Widget()
 {
-    if (texture_)
-        SDL_DestroyTexture(texture_);
     if (!parent_)
     {
-        SDL_DestroyRenderer(renderer_);
-        SDL_DestroyWindow(window_);
         Application::instance()->removeWidget(this);
     }
     else
@@ -50,9 +58,6 @@ void Widget::resize(int width, int height)
 {
     width_ = width;
     height_ = height;
-    if (texture_)
-        SDL_DestroyTexture(texture_);
-    texture_ = SDL_CreateTexture(renderer(), SDL_PIXELFORMAT_RGB24, SDL_TEXTUREACCESS_TARGET, width_, height_);
 
     ResizeEvent e;
     e.width = width;
@@ -140,16 +145,6 @@ bool Widget::hasFocus()
 const std::vector<Widget *> &Widget::children() const
 {
     return children_;
-}
-
-Uint32 Widget::windowId() const
-{
-    return SDL_GetWindowID(window_);
-}
-
-SDL_Renderer *Widget::renderer()
-{
-    return ancestor()->renderer_;
 }
 
 int Widget::gLeft() const
@@ -278,30 +273,22 @@ void Widget::updateWithoutRedraw()
     r.y = gTop();
     r.w = width();
     r.h = height();
-    SDL_SetRenderTarget(renderer(), nullptr);
-    SDL_RenderCopy(renderer(), texture_, nullptr, &r);
+
     for (auto child: children())
         child->updateWithoutRedraw();
-    if (!parent_)
-        SDL_RenderPresent(renderer_);
 }
 
 void Widget::internalPaint(PaintEvent &event)
 {
-    SDL_SetRenderTarget(renderer(), texture_);
     paintEvent(event);
     SDL_Rect r;
     r.x = gLeft();
     r.y = gTop();
     r.w = width();
     r.h = height();
-    SDL_SetRenderTarget(renderer(), nullptr);
-    SDL_RenderCopy(renderer(), texture_, nullptr, &r);
     for (auto child: children())
         child->internalPaint(event);
     needRepaint_ = false;
-    if (!parent_)
-        SDL_RenderPresent(renderer_);
 }
 
 bool Widget::needRepaint() const

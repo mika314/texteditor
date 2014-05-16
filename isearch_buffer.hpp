@@ -1,15 +1,15 @@
 #pragma once
 #include "base_text_buffer.hpp"
 
-class Screen;
+class TextScreen;
 
 class IsearchBuffer: public BaseTextBuffer
 {
 public:
-    IsearchBuffer(Screen *);
+    IsearchBuffer(TextScreen *);
     void findNext();
 private:
-    Screen *screen_;
+    TextScreen *screen_;
     std::wstring searchString_;
     Coord initialCursor_;
     bool search();

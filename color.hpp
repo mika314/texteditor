@@ -1,9 +1,7 @@
 #pragma once
 #include <cstdint>
-#include <SDL2/SDL.h>
 
 typedef uint32_t Color;
-SDL_Color toSdlColor(Color);
 
 enum {
     IndianRed = 0xB0171F00,

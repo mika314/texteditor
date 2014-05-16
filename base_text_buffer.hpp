@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-class Screen;
+class TextScreen;
 
 class BaseTextBuffer
 {
@@ -21,7 +21,7 @@ public:
     bool canRedo() const;
     bool isModified() const;
     void clearModified();
-    void render(Screen *) const;
+    void render(TextScreen *) const;
     void insert(Coord &cursor, std::wstring);
     void del(Coord &cursor, int = 1);
     void backspace(Coord &cursor, int = 1);

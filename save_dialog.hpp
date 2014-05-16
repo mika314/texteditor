@@ -2,16 +2,16 @@
 #include "base_text_buffer.hpp"
 #include "signal_slot.hpp"
 
-class Screen;
+class TextScreen;
 class TextFile;
 
 class SaveDialog: public BaseTextBuffer
 {
 public:
-    SaveDialog(Screen *screen, TextFile *textFile);
+    SaveDialog(TextScreen *screen, TextFile *textFile);
     Signal<void, SaveDialog *, TextFile *, std::string> saveAs;
 private:
-    Screen *screen_;
+    TextScreen *screen_;
     TextFile *textFile_;
     void scanDirectory();
     virtual std::wstring preInsert(Coord &cursor, std::wstring);

@@ -1,5 +1,5 @@
 #include "base_text_buffer.hpp"
-#include "screen.hpp"
+#include "text_screen.hpp"
 
 BaseTextBuffer::BaseTextBuffer():
     isReadOnly_{false},
@@ -38,7 +38,7 @@ void BaseTextBuffer::redo(Coord &cursor)
 }
 
 
-void BaseTextBuffer::render(Screen *screen) const
+void BaseTextBuffer::render(TextScreen *screen) const
 {
     if (highlighter_)
         highlighter_->update({0, screen->vScroll()}, {0, screen->vScroll() + screen->heightCh()});

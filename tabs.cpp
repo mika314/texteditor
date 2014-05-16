@@ -1,7 +1,7 @@
 #include "tabs.hpp"
 #include "painter.hpp"
 #include "base_text_buffer.hpp"
-#include "screen.hpp"
+#include "text_screen.hpp"
 #include "application.hpp"
 #include <algorithm>
 
