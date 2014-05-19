@@ -30,6 +30,7 @@ private:
     int screen_;
     void addWidget(Widget *);
     void removeWidget(Widget *);
+    Widget *widgetByWindowId(Window);
     void setFocusWidget(Widget *);
     Widget *focusWidget() const;
     void clearFocus();

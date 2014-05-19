@@ -1,4 +1,5 @@
 #include "to_utf16.hpp"
+#include "to_utf8.hpp"
 #include "paint_event.hpp"
 #include "resize_event.hpp"
 #include "key_event.hpp"
@@ -38,19 +39,52 @@ int Application::exec()
     bool done = false;
     while (!done)
     {
-        XEvent event;
-		XNextEvent(display_, &event);
+        XEvent e;
+		XNextEvent(display_, &e);
 
-        if (event.type==Expose && event.xexpose.count==0) 
+        switch (e.type)
         {
-            for (auto w: widgetList_)
-                if (w->needRepaint())
+        case Expose:
+            if (e.xexpose.count == 0)
+                for (auto w: widgetList_)
+                    if (w->needRepaint())
+                    {
+                        PaintEvent e;
+                        w->internalPaint(e);
+                    }
+            break;
+		case KeyPress:
+            {
+                KeySym key;
+                char text[255];
+                auto sz = XLookupString(&e.xkey, text, 255, &key, 0);
+                if (sz > 0 && text[0] == 15)
                 {
-                    PaintEvent e;
-                    w->internalPaint(e);
+                    KeyEvent ke(KeyEvent::KO, KeyEvent::MLCtrl);
+                    auto w = focusWidget();
+                    if (!w)
+                        w = widgetByWindowId(e.xany.window);
+                    else if (w->ancestor() != widgetByWindowId(e.xany.window))
+                    {
+                        std::cerr << "Unknown windowID " << e.xany.window << std::endl;
+                        break;
+                    }
+                    while (w)
+                    {
+                        if (w->keyPressEvent(ke))
+                            break;
+                        w = w->parent();
+                    }
+                    break;
                 }
+                break;
+            }
+            break;
 		}
-
+        for (auto obj: deletingObjects_)
+            delete obj;
+        deletingObjects_.clear();
+    }
 
         /*
         if (SDL_WaitEvent(&e))
@@ -194,11 +228,15 @@ int Application::exec()
             lastUpdate_ = SDL_GetTicks();
         }
         */
-        for (auto obj: deletingObjects_)
-            delete obj;
-        deletingObjects_.clear();
-    }
     return 0;
+}
+
+Widget *Application::widgetByWindowId(Window id)
+{
+    for (const auto w: widgetList_)
+        if (id == w->windowId())
+            return w;
+    return nullptr;
 }
 
 Display *Application::display() const

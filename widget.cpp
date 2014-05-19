@@ -147,6 +147,11 @@ const std::vector<Widget *> &Widget::children() const
     return children_;
 }
 
+Window Widget::windowId() const
+{
+    return window_;
+}
+
 int Widget::gLeft() const
 {
     int res = 0;

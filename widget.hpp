@@ -32,6 +32,7 @@ public:
     void clearFocus();
     bool hasFocus();
     const std::vector<Widget *> &children() const;
+    Window windowId() const;
     virtual int gLeft() const;
     virtual int gTop() const;
     void update();
