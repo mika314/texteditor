@@ -4,6 +4,7 @@
 #include <map>
 #include <tuple>
 #include <list>
+#include <X11/Xlib.h>
 
 class PaintDevice;
 
@@ -22,4 +23,8 @@ public:
 private:
     int width_;
     int height_;
+    Window window_;
+    Display *display_;
+    GC gc_;
+    int screen_;
 };

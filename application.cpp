@@ -30,7 +30,6 @@ Application::Application(int &argc, char **argv):
 
 Application::~Application()
 {
-    SDL_Quit();
     instance_ = nullptr;
 }
 
@@ -45,9 +44,10 @@ int Application::exec()
         switch (e.type)
         {
         case Expose:
+            std::cout << "Expose" << std::endl;
             if (e.xexpose.count == 0)
                 for (auto w: widgetList_)
-                    if (w->needRepaint())
+                    if (w->needRepaint() || true)
                     {
                         PaintEvent e;
                         w->internalPaint(e);

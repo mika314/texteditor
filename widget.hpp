@@ -28,6 +28,7 @@ public:
     virtual void setTop(int);
     Widget *parent() const;
     Widget *ancestor();
+    const Widget *ancestor() const;
     void setFocus();
     void clearFocus();
     bool hasFocus();
@@ -43,6 +44,7 @@ public:
     virtual int minHeight() const;
     virtual int maxWidth() const;
     virtual int minWidth() const;
+    virtual Window window() const;
 protected:
     // some of following events handlers return bool, true means event handled and does not require handling from the parent object
     virtual bool keyPressEvent(KeyEvent &);
@@ -56,7 +58,6 @@ protected:
     virtual void resizeEvent(ResizeEvent &);
 private:
     Window window_;
-    GC gc_;
     Widget *parent_;
     std::vector<Widget *> children_;
     int width_;

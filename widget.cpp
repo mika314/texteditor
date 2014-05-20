@@ -22,22 +22,12 @@ Widget::Widget(Widget *parent):
 {
     if (!parent_)
     {
-        unsigned long black, white;
         auto display = Application::instance()->display();
-        auto screen = Application::instance()->screen();
-        black = BlackPixel(display, screen);
-        white = WhitePixel(display, screen);
-    
         window_ = XCreateSimpleWindow(display, DefaultRootWindow(display), 0, 0,	
-                                      300, 300, 5, black, white);
+                                      300, 300, 5, 0x000000, 0xffffff);
         XSetStandardProperties(display, window_, "Howdy", "Hi", None, NULL, 0, NULL);
         XSelectInput(display, window_, ExposureMask | ButtonPressMask | KeyPressMask);
-        gc_ = XCreateGC(display, window_, 0, 0);        
-        XSetBackground(display, gc_, white);
-        XSetForeground(display, gc_, black);
-        XClearWindow(display, window_);
         XMapRaised(display, window_);
-        
         Application::instance()->addWidget(this);
     }
     else
@@ -125,6 +115,13 @@ Widget *Widget::ancestor()
     return res;
 }
 
+const Widget *Widget::ancestor() const
+{
+    const Widget *res = this;
+    while (res->parent())
+        res = res->parent();
+    return res;
+}
 
 void Widget::setFocus()
 {
@@ -217,6 +214,11 @@ int Widget::minWidth() const
     return 0;
 }
 
+Window Widget::window() const
+{
+    return ancestor()->window_;
+}
+
 bool Widget::keyPressEvent(KeyEvent &)
 {
     return false;
@@ -273,12 +275,6 @@ void Widget::removeChild(Widget *w)
 
 void Widget::updateWithoutRedraw()
 {
-    SDL_Rect r;
-    r.x = gLeft();
-    r.y = gTop();
-    r.w = width();
-    r.h = height();
-
     for (auto child: children())
         child->updateWithoutRedraw();
 }
@@ -286,11 +282,6 @@ void Widget::updateWithoutRedraw()
 void Widget::internalPaint(PaintEvent &event)
 {
     paintEvent(event);
-    SDL_Rect r;
-    r.x = gLeft();
-    r.y = gTop();
-    r.w = width();
-    r.h = height();
     for (auto child: children())
         child->internalPaint(event);
     needRepaint_ = false;

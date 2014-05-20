@@ -8,6 +8,7 @@
 #include "full_file_name.hpp"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 MainWindow::MainWindow(Widget *parent):
     Widget(parent),
@@ -49,6 +50,7 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
             break;
         case KeyEvent::KO:
             {
+                std::cout << "Ctrl-O" << std::endl;
                 auto &buffersList = tabs_.textBuffersList();
                 auto tmp = std::find_if(std::begin(buffersList), std::end(buffersList),
                                         [](BaseTextBuffer *x) 
