@@ -30,7 +30,7 @@ void Tabs::closeActiveTextBuffer()
     auto iter = find(begin(textBuffersList_), end(textBuffersList_), activeTextBuffer_);
     if (iter == end(textBuffersList_))
         return;
-    deleteTextBuffer.emit(activeTextBuffer_);
+    deleteTextBuffer(activeTextBuffer_);
     Application::instance()->queueDelete(activeTextBuffer_);
     iter = textBuffersList_.erase(iter);
     
@@ -97,7 +97,7 @@ const std::vector<BaseTextBuffer *> &Tabs::textBuffersList() const
 void Tabs::setActiveTextBuffer(BaseTextBuffer *value)
 {
     activeTextBuffer_ = value;
-    setTextBuffer.emit(value);
+    setTextBuffer(value);
     update();
 }
 

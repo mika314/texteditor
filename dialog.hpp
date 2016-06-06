@@ -9,7 +9,7 @@ public:
     enum Answer { Yes = 1, No = 2, Cancel = 4};
     typedef unsigned Answers;
     Dialog(std::wstring message, Answers = Yes | No | Cancel);
-    Signal<void, Answer> result;
+  Signal<void (Answer)> result;
 private:
     std::wstring message_;
     Answers answers_;

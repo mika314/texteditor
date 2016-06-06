@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-    Application a(argc, argv);
-    MainWindow mainWindow;
-    return a.exec();
+  Application a(argc, argv);
+  MainWindow mainWindow;
+  return a.exec();
 }

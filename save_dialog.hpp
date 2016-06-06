@@ -9,7 +9,7 @@ class SaveDialog: public BaseTextBuffer
 {
 public:
     SaveDialog(Screen *screen, TextFile *textFile);
-    Signal<void, SaveDialog *, TextFile *, std::string> saveAs;
+  Signal<void (SaveDialog *, TextFile *, std::string)> saveAs;
 private:
     Screen *screen_;
     TextFile *textFile_;

@@ -1,83 +1,35 @@
 #pragma once
 
-template <typename Result, typename... Arguments>
-class BaseSlot
-{
-public:
-    virtual ~BaseSlot() {}
-    virtual Result operator()(Arguments...) = 0;
-};
+template <typename Ret, typename... Args>
+class Signal;
 
-template <typename T, typename Result, typename... Arguments>
-class Slot: public BaseSlot<Result, Arguments...>
+template <typename Ret, typename... Args>
+class Signal<Ret (Args...)>
 {
 public:
-    typedef Result (T::*Method)(Arguments...);
-    Slot(T *object, Method method):
-        object_(object),
-        method_(method)
-    {}
-    virtual Result operator()(Arguments... arguments)
-    {
-        return (object_->*method_)(arguments...);
-    }
+  template <typename Type>
+  void connect(Type *o, Ret (Type::*m)(Args...))
+  {
+    object = (FakeClass *)o;
+    typedef Ret (FakeClass::*FakeMethod)(Args...);
+    method = (FakeMethod)m;
+  }
+  Ret operator()(Args&&... args)
+  {
+    return (object->*method)(args...);
+  }
+  Ret operator()(const Args&... args)
+  {
+    return (object->*method)(args...);
+  }
 private:
-    T *object_;
-    Method method_;
+  class FakeClass {
+  public:
+    Ret defaultMethod(Args...)
+      {
+        return Ret();
+      }
+  };
+  FakeClass *object = nullptr;
+  Ret (FakeClass::*method)(Args...) = &FakeClass::defaultMethod;
 };
-
-template <typename Result, typename... Arguments>
-class Signal
-{
-public:
-    Signal():
-        slot_(nullptr)
-    {}
-    ~Signal()
-    {
-        delete slot_;
-    }
-    Result emit(Arguments... arguments)
-    {
-        if (slot_)
-            return slot_->operator()(arguments...);
-        return Result();
-    }
-    template <typename T>
-    void connect(T *object, Result (T::*method)(Arguments...))
-    {
-        delete slot_;
-        slot_ = new Slot<T, Result, Arguments...>(object, method);
-    };
-    void disconnect()
-    {
-        delete slot_;
-        slot_ = nullptr;
-    }
-private:
-    BaseSlot<Result, Arguments...> *slot_;
-};
-
-template <typename T, typename Result, typename... Arguments>
-void connect(Signal<Result, Arguments...> &signal, T *object, Result (T::*method)(Arguments...))
-{
-    signal.connect(object, method);
-}
-
-template <typename Result, typename... Arguments>
-void disconnect(Signal<Result, Arguments...> &signal)
-{
-    signal.disconnect();
-}
-
-template <typename T>
-struct RemovePointer;
-
-template <typename T>
-struct RemovePointer<T *>
-{
-    typedef T type;
-};
-
-#define SIGNAL(o, s) (o)->s
-#define SLOT(o, s) (o), &RemovePointer<decltype(o)>::type::s

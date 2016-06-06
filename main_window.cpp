@@ -18,8 +18,8 @@ MainWindow::MainWindow(Widget *parent):
     screenLayout_(Layout::Vertical)
 {
     activeScreen_ = new Screen(this);
-    connect(SIGNAL(&tabs_, setTextBuffer), SLOT(this, setTextBuffer));
-    connect(SIGNAL(&tabs_, deleteTextBuffer), SLOT(this, deleteTextBuffer));
+    tabs_.setTextBuffer.connect(this, &MainWindow::setTextBuffer);
+    tabs_.deleteTextBuffer.connect(this, &MainWindow::deleteTextBuffer);
     activeScreen_->setStatusBar(&statusBar_);
     setLayout(&layout_);
     layout_.addLayoutable(&tabs_);
@@ -58,7 +58,7 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
                 if (tmp == std::end(buffersList))
                 {
                     auto openDialog = new OpenDialog(activeScreen_);
-                    connect(SIGNAL(openDialog, openFile), SLOT(this, openFile));
+                    openDialog->openFile.connect(this, &MainWindow::openFile);
                     tabs_.addTextBuffer(openDialog);
                 }
                 else
@@ -78,7 +78,7 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
                 {
                     auto d = new Dialog(L"The file is modified. Do you want to save it before closing?");
                     statusBar_.setTextBuffer(d);
-                    connect(SIGNAL(d, result), SLOT(this, closeActiveTextBuffer));
+                    d->result.connect(this, &MainWindow::closeActiveTextBuffer);
                 }
             }
             else
@@ -185,7 +185,7 @@ void MainWindow::closeActiveTextBuffer(Dialog::Answer value)
                 auto saveDialog = new SaveDialog(activeScreen_, textFile);
                 tabs_.addTextBuffer(saveDialog);
                 activeScreen_->setCursor(0, 1);
-                connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAndClose));
+                saveDialog->saveAs.connect(this, &MainWindow::saveAndClose);
             }
             else
             {
@@ -213,7 +213,7 @@ void MainWindow::save()
             auto saveDialog = new SaveDialog(activeScreen_, textFile);
             tabs_.addTextBuffer(saveDialog);
             activeScreen_->setCursor(0, 1);
-            connect(SIGNAL(saveDialog, saveAs), SLOT(this, saveAs));
+            saveDialog->saveAs.connect(this, &MainWindow::saveAs);
         }
         else
             textFile->save();

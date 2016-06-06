@@ -8,7 +8,7 @@ class OpenDialog: public BaseTextBuffer
 {
 public:
     OpenDialog(Screen *screen);
-    Signal<void, OpenDialog *, std::string> openFile;
+  Signal<void (OpenDialog *, std::string)> openFile;
 private:
     Screen *screen_;
     void scanDirectory();

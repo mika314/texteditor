@@ -32,7 +32,11 @@ std::wstring SaveDialog::preInsert(Coord &cursor, std::wstring value)
         {
             auto folderName = buffer_[0];
             folderName = { begin(folderName) + folderName.rfind(L"/") + 1, end(folderName) - 1 };
-            chdir(fileName.c_str());
+            int res = chdir(fileName.c_str());
+            if (res != 0)
+            {
+              throw std::runtime_error(std::string("chdir ") + strerror(errno) + " " + std::to_string(errno));
+            }
             scanDirectory();
             int line = -1;
             for (size_t i = 0; i < buffer_.size(); ++i)
@@ -47,7 +51,7 @@ std::wstring SaveDialog::preInsert(Coord &cursor, std::wstring value)
                 cursor = { 0, 1 };
         }
         else
-            saveAs.emit(this, textFile_, fileName);
+            saveAs(this, textFile_, fileName);
     }
     return L"";
 }
