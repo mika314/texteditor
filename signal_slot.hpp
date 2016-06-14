@@ -1,4 +1,5 @@
 #pragma once
+#include <utility>
 
 template <typename Ret, typename... Args>
 class Signal;
@@ -16,19 +17,15 @@ public:
   }
   Ret operator()(Args&&... args)
   {
-    return (object->*method)(args...);
-  }
-  Ret operator()(const Args&... args)
-  {
-    return (object->*method)(args...);
+    return (object->*method)(std::forward<Args>(args)...);
   }
 private:
   class FakeClass {
   public:
     Ret defaultMethod(Args...)
-      {
-        return Ret();
-      }
+    {
+      return Ret();
+    }
   };
   FakeClass *object = nullptr;
   Ret (FakeClass::*method)(Args...) = &FakeClass::defaultMethod;

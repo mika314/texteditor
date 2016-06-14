@@ -6,8 +6,8 @@
 
 std::string getCurrentDir()
 {
-    char *tmp = getcwd(nullptr, MAXPATHLEN);
-    std::string result = tmp;
-    free(tmp);
-    return result;
+  char *tmp = getcwd(nullptr, MAXPATHLEN);
+  std::string result = tmp;
+  free(tmp);
+  return result;
 }

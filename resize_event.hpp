@@ -2,6 +2,6 @@
 
 struct ResizeEvent
 {
-    int width;
-    int height;
+  int width;
+  int height;
 };

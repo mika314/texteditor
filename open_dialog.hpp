@@ -7,10 +7,10 @@ class Screen;
 class OpenDialog: public BaseTextBuffer
 {
 public:
-    OpenDialog(Screen *screen);
-  Signal<void (OpenDialog *, std::string)> openFile;
+  OpenDialog(Screen *screen);
+  Signal<void (OpenDialog *, const std::string &)> openFile;
 private:
-    Screen *screen_;
-    void scanDirectory();
-    virtual void postInsert(Coord &cursor, std::wstring);
+  Screen *screen_;
+  void scanDirectory();
+  virtual void postInsert(Coord &cursor, const std::wstring &);
 };

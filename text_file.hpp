@@ -4,11 +4,11 @@
 class TextFile: public BaseTextBuffer
 {
 public:
-    TextFile(std::string fileName = "");
-    std::string fileName() const;
-    void save();
-    void saveAs(std::string fileName);
+  TextFile(const std::string &fileName = "");
+  std::string fileName() const;
+  void save();
+  void saveAs(const std::string &fileName);
 private:
-    std::string fileName_;
-    std::wstring preInsert(Coord &cursor, std::wstring);
+  std::string fileName_;
+  std::wstring preInsert(Coord &cursor, const std::wstring &);
 };

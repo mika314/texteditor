@@ -14,24 +14,24 @@ class TextFile;
 class MainWindow: public Widget
 {
 public:
-    MainWindow(Widget *parent = nullptr);
+  MainWindow(Widget *parent = nullptr);
 protected:
-    virtual bool keyPressEvent(KeyEvent &);
+  virtual bool keyPressEvent(KeyEvent &);
 private:
-    Screen *activeScreen_;
-    Layout layout_;
-    Tabs tabs_;
-    StatusBar statusBar_;
-    Layout screenLayout_;
-    void openFile(OpenDialog *, std::string);
-    void saveAs(SaveDialog *sender, TextFile *textFile, std::string fileName);
-    void saveAndClose(SaveDialog *sender, TextFile *textFile, std::string fileName);
-    void closeActiveTextBuffer(Dialog::Answer);
-    void save();
-    void wholeScreen();
-    void split(Layout::Style);
-    void switchToPrevScreen();
-    void switchToNextScreen();
-    void setTextBuffer(BaseTextBuffer *);
-    void deleteTextBuffer(BaseTextBuffer *);
+  Screen *activeScreen_;
+  Layout layout_;
+  Tabs tabs_;
+  StatusBar statusBar_;
+  Layout screenLayout_;
+  void openFile(OpenDialog *, const std::string &);
+  void saveAs(SaveDialog *sender, TextFile *textFile, const std::string &fileName);
+  void saveAndClose(SaveDialog *sender, TextFile *textFile, const std::string &fileName);
+  void closeActiveTextBuffer(Dialog::Answer);
+  void save();
+  void wholeScreen();
+  void split(Layout::Style);
+  void switchToPrevScreen();
+  void switchToNextScreen();
+  void setTextBuffer(BaseTextBuffer *);
+  void deleteTextBuffer(BaseTextBuffer *);
 };

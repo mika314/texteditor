@@ -2,21 +2,21 @@
 #include "layout.hpp"
 
 Layoutable::Layoutable():
-    parentLayout_(nullptr)
+  parentLayout_(nullptr)
 {}
 
 Layoutable::~Layoutable()
 {
-    if (parentLayout_)
-        parentLayout_->removeLayoutable(this);
+  if (parentLayout_)
+    parentLayout_->removeLayoutable(this);
 }
 
 void Layoutable::setParentLayout(Layout *value)
 {
-    parentLayout_ = value;
+  parentLayout_ = value;
 }
 
 Layout *Layoutable::parentLayout() const
 {
-    return parentLayout_;
+  return parentLayout_;
 }

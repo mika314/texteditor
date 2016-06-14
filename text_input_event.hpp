@@ -4,8 +4,8 @@
 class TextInputEvent
 {
 public:
-    TextInputEvent(std::wstring);
-    std::wstring text() const;
+  TextInputEvent(const std::wstring &);
+  std::wstring text() const;
 private:
-    std::wstring text_;
+  std::wstring text_;
 };

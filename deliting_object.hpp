@@ -3,21 +3,21 @@
 class BaseDeletingObject
 {
 public:
-    virtual ~BaseDeletingObject()
-    {}
+  virtual ~BaseDeletingObject()
+  {}
 };
 
 template <typename T>
 class DeletingObject: public BaseDeletingObject
 {
 public:
-    DeletingObject(T *obj):
-        obj_(obj)
-    {}
-    virtual ~DeletingObject()
-    {
-        delete obj_;
-    }
+  DeletingObject(T *obj):
+    obj_(obj)
+  {}
+  virtual ~DeletingObject()
+  {
+    delete obj_;
+  }
 private:
-    T *obj_;
+  T *obj_;
 };
