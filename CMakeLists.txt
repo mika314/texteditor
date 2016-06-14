@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 project(texteditor)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x -g -Wall")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -g -Wall")
 
 aux_source_directory(. SOURCE_FILES)
 add_executable(texteditor ${SOURCE_FILES})
