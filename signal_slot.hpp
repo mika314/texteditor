@@ -15,7 +15,8 @@ public:
     typedef Ret (FakeClass::*FakeMethod)(Args...);
     method = (FakeMethod)m;
   }
-  Ret operator()(Args&&... args)
+  template <typename... FuncArgs>
+  Ret operator()(FuncArgs&&... args)
   {
     return (object->*method)(std::forward<Args>(args)...);
   }
