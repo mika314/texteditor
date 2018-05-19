@@ -29,7 +29,8 @@ void OpenDialog::postInsert(Coord &cursor, const std::wstring &value)
     {
       auto folderName = buffer_[0];
       folderName = { begin(folderName) + folderName.rfind(L"/") + 1, end(folderName) - 1 };
-      chdir(fileName.c_str());
+      auto res = chdir(fileName.c_str());
+      (void)res;
       scanDirectory();
       int line = -1;
       for (size_t i = 0; i < buffer_.size(); ++i)

@@ -1,6 +1,6 @@
 #pragma once
 #include "deliting_object.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <vector>
 
 class Widget;

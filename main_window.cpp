@@ -8,6 +8,7 @@
 #include "full_file_name.hpp"
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
 MainWindow::MainWindow(Widget *parent):
   Widget(parent),
@@ -31,6 +32,7 @@ MainWindow::MainWindow(Widget *parent):
 
 bool MainWindow::keyPressEvent(KeyEvent &e)
 {
+  std::cout << __func__ << std::endl;
   bool result1 = true;
   switch (e.modifiers()) 
   {
@@ -138,7 +140,7 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
   return result1 || result2;
 }
 
-void MainWindow::openFile(OpenDialog *sender, const std::string &fileName)
+void MainWindow::openFile(OpenDialog *, const std::string &fileName)
 {
   auto &buffersList = tabs_.textBuffersList();
   auto fullFileName = getFullFileName(fileName);

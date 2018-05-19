@@ -1,7 +1,7 @@
 #pragma once
 #include "paint_device.hpp"
 #include "layoutable.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <vector>
 
 class KeyEvent;

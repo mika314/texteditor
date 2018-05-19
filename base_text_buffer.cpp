@@ -66,7 +66,7 @@ void BaseTextBuffer::render(Screen *screen) const
 }
 
 
-std::wstring BaseTextBuffer::preInsert(Coord &cursor, const std::wstring &value)
+std::wstring BaseTextBuffer::preInsert(Coord &, const std::wstring &value)
 {
   return value;
 }
@@ -88,7 +88,7 @@ void BaseTextBuffer::insert(Coord &cursor, const std::wstring &refValue)
   postInsert(cursor, value);
 }
 
-void BaseTextBuffer::postInsert(Coord &cursor, const std::wstring &value)
+void BaseTextBuffer::postInsert(Coord &, const std::wstring &)
 {
 }
 

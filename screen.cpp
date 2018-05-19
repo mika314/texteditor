@@ -287,7 +287,7 @@ bool Screen::textInputEvent(TextInputEvent &e)
   return false;
 }
 
-void Screen::resizeEvent(ResizeEvent &e)
+void Screen::resizeEvent(ResizeEvent &)
 {
   ch_.resize(heightCh());
   for (auto &r: ch_)

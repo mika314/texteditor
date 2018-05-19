@@ -40,7 +40,7 @@ Dialog::Dialog(const std::wstring &message, Answers answers):
   buffer_.push_back(tmp.str());
 }
 
-std::wstring Dialog::preInsert(Coord &cursor, const std::wstring &value)
+std::wstring Dialog::preInsert(Coord &, const std::wstring &value)
 {
   if ((answers_ & Yes) != 0 && value.find(L'y') != std::wstring::npos)
     result(Yes);
@@ -51,7 +51,7 @@ std::wstring Dialog::preInsert(Coord &cursor, const std::wstring &value)
   return L"";
 }
 
-int Dialog::preBackspace(Coord &cursor, int value)
+int Dialog::preBackspace(Coord &, int)
 {
   return 0;
 }

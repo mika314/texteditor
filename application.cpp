@@ -5,8 +5,8 @@
 #include "text_input_event.hpp"
 #include "application.hpp"
 #include "widget.hpp"
-#include <SDL2/SDL_ttf.h>
-#include <SDL2/SDL.h>
+#include <SDL_ttf.h>
+#include <SDL.h>
 #include <stdexcept>
 #include <string>
 #include <algorithm>
@@ -14,7 +14,7 @@
 
 Application *Application::instance_ = nullptr;
 
-Application::Application(int &argc, char **argv):
+Application::Application(int &, char **):
   focusWidget_(nullptr),
   needUpdateWithoutRedraw_(nullptr),
   lastUpdate_(0)
@@ -165,8 +165,9 @@ int Application::exec()
       }
     }
     const auto isEmpty = (SDL_PeepEvents(&e, 1, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) == 0);
-    if (isEmpty || SDL_GetTicks() > lastUpdate_ + 50)
+    if (isEmpty || SDL_GetTicks() > lastUpdate_ + 1000 / 60)
     {
+      auto x = SDL_GetTicks();
       for (auto w: widgetList_)
         if (w->needRepaint())
         {
@@ -179,6 +180,8 @@ int Application::exec()
         needUpdateWithoutRedraw_ = nullptr;
       }
       lastUpdate_ = SDL_GetTicks();
+      std::cout << "Update time: " << lastUpdate_ - x << " " <<
+        (lastUpdate_ - x > 0 ? 1000 / (lastUpdate_ - x) : 999)<< "fps" << std::endl;
     }
     for (auto obj: deletingObjects_)
       delete obj;

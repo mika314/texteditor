@@ -4,7 +4,7 @@
 #include "resize_event.hpp"
 #include "layout.hpp"
 #include "application.hpp"
-#include <SDL2/SDL.h>
+#include <SDL.h>
 #include <algorithm>
 #include <stdexcept>
 #include <iostream>
