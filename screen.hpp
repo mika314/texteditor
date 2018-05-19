@@ -3,7 +3,6 @@
 #include "color.hpp"
 #include "coord.hpp"
 #include "layout.hpp"
-#include "signal_slot.hpp"
 #include <string>
 
 class BaseTextBuffer;

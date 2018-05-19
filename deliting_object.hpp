@@ -3,8 +3,7 @@
 class BaseDeletingObject
 {
 public:
-  virtual ~BaseDeletingObject()
-  {}
+  virtual ~BaseDeletingObject() = default;
 };
 
 template <typename T>

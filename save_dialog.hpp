@@ -1,6 +1,6 @@
 #pragma once
 #include "base_text_buffer.hpp"
-#include "signal_slot.hpp"
+#include <functional>
 
 class Screen;
 class TextFile;
@@ -9,7 +9,7 @@ class SaveDialog: public BaseTextBuffer
 {
 public:
   SaveDialog(Screen *screen, TextFile *textFile);
-  Signal<void (SaveDialog *, TextFile *, const std::string &)> saveAs;
+  std::function<void (SaveDialog *, TextFile *, const std::string &)> saveAs;
 private:
   Screen *screen_;
   TextFile *textFile_;

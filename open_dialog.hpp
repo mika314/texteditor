@@ -1,6 +1,6 @@
 #pragma once
 #include "base_text_buffer.hpp"
-#include "signal_slot.hpp"
+#include <functional>
 
 class Screen;
 
@@ -8,7 +8,7 @@ class OpenDialog: public BaseTextBuffer
 {
 public:
   OpenDialog(Screen *screen);
-  Signal<void (OpenDialog *, const std::string &)> openFile;
+  std::function<void (OpenDialog *, const std::string &)> openFile;
 private:
   Screen *screen_;
   void scanDirectory();

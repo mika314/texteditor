@@ -4,7 +4,7 @@
 class PaintDevice
 {
 public:
-  virtual ~PaintDevice();
+  virtual ~PaintDevice() = default;
   virtual SDL_Renderer *renderer() = 0;
   virtual int width() const = 0;
   virtual int height() const = 0;

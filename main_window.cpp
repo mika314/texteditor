@@ -19,8 +19,9 @@ MainWindow::MainWindow(Widget *parent):
   screenLayout_(Layout::Vertical)
 {
   activeScreen_ = new Screen(this);
-  tabs_.setTextBuffer.connect(this, &MainWindow::setTextBuffer);
-  tabs_.deleteTextBuffer.connect(this, &MainWindow::deleteTextBuffer);
+  using namespace std::placeholders;
+  tabs_.setTextBuffer = std::bind(&MainWindow::setTextBuffer, this, _1);
+  tabs_.deleteTextBuffer = std::bind(&MainWindow::deleteTextBuffer, this, _1);
   activeScreen_->setStatusBar(&statusBar_);
   setLayout(&layout_);
   layout_.addLayoutable(&tabs_);
@@ -32,12 +33,10 @@ MainWindow::MainWindow(Widget *parent):
 
 bool MainWindow::keyPressEvent(KeyEvent &e)
 {
-  std::cout << __func__ << std::endl;
+  std::cout << __func__ << " key: " << e.key() << " modifiers: " << e.modifiers() << std::endl;
   bool result1 = true;
-  switch (e.modifiers()) 
+  if ((e.modifiers() & (KeyEvent::MLCtrl | KeyEvent::MRCtrl)) != 0)
   {
-  case KeyEvent::MLCtrl:
-  case KeyEvent::MRCtrl:
     switch (e.key())
     {
     case KeyEvent::K2:
@@ -60,7 +59,8 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
         if (tmp == std::end(buffersList))
         {
           auto openDialog = new OpenDialog(activeScreen_);
-          openDialog->openFile.connect(this, &MainWindow::openFile);
+          using namespace std::placeholders;
+          openDialog->openFile = std::bind(&MainWindow::openFile, this, _1, _2);
           tabs_.addTextBuffer(openDialog);
         }
         else
@@ -80,7 +80,8 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
         {
           auto d = new Dialog(L"The file is modified. Do you want to save it before closing?");
           statusBar_.setTextBuffer(d);
-          d->result.connect(this, &MainWindow::closeActiveTextBuffer);
+          using namespace std::placeholders;
+          d->result = std::bind(&MainWindow::closeActiveTextBuffer, this, _1);
         }
       }
       else
@@ -100,9 +101,9 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
     default:
       result1 = false;
     }
-    break;
-  case KeyEvent::MLAlt:
-  case KeyEvent::MRAlt:
+  }
+  else if ((e.modifiers() & (KeyEvent::MLAlt | KeyEvent::MRAlt)) != 0)
+  {
     switch (e.key())
     {
     case KeyEvent::KLeft:
@@ -114,13 +115,12 @@ bool MainWindow::keyPressEvent(KeyEvent &e)
     default:
       result1 = false;
     }
-    break;
-  default:
-    result1 = false;
   }
+  else
+    result1 = false;
 
   bool result2 = true;
-  if ((e.modifiers() & KeyEvent::MCtrl) != 0 && (e.modifiers() & KeyEvent::MShift) != 0)
+  if ((e.modifiers() & (KeyEvent::MCtrl | KeyEvent::MShift)) != 0)
   {
     switch (e.key())
     {
@@ -187,7 +187,8 @@ void MainWindow::closeActiveTextBuffer(Dialog::Answer value)
         auto saveDialog = new SaveDialog(activeScreen_, textFile);
         tabs_.addTextBuffer(saveDialog);
         activeScreen_->setCursor(0, 1);
-        saveDialog->saveAs.connect(this, &MainWindow::saveAndClose);
+        using namespace std::placeholders;
+        saveDialog->saveAs = std::bind(&MainWindow::saveAndClose, this, _1, _2, _3);
       }
       else
       {
@@ -215,7 +216,8 @@ void MainWindow::save()
       auto saveDialog = new SaveDialog(activeScreen_, textFile);
       tabs_.addTextBuffer(saveDialog);
       activeScreen_->setCursor(0, 1);
-      saveDialog->saveAs.connect(this, &MainWindow::saveAs);
+      using namespace std::placeholders;
+      saveDialog->saveAs = std::bind(&MainWindow::saveAs, this, _1, _2, _3);
     }
     else
       textFile->save();

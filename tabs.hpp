@@ -1,7 +1,7 @@
 #pragma once
 #include "widget.hpp"
-#include "signal_slot.hpp"
 #include <vector>
+#include <functional>
 
 class BaseTextBuffer;
 class Screen;
@@ -24,8 +24,8 @@ public:
   BaseTextBuffer *activeTextBuffer();
   virtual int maxHeight() const;
   virtual int minHeight() const;
-  Signal<void (BaseTextBuffer *)> setTextBuffer;
-  Signal<void (BaseTextBuffer *)> deleteTextBuffer;
+  std::function<void (BaseTextBuffer *)> setTextBuffer;
+  std::function<void (BaseTextBuffer *)> deleteTextBuffer;
 private:
   virtual void paintEvent(PaintEvent &);
   std::vector<BaseTextBuffer *> textBuffersList_;

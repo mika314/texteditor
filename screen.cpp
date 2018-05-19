@@ -91,6 +91,7 @@ void Screen::paintEvent(PaintEvent &)
 
 bool Screen::keyPressEvent(KeyEvent &e)
 {
+  std::cout << __func__ << " key: " << e.key() << " modifiers: " << e.modifiers() << std::endl;
   if (!textBuffer_)
     return false;
   bool result = true;
